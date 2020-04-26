@@ -3,7 +3,7 @@ import jax.numpy as jnp
 from models.metrics import accuracy
 import time
 
-def train(params, forward, data, config, optimizer=None, optimstate=None, verbose=False):
+def train(params, forward, data, config, optimizer, optimstate=None, verbose=False):
   num_epochs = config['num_epochs']
   batchsize = config['batchsize']
 
