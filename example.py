@@ -17,22 +17,19 @@ from train import train
 
 randkey = random.PRNGKey(0)
 
-layer_sizes = [data.num_pixels, 300, 300, data.num_classes]
-(randkey, _) = random.split(randkey)
-params = fc.init(layer_sizes, randkey)
-
 #define some high level constants
 config = {}
 config['num_epochs'] = num_epochs = 500
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
-batch = data.get_data_batches()
-x, y = next(batch)
-h, a = fc.batchforward(x, params)
+#build our network
+layer_sizes = [data.num_pixels, 300, 300, data.num_classes]
+(randkey, _) = random.split(randkey)
+params = fc.init(layer_sizes, randkey)
 
+#define forward, loss, and update functions:
 forward = fc.batchforward
-
 
 def loss(x, y, params):
     h, a = forward(x, params)
@@ -48,4 +45,5 @@ def sgdupdate(x, y, params, optimstate=None):
     return [(w - step_size * dw, b - step_size * db)
             for (w, b), (dw, db) in zip(params, grads)], optimstate
 
+#then train
 params, optimstate, exp_data = train(params, forward, data, config, sgdupdate, verbose=True)
