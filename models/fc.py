@@ -21,7 +21,7 @@ def init_layer(m, n, randkey):
   return weights, biases
 
 #init all the weights in a network of given size:
-def init_network(sizes, key):
+def init(sizes, key):
   keys = random.split(key, len(sizes))
   params = [init_layer(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
   return params
@@ -43,4 +43,4 @@ def forward(x, params):
   return h, a
 
 #upgrade to handle batches using 'vmap'
-batchforward = vmap(forward, in_axes=(0, None), out_axes=(0, 0))
+batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
