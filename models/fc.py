@@ -40,7 +40,7 @@ def forward(x, params):
   a.append(logits)
   logsoftmax = logits - logsumexp(logits)
   h.append(logsoftmax)
-  return h
+  return h, a
 
 #upgrade to handle batches using 'vmap'
-batchforward = vmap(forward, in_axes=(0, None), out_axes=0)
+batchforward = vmap(forward, in_axes=(0, None), out_axes=(0, 0))
