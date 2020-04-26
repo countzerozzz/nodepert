@@ -40,7 +40,7 @@ def loss(x, y, params):
     return celoss
 
 @jit
-def sgdupdate(x, y, params, loss, optimstate=None):
+def sgdupdate(x, y, params, optimstate=None):
     print('building sgdupdate.')
     #learning rate:
     step_size = 1e-3
