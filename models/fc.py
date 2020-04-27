@@ -5,7 +5,6 @@ from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
 
-
 #define element-wise relu:
 def relu(x):
   return jnp.maximum(0,x)
@@ -45,3 +44,40 @@ def forward(x, params):
 
 #upgrade to handle batches using 'vmap'
 batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+
+###################################
+# node perturbation functionality #
+###################################
+
+nodepert_noisescale = 1e-5
+
+#currently the way that random numbers are handled here isn't very safe :(
+
+#also, it's terrible to have two functions for forward passes.
+#eventually we should make a single function and give an option to sample noise...
+#otherwise we have to manually track changes between these...
+
+# noisy forward pass:
+def noisyforward(x, params, randkey):
+  h = []; a = []; xi = [];
+  h.append(x)
+
+  for (w, b) in params[:-1]:
+    act = jnp.dot(w, h[-1]) + b
+    randkey, _ = random.split(randkey)
+    noise = nodepert_noisescale*random.normal(randkey, act.shape)
+    xi.append(noise)
+    a.append(act + noise)
+    h.append(relu(a[-1]))
+
+  w, b = params[-1]
+  logits = jnp.dot(w, h[-1]) + b
+  randkey, _ = random.split(randkey)
+  noise = nodepert_noisescale*random.normal(randkey, logits.shape)
+  xi.append(noise)
+  a.append(logits + noise)
+  logsoftmax = a[-1] - logsumexp(a[-1])
+  h.append(logsoftmax)
+  return h, a, xi
+
+batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0)))
