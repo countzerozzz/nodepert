@@ -59,7 +59,7 @@ nodepert_noisescale = 1e-5
 
 # noisy forward pass:
 def noisyforward(x, params, randkey):
-  h = []; a = []; xi = [];
+  h = []; a = []; xi = []
   h.append(x)
 
   for (w, b) in params[:-1]:

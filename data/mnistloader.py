@@ -8,6 +8,8 @@ data_dir = '/tmp/tfds'
 # tfds.load returns tf.Tensors (or tf.data.Datasets if batch_size != -1)
 # You can convert them to NumPy arrays (or iterables of NumPy arrays) with tfds.dataset_as_numpy
 
+#train/test splitting functionality is only supported in newer versions of tfds.
+
 #get the dataset information first:
 _, dataset_info = tfds.load(name="mnist", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
 

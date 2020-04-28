@@ -10,15 +10,10 @@ import matplotlib
 import time, copy
 # import tensorflow as tf
 
-import importlib
-
 import models.fc as fc
 import data.mnistloader as data
 from models.losses import batchceloss
 from train import train
-
-importlib.reload(fc)
-# importlib.reload(data)
 
 randkey = random.PRNGKey(0)
 
@@ -30,19 +25,12 @@ config['num_classes'] = num_classes = data.num_classes
 
 #build our network
 layer_sizes = [data.num_pixels, 300, 300, data.num_classes]
-randkey, _ = random.split(randkey)
+(randkey, _) = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 
-tmpdata = data.get_data_batches()
-x, y = next(tmpdata)
-
 #define forward, loss, and update functions:
-#note that this doesn't currently generate new noise every time.
-randkey, _ = random.split(randkey)
-def forward(x, params):
-    h, a, xi = fc.batchnoisyforward(x, params, randkey)
-    print(xi[0][1])
-    return h, a
+forward = fc.batchforward
+noisyforward=fc.batchnoisyforward
 
 def loss(x, y, params):
     h, a = forward(x, params)
@@ -58,5 +46,37 @@ def sgdupdate(x, y, params, optimstate=None):
     return [(w - step_size * dw, b - step_size * db)
             for (w, b), (dw, db) in zip(params, grads)], optimstate
 
+#let us use the same notation as in the paper
+#this needs to be made into a vectorized function using vmap!!
+def np_grads(k):
+  grad_np=[]
+  for i in range(len(params)):
+    squiggle=params[i][2]
+    dw=np.mean(np.einsum('ki,kj,k->kji',squiggle,x[i],k),0)
+    db=np.mean(np.einsum('ki,k->ki',squiggle,k),0)
+    grad_np.append((dw,db))
+  
+  return grad_np  
+
+@jit
+def np_update(x,y,params):
+    print('building np update.')
+    h,a=forward(x, params)
+    pred=h[-1]
+    noisypred=noisyforward(x, params)
+    
+    loss=np.mean(np.square(pred-y),1)
+    noisyloss=np.mean(np.square(noisysquiggle-y),1)
+    
+    k=(noisyloss-loss)/(sigma**2)
+    grad_np=[]
+    for i in range(len(params)):
+      squiggle=params[i][2]
+      dw=np.mean(np.einsum('ki,kj,k->kji',squiggle,x[i],k),0)
+      db=np.mean(np.einsum('ki,k->ki',squiggle,k),0)
+      grad_np.append((dw,db))
+    return [(w - lr * dw, b - lr * db, squiggles)
+            for (w, b, squiggles), (dw, db) in zip(params, grad_np)]
+
 #then train
-params, optimstate, exp_data = train(params, forward, data, config, sgdupdate, verbose=True)
+params, optimstate, exp_data = train(params, forward, data, config, sgdupdate, verbose=False)
