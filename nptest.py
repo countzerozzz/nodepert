@@ -14,27 +14,35 @@ import models.fc as fc
 import data.mnistloader as data
 import models.optim as optim
 from models.losses import batchceloss
+# from models.losses import batchmseloss
 from models.metrics import accuracy
-from train import train
+import train
+
+import importlib
+importlib.reload(train)
+importlib.reload(fc)
 
 randkey = random.PRNGKey(0)
+randkey = random.PRNGKey(int(time.time()))
 
 #define some high level constants
 config = {}
-config['num_epochs'] = num_epochs = 10
+config['num_epochs'] = num_epochs = 500
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 #build our network
 layer_sizes = [data.num_pixels, 300, data.num_classes]
-(randkey, _) = random.split(randkey)
+randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 
 forward = fc.batchforward
 noisyforward=fc.batchnoisyforward
 
+
 tmpdata = data.get_data_batches()
 x, y = next(tmpdata)
+x2, y2 = next(tmpdata)
 
 
 def loss(x, y, params):
@@ -57,10 +65,11 @@ def sgdgrads(x, y, params, optimstate=None):
     return grads
 
 @jit
-def npupdate(x, y, params, optimstate=None):
+def npupdate(x, y, params, randkey, optimstate=None):
   print('building npupdate')
-  lr = 2e-4
+  lr = 2e-6
   sigma = fc.nodepert_noisescale
+  randkey, _ = random.split(randkey)
   h, a, xi = noisyforward(x, params, randkey)
   noisypred = h[-1]
   h, a = forward(x, params)
@@ -69,27 +78,17 @@ def npupdate(x, y, params, optimstate=None):
   loss = jnp.mean(jnp.square(pred - y),1)
   noisyloss = jnp.mean(jnp.square(noisypred - y),1)
 
-  k = (noisyloss - loss)/(sigma**2)
+  lossdiff = (noisyloss - loss)/(sigma**2)
 
-  # batchcompute_gradsnp=jit(vmap(compute_gradsnp, in_axes=(0,0,0), out_axes=(0)))
-  # grad_np=jnp.mean(batchcompute_gradsnp(h, xi, k), 0)
-
-  grad_np=[]
+  gradnp=[]
   for ii in range(len(params)):
-    # squiggle=xi[i]
-    dw = jnp.mean(jnp.einsum('ki,kj,k->kji', h[ii], xi[ii], k), 0)
-    db = jnp.mean(jnp.einsum('ki,k->ki', xi[ii], k), 0)
-    grad_np.append((dw,db))
-
+    tmp = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
+    dw = jnp.einsum('ij,ik->kj', h[ii], tmp)
+    db = jnp.mean(tmp, 0)
+    gradnp.append((dw,db))
 
   return [(w - lr * dw, b - lr * db)
-          for (w, b), (dw, db) in zip(params,grad_np)], optimstate
-
-# compute on larger batches and show that it is converging with sgd
-
-# gradssgd = sgdgrads(x, y, params)
-# gradsnp = npupdate(x, y, params)
-
+          for (w, b), (dw, db) in zip(params,gradnp)], optimstate
 
 # then train
-params, optimstate, exp_data = train(params, forward, data, config, npupdate, verbose=True)
+params, optimstate, exp_data = train.train(params, forward, data, config, npupdate, randkey, verbose=True)

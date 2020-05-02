@@ -1,9 +1,11 @@
 import numpy as np
 import jax.numpy as jnp
+from jax import random
 from models.metrics import accuracy
 import time
+import pdb
 
-def train(params, forward, data, config, optimizer, optimstate=None, verbose=False):
+def train(params, forward, data, config, optimizer, randkey, optimstate=None, verbose=False):
   num_epochs = config['num_epochs']
   batchsize = config['batchsize']
 
@@ -15,10 +17,14 @@ def train(params, forward, data, config, optimizer, optimstate=None, verbose=Fal
 
   print('start training...\n')
 
+  # pdb.set_trace()
+
   for epoch in range(num_epochs):
     start_time = time.time()
     for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainpercent):
-        params, optimstate = optimizer(x, y, params, optimstate)
+        randkey, _ = random.split(randkey)
+        # print(randkey)
+        params, optimstate = optimizer(x, y, params, randkey, optimstate)
 
     #run through the training set and compute the metrics:
     train_acc = []
