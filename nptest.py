@@ -73,7 +73,7 @@ def sgdgrads(x, y, params, optimstate=None):
 @jit
 def npupdate(x, y, params, randkey, optimstate=None):
   print('building npupdate')
-  lr = 2e-6
+  lr = 2e-4
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
   h, a, xi = noisyforward(x, params, randkey)

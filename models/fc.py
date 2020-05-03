@@ -4,6 +4,7 @@ from jax import random
 from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
+from jax.nn import sigmoid
 
 # define element-wise relu:
 def relu(x):
@@ -40,7 +41,7 @@ def forward(x, params):
   a.append(act)
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
-  output = jnp.tanh(a[-1])
+  output = sigmoid(a[-1])
   h.append(output)
   return h, a
 
@@ -85,7 +86,7 @@ def noisyforward(x, params, randkey):
   a.append(act + noise)
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
-  output = jnp.tanh(a[-1])
+  output = sigmoid(a[-1])
   h.append(output)
   return h, a, xi
 
