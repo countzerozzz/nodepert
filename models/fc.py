@@ -5,7 +5,7 @@ from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
 
-#define element-wise relu:
+# define element-wise relu:
 def relu(x):
   return jnp.maximum(0,x)
 
@@ -20,7 +20,7 @@ def init_layer(m, n, randkey):
 
   return weights, biases
 
-#init all the weights in a network of given size:
+# init all the weights in a network of given size:
 def init(sizes, key):
   keys = random.split(key, len(sizes))
   params = [init_layer(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
@@ -36,20 +36,27 @@ def forward(x, params):
     h.append(relu(a[-1]))
 
   w, b = params[-1]
-  logits = jnp.dot(w, h[-1]) + b
-  a.append(logits)
-  logsoftmax = logits - logsumexp(logits)
-  h.append(logsoftmax)
+  act = jnp.dot(w, h[-1]) + b
+  a.append(act)
+  # logsoftmax = a[-1] - logsumexp(a[-1])
+  # h.append(logsoftmax)
+  output = jnp.tanh(a[-1])
+  h.append(output)
   return h, a
 
-#upgrade to handle batches using 'vmap'
+# upgrade to handle batches using 'vmap'
 batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+
+# compute norms of parameters (frobenius norm for weiths, L2 for biases)
+def compute_norms(params):
+    norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
+    return norms
 
 ###################################
 # node perturbation functionality #
 ###################################
 
-nodepert_noisescale = 1e-5
+nodepert_noisescale = 1e-6
 
 #currently the way that random numbers are handled here isn't very safe :(
 
@@ -71,13 +78,15 @@ def noisyforward(x, params, randkey):
     h.append(relu(a[-1]))
 
   w, b = params[-1]
-  logits = jnp.dot(w, h[-1]) + b
+  act = jnp.dot(w, h[-1]) + b
   randkey, _ = random.split(randkey)
-  noise = nodepert_noisescale*random.normal(randkey, logits.shape)
+  noise = nodepert_noisescale*random.normal(randkey, act.shape)
   xi.append(noise)
-  a.append(logits + noise)
-  logsoftmax = a[-1] - logsumexp(a[-1])
-  h.append(logsoftmax)
+  a.append(act + noise)
+  # logsoftmax = a[-1] - logsumexp(a[-1])
+  # h.append(logsoftmax)
+  output = jnp.tanh(a[-1])
+  h.append(output)
   return h, a, xi
 
 batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0)))

@@ -2,6 +2,7 @@ import numpy as np
 import jax.numpy as jnp
 from jax import random
 from models.metrics import accuracy
+from models.fc import compute_norms
 import time
 import pdb
 
@@ -14,10 +15,9 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
   exp_data['epoch_time'] = []
   exp_data['train_acc'] = []
   exp_data['test_acc'] = []
+  exp_data['param_norms'] = []
 
   print('start training...\n')
-
-  # pdb.set_trace()
 
   for epoch in range(num_epochs):
     start_time = time.time()
@@ -42,16 +42,20 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
 
     epoch_time = time.time() - start_time
 
+    norms = compute_norms(params)
+
     #log the experiment data:
     exp_data['epoch'].append(epoch)
     exp_data['epoch_time'].append(epoch_time)
     exp_data['train_acc'].append(np.mean(train_acc))
     exp_data['test_acc'].append(np.mean(test_acc))
+    exp_data['param_norms'].append(norms)
 
     if(verbose):
       print("Epoch {} in {:0.2f} sec".format(epoch, epoch_time))
       print("Training set accuracy {}".format(train_acc))
       print("Test set accuracy {}".format(test_acc))
+      print("Final layer weight norm {}".format(norms[-1][0]))
     else:
       print('.', end='')
 

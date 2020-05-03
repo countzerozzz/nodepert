@@ -10,17 +10,23 @@ import matplotlib
 import time, copy
 # import tensorflow as tf
 
-import models.fc as fc
-import data.mnistloader as data
-import models.optim as optim
-from models.losses import batchceloss
-# from models.losses import batchmseloss
-from models.metrics import accuracy
 import train
+import models.fc as fc
+import models.optim as optim
+import data.mnistloader as data
+import models.losses as losses
+import models.metrics as metrics
 
 import importlib
 importlib.reload(train)
 importlib.reload(fc)
+importlib.reload(losses)
+importlib.reload(metrics)
+
+from models.losses import batchceloss
+from models.losses import batchmseloss
+from models.metrics import accuracy
+
 
 randkey = random.PRNGKey(0)
 randkey = random.PRNGKey(int(time.time()))
@@ -67,7 +73,7 @@ def sgdgrads(x, y, params, optimstate=None):
 @jit
 def npupdate(x, y, params, randkey, optimstate=None):
   print('building npupdate')
-  lr = 2e-6
+  lr = 5e-6
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
   h, a, xi = noisyforward(x, params, randkey)
