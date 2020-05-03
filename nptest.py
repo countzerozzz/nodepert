@@ -33,12 +33,12 @@ randkey = random.PRNGKey(int(time.time()))
 
 #define some high level constants
 config = {}
-config['num_epochs'] = num_epochs = 500
+config['num_epochs'] = num_epochs = 2000
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 #build our network
-layer_sizes = [data.num_pixels, 300, data.num_classes]
+layer_sizes = [data.num_pixels, 300, 300, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 
@@ -73,7 +73,7 @@ def sgdgrads(x, y, params, optimstate=None):
 @jit
 def npupdate(x, y, params, randkey, optimstate=None):
   print('building npupdate')
-  lr = 2e-4
+  lr = 5e-5
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
   h, a, xi = noisyforward(x, params, randkey)
