@@ -73,7 +73,7 @@ def sgdgrads(x, y, params, optimstate=None):
 @jit
 def npupdate(x, y, params, randkey, optimstate=None):
   print('building npupdate')
-  lr = 5e-6
+  lr = 2e-6
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
   h, a, xi = noisyforward(x, params, randkey)
@@ -94,7 +94,7 @@ def npupdate(x, y, params, randkey, optimstate=None):
     gradnp.append((dw,db))
 
   return [(w - lr * dw, b - lr * db)
-          for (w, b), (dw, db) in zip(params,gradnp)], optimstate
+          for (w, b), (dw, db) in zip(params,gradnp)], gradnp, optimstate
 
 # then train
 params, optimstate, exp_data = train.train(params, forward, data, config, npupdate, randkey, verbose=True)
