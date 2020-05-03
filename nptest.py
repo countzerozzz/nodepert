@@ -33,18 +33,19 @@ randkey = random.PRNGKey(int(time.time()))
 
 #define some high level constants
 config = {}
-config['num_epochs'] = num_epochs = 2000
+config['num_epochs'] = num_epochs = 4000
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 #build our network
-layer_sizes = [data.num_pixels, 300, 300, data.num_classes]
+layer_sizes = [data.num_pixels, 512, 512, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 
 forward = fc.batchforward
 noisyforward=fc.batchnoisyforward
 
+print("Network structure: {}".format(layer_sizes))
 
 tmpdata = data.get_data_batches()
 x, y = next(tmpdata)

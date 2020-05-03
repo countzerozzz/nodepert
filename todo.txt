@@ -1,0 +1,21 @@
+todo list for JAX implementation of node pert:
+
+- make the node pert gradient function use the proper batched mse loss from losses
+- refactor node perturbation nicely so that most of the gradient logic lives in fc.py rather than in nptest.py
+- implement node pert for convolutions the simple way (i.e. without jac_rev)
+  this may not be too difficult using einsum
+- build functionality to monitor the variance in the gradients across np and sgd
+- setup infrastructure for running experiments, tracking data, logging data, saving data
+- make figure1.py code that loads experiment data and plots figure 1 for paper
+
+
+
+less critical experiments to run:
+
+- build way to run node pert with a learned (rather than perfect) baseline
+- try some experiments with learning rate schedule for node pert
+- does adam help node pert?
+- start from an sgd checkpoint and continue using node pert
+  as a proxy for showing that starting from an unsupervised regime won't
+  necessarily save node pert
+- show that node pert is much more sensitive to the loss function and transfer functions
