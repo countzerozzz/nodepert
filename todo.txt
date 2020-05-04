@@ -9,6 +9,9 @@ todo list for JAX implementation of node pert:
 - make figure1.py code that loads experiment data and plots figure 1 for paper
 
 
+less critical infrastructure:
+- fix the way that random numbers work everywhere
+
 
 less critical experiments to run:
 
@@ -19,3 +22,8 @@ less critical experiments to run:
   as a proxy for showing that starting from an unsupervised regime won't
   necessarily save node pert
 - show that node pert is much more sensitive to the loss function and transfer functions
+
+
+experimental notes:
+- current code with 512-512-10 gets to 99.1% train accuracy and still climbing
+  so the basic code is working well.

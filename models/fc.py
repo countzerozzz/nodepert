@@ -45,10 +45,11 @@ def forward(x, params):
   h.append(output)
   return h, a
 
-# upgrade to handle batches using 'vmap'
 batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+# upgrade to handle batches using 'vmap'
 
 # compute norms of parameters (frobenius norm for weiths, L2 for biases)
+@jit
 def compute_norms(params):
     norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
     return norms
@@ -59,11 +60,13 @@ def compute_norms(params):
 
 nodepert_noisescale = 1e-6
 
-#currently the way that random numbers are handled here isn't very safe :(
+# currently the way that random numbers are handled here isn't very safe :(
+# this is now better, but not good...
 
-#also, it's terrible to have two functions for forward passes.
-#eventually we should make a single function and give an option to sample noise...
-#otherwise we have to manually track changes between these...
+# also, it's terrible to have two functions for forward passes.
+# eventually we should make a single function and give an option to sample noise...
+# otherwise we have to manually track changes between these...
+# this is getting worse! we're already trying both sigmoid and softmax
 
 # noisy forward pass:
 def noisyforward(x, params, randkey):

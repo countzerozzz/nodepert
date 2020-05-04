@@ -6,7 +6,7 @@ from models.fc import compute_norms
 import time
 import pdb
 
-def train(params, forward, data, config, optimizer, randkey, optimstate=None, verbose=False):
+def train(params, forward, data, config, optimizer, randkey, optimstate=None, verbose=True):
   num_epochs = config['num_epochs']
   batchsize = config['batchsize']
 
@@ -40,8 +40,6 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
       test_acc.append(accuracy(h[-1], y))
     test_acc = np.mean(test_acc)
 
-    epoch_time = time.time() - start_time
-
     param_norms = compute_norms(params)
     grad_norms = compute_norms(grads)
 
@@ -49,6 +47,8 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
     tmpdata = data.get_data_batches(batchsize=100, split=data.trainpercent)
     x, y = next(tmpdata)
     h, a = forward(x, params)
+
+    epoch_time = time.time() - start_time
 
     # log the experiment data:
     exp_data['epoch'].append(epoch)
@@ -62,8 +62,6 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
       print("Epoch {} in {:0.2f} sec".format(epoch, epoch_time))
       print("Training set accuracy {}".format(train_acc))
       print("Test set accuracy {}".format(test_acc))
-      # print("Final layer weight norm {}".format(param_norms[-1][0]))
-      # print("Final layer bias norm {}".format(param_norms[-1][0]))
       print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
       print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
       print("Norm of penultimate layer {}".format(jnp.linalg.norm(h[-2][0,:])))
