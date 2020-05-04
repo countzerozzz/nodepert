@@ -6,6 +6,9 @@ todo list for JAX implementation of node pert:
   this may not be too difficult using einsum
 - build functionality to monitor the variance in the gradients across np and sgd
 - setup infrastructure for running experiments, tracking data, logging data, saving data
+  - basic pickling should work fine. initial investigation says it looks good
+  - need to write some functions for loading network parameters into jax variables
+    because it looks like pickling makes everything into numpy variables
 - make figure1.py code that loads experiment data and plots figure 1 for paper
 
 
