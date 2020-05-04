@@ -22,6 +22,8 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
 
   for epoch in range(num_epochs):
     start_time = time.time()
+
+    # run through the data and train!
     for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainpercent):
         randkey, _ = random.split(randkey)
         params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
@@ -40,10 +42,11 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
       test_acc.append(accuracy(h[-1], y))
     test_acc = np.mean(test_acc)
 
+    # compute norms so that we can see if they blow up:
     param_norms = compute_norms(params)
     grad_norms = compute_norms(grads)
 
-    # test whether we're saturating our tanh() or having all 0s in relu layer:
+    # get data to test whether we're saturating our nonlinearites:
     tmpdata = data.get_data_batches(batchsize=100, split=data.trainpercent)
     x, y = next(tmpdata)
     h, a = forward(x, params)
