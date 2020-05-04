@@ -62,7 +62,7 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     expdata['grad_norms'].append(grad_norms)
 
     if(verbose):
-      print("Epoch {} in {:0.2f} sec".format(epoch, epoch_time))
+      print("\nEpoch {} in {:0.2f} sec".format(epoch, epoch_time))
       print("Training set accuracy {}".format(train_acc))
       print("Test set accuracy {}".format(test_acc))
       print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))

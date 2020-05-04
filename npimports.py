@@ -23,6 +23,3 @@ importlib.reload(fc)
 importlib.reload(losses)
 importlib.reload(metrics)
 importlib.reload(optim)
-
-# randkey = random.PRNGKey(0)
-randkey = random.PRNGKey(int(time.time()))
