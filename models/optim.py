@@ -21,28 +21,30 @@ def loss(x, y, params):
     return loss
 
 @jit
-def sgdupdate(x, y, params, randkey, optimstate=None):
+def sgdupdate(x, y, params, randkey, optimstate):
     print('building sgdupdate.')
-    #learning rate:
-    lr = 1e-3
+    lr = optimstate['lr']
     grads = grad(loss, argnums = (2))(x, y, params)
     return [(w - lr * dw, b - lr * db)
             for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
 
 @jit
-def npupdate(x, y, params, randkey, optimstate=None):
+def npupdate(x, y, params, randkey, optimstate):
   print('building npupdate')
-  lr = 5e-5
+  lr = optimstate['lr']
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
+
+  # forward pass with noise
   h, a, xi = noisyforward(x, params, randkey)
   noisypred = h[-1]
+
+  # forward pass with no noise
   h, a = forward(x, params)
   pred = h[-1]
 
   loss = jnp.mean(jnp.square(pred - y),1)
   noisyloss = jnp.mean(jnp.square(noisypred - y),1)
-
   lossdiff = (noisyloss - loss)/(sigma**2)
 
   grads=[]

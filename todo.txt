@@ -1,5 +1,8 @@
 todo list for JAX implementation of node pert:
 
+- bring in CIFAR and SVHN datasets and make loaders for them
+  - make these as similar as possible to the mnistloader case!
+- send message to JAX creators about how to work with convs in node perturbation
 - make the node pert gradient function use the proper batched mse loss from losses
 - refactor node perturbation nicely so that most of the gradient logic lives in fc.py rather than in nptest.py
 - implement node pert for convolutions the simple way (i.e. without jac_rev)

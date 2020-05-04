@@ -6,17 +6,17 @@ from models.fc import compute_norms
 import time
 import pdb
 
-def train(params, forward, data, config, optimizer, randkey, optimstate=None, verbose=True):
+def train(params, forward, data, config, optimizer, randkey, optimstate, verbose=True):
   num_epochs = config['num_epochs']
   batchsize = config['batchsize']
 
-  exp_data = {}
-  exp_data['epoch'] = []
-  exp_data['epoch_time'] = []
-  exp_data['train_acc'] = []
-  exp_data['test_acc'] = []
-  exp_data['param_norms'] = []
-  exp_data['grad_norms'] = []
+  expdata = {}
+  expdata['epoch'] = []
+  expdata['epoch_time'] = []
+  expdata['train_acc'] = []
+  expdata['test_acc'] = []
+  expdata['param_norms'] = []
+  expdata['grad_norms'] = []
 
   print('start training...\n')
 
@@ -54,12 +54,12 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
     epoch_time = time.time() - start_time
 
     # log the experiment data:
-    exp_data['epoch'].append(epoch)
-    exp_data['epoch_time'].append(epoch_time)
-    exp_data['train_acc'].append(np.mean(train_acc))
-    exp_data['test_acc'].append(np.mean(test_acc))
-    exp_data['param_norms'].append(param_norms)
-    exp_data['grad_norms'].append(grad_norms)
+    expdata['epoch'].append(epoch)
+    expdata['epoch_time'].append(epoch_time)
+    expdata['train_acc'].append(np.mean(train_acc))
+    expdata['test_acc'].append(np.mean(test_acc))
+    expdata['param_norms'].append(param_norms)
+    expdata['grad_norms'].append(grad_norms)
 
     if(verbose):
       print("Epoch {} in {:0.2f} sec".format(epoch, epoch_time))
@@ -75,4 +75,4 @@ def train(params, forward, data, config, optimizer, randkey, optimstate=None, ve
 
   print('finished training')
 
-  return params, optimstate, exp_data
+  return params, optimstate, expdata

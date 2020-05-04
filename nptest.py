@@ -36,18 +36,26 @@ config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 # build our network
-layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
+layer_sizes = [data.num_pixels, 5000, 5000, 5000, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
+print("Network structure: {}".format(layer_sizes))
 
 forward = fc.batchforward
 optimizer = optim.npupdate
-#optimizer = optim.sgdupdate
-
-print("Network structure: {}".format(layer_sizes))
+# optimizer = optim.sgdupdate
+optimstate = {  'lr' : 4e-6, 't' : 0 }
 
 # now train
-params, optimstate, exp_data = train.train(params, forward, data, config, optimizer, randkey, verbose=True)
+params, optimstate, exp_data = train.train( params,
+                                            forward,
+                                            data,
+                                            config,
+                                            optimizer,
+                                            randkey,
+                                            optimstate,
+                                            verbose = True)
 
+# save out results of experiment
 pickle.dump(exp_data, open("explogs/exp_data.pickle", "wb"))
 pickle.dump(params, open("explogs/params.pickle", "wb"))
