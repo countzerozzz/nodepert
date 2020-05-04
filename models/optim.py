@@ -49,9 +49,9 @@ def npupdate(x, y, params, randkey, optimstate):
 
   grads=[]
   for ii in range(len(params)):
-    tmp = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
-    dw = jnp.einsum('ij,ik->kj', h[ii], tmp)
-    db = jnp.mean(tmp, 0)
+    dh = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
+    dw = jnp.einsum('ij,ik->kj', h[ii], dh)
+    db = jnp.mean(dh, 0)
     grads.append((dw,db))
 
   return [(w - lr * dw, b - lr * db)

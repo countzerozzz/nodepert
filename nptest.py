@@ -52,10 +52,10 @@ params, optimstate, exp_data = train.train( params,
                                             data,
                                             config,
                                             optimizer,
-                                            randkey,
                                             optimstate,
+                                            randkey,
                                             verbose = True)
 
 # save out results of experiment
-pickle.dump(exp_data, open("explogs/exp_data.pickle", "wb"))
-pickle.dump(params, open("explogs/params.pickle", "wb"))
+# pickle.dump(exp_data, open("explogs/exp_data.pickle", "wb"))
+# pickle.dump(params, open("explogs/params.pickle", "wb"))

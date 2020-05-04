@@ -6,7 +6,7 @@ from models.fc import compute_norms
 import time
 import pdb
 
-def train(params, forward, data, config, optimizer, randkey, optimstate, verbose=True):
+def train(params, forward, data, config, optimizer, optimstate, randkey, verbose=True):
   num_epochs = config['num_epochs']
   batchsize = config['batchsize']
 

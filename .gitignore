@@ -1,0 +1,3 @@
+# ignore everything in the experiment log directory
+explogs/
+*.pyc
