@@ -10,7 +10,7 @@ todo list for JAX implementation of node pert:
   - need to write some functions for loading network parameters into jax variables
     because it looks like pickling makes everything into numpy variables
 - make figure1.py code that loads experiment data and plots figure 1 for paper
-
+- deprecate test.py and example.py which are both dead now
 
 less critical infrastructure:
 - fix the way that random numbers work everywhere
