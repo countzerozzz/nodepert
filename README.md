@@ -1,7 +1,9 @@
 # nodepert
 
 nodepert is a set of experiments written in Python + JAX to explore the
-node perturbation algorithm for training deep and wide neural networks.
+node perturbation algorithm for training deep and wide neural networks. A tensorflow implementation of node perturbation is available here: 
+
+https://github.com/yashsmehta/perturbations
 
 ## Installation
 
