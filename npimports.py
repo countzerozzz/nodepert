@@ -8,6 +8,8 @@ import matplotlib.pyplot as pp
 import matplotlib
 import time, copy
 import pickle
+import os
+
 
 import data.mnistloader as data
 import train
