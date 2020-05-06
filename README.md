@@ -26,7 +26,7 @@ import nptest
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## Acknowledgements
-A big thanks to the creators of JAX who were responsive in helping us get set up when the installation for JAX failed.
+A thanks to the creators of JAX who were responsive in helping us get set up when the installation for JAX failed.
 
 ## License
 ???
