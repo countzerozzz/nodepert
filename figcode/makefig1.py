@@ -2,6 +2,7 @@ import npimports
 from npimports import *
 
 import matplotlib
+import matplotlib.pyplot as pp
 
 path = "explogs/fig1exp/"
 

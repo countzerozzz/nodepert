@@ -3,19 +3,17 @@ from npimports import *
 
 randkey = random.PRNGKey(int(time.time()))
 
-data.trainsplit = 'train[:1%]'
-data.testsplit = 'test[:1%]'
+data.trainsplit = 'train[:10%]'
+data.testsplit = 'test[:10%]'
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 2
+config['num_epochs'] = num_epochs = 20
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 # build our network
-layer_sizes = [data.num_pixels, 20, 20, data.num_classes]
-randkey, _ = random.split(randkey)
-params = fc.init(layer_sizes, randkey)
+layer_sizes = [data.num_pixels, 50, 50, data.num_classes]
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
@@ -39,6 +37,8 @@ npexpdata = {}
 
 for lr in learning_rates:
     optimstate['lr'] = lr
+    randkey, _ = random.split(randkey)
+    params = fc.init(layer_sizes, randkey)
 
     # now train
     params, optimstate, expdata = train.train( params,
@@ -68,6 +68,8 @@ sgdexpdata = {}
 
 for lr in learning_rates:
     optimstate['lr'] = lr
+    randkey, _ = random.split(randkey)
+    params = fc.init(layer_sizes, randkey)
 
     # now train
     params, optimstate, expdata = train.train( params,
