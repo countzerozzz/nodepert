@@ -24,20 +24,20 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     start_time = time.time()
 
     # run through the data and train!
-    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainpercent):
+    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
         randkey, _ = random.split(randkey)
         params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
 
     # run through the training set and compute the metrics:
     train_acc = []
-    for x, y in data.get_data_batches(batchsize=1000, split=data.trainpercent):
+    for x, y in data.get_data_batches(batchsize=1000, split=data.trainsplit):
         h, a = forward(x, params)
         train_acc.append(accuracy(h[-1], y))
     train_acc = np.mean(train_acc)
 
     # run through the test set and compute the metrics:
     test_acc = []
-    for x, y in data.get_data_batches(batchsize=1000, split=data.testpercent):
+    for x, y in data.get_data_batches(batchsize=1000, split=data.testsplit):
       h, a = forward(x, params)
       test_acc.append(accuracy(h[-1], y))
     test_acc = np.mean(test_acc)
@@ -47,7 +47,7 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     grad_norms = compute_norms(grads)
 
     # get data to test whether we're saturating our nonlinearites:
-    tmpdata = data.get_data_batches(batchsize=100, split=data.trainpercent)
+    tmpdata = data.get_data_batches(batchsize=100, split=data.trainsplit)
     x, y = next(tmpdata)
     h, a = forward(x, params)
 

@@ -17,10 +17,10 @@ h, w, c = dataset_info.features['image'].shape
 num_pixels = h * w * c
 
 # select which split of the data to use:
-trainpercent = 'train[:100%]'
-testpercent = 'test[:100%]'
+trainsplit = 'train[:100%]'
+testsplit = 'test[:100%]'
 
-train_data = tfds.load(name="mnist", split=trainpercent, batch_size=-1, data_dir=data_dir, with_info=False)
+train_data = tfds.load(name="mnist", split=trainsplit, batch_size=-1, data_dir=data_dir, with_info=False)
 train_data = tfds.as_numpy(train_data)
 
 # full train set:
