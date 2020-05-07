@@ -46,7 +46,7 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     param_norms = compute_norms(params)
     grad_norms = compute_norms(grads)
 
-    # get data to test whether we're saturating our nonlinearites:
+    # get data to test whether we're saturating our nonlinearites;
     tmpdata = data.get_data_batches(batchsize=100, split=data.trainsplit)
     x, y = next(tmpdata)
     h, a = forward(x, params)
