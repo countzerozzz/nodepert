@@ -41,7 +41,3 @@ for ii, kk in zip(range(len(sgdexpdata.keys())), sgdexpdata.keys()):
     ax2.plot(epoch, acc, lw=3)
 
 fig.show()
-
-# todo:
-# run train and test set first before training epoch!
-# start from same initial parameters each time!

@@ -3,17 +3,17 @@ from npimports import *
 
 randkey = random.PRNGKey(int(time.time()))
 
-data.trainsplit = 'train[:10%]'
-data.testsplit = 'test[:10%]'
+data.trainsplit = 'train[:5%]'
+data.testsplit = 'test[:5%]'
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 200
+config['num_epochs'] = num_epochs = 20
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 # build our network
-layer_sizes = [data.num_pixels, 100, 100, data.num_classes]
+layer_sizes = [data.num_pixels, 50, 50, data.num_classes]
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params

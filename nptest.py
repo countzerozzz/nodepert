@@ -1,11 +1,13 @@
 import npimports
+import importlib
+importlib.reload(npimports)
 from npimports import *
 
 randkey = random.PRNGKey(int(time.time()))
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 20
+config['num_epochs'] = num_epochs = 100
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
@@ -20,8 +22,12 @@ forward = fc.batchforward
 optimizer = optim.sgdupdate
 optimstate = { 'lr' : 5e-5, 't' : 0 }
 
+# use this if you don't want to wait as long:
+# data.trainsplit = 'train[:5%]'
+# data.testsplit = 'test[:5%]'
+
 # now train
-params, optimstate, exp_data = train.train( params,
+params, optimstate, expdata = train.train( params,
                                             forward,
                                             data,
                                             config,
@@ -29,3 +35,8 @@ params, optimstate, exp_data = train.train( params,
                                             optimstate,
                                             randkey,
                                             verbose = True)
+# plotting:
+# import matplotlib.pyplot as pp
+# pp.plot(expdata['train_acc'])
+# pp.plot(expdata['test_acc'])
+# pp.show()

@@ -6,28 +6,8 @@ from models.fc import compute_norms
 import time
 import pdb
 
-def train(params, forward, data, config, optimizer, optimstate, randkey, verbose=True):
-  num_epochs = config['num_epochs']
-  batchsize = config['batchsize']
-
-  expdata = {}
-  expdata['epoch'] = []
-  expdata['epoch_time'] = []
-  expdata['train_acc'] = []
-  expdata['test_acc'] = []
-  expdata['param_norms'] = []
-  expdata['grad_norms'] = []
-
-  print('start training...\n')
-
-  for epoch in range(num_epochs):
-    start_time = time.time()
-
-    # run through the data and train!
-    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
-        randkey, _ = random.split(randkey)
-        params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
-
+# compute the train and test accuracy:
+def compute_metrics(params, forward, data):
     # run through the training set and compute the metrics:
     train_acc = []
     for x, y in data.get_data_batches(batchsize=1000, split=data.trainsplit):
@@ -42,26 +22,67 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
       test_acc.append(accuracy(h[-1], y))
     test_acc = np.mean(test_acc)
 
-    # compute norms so that we can see if they blow up:
-    param_norms = compute_norms(params)
-    grad_norms = compute_norms(grads)
+    return train_acc, test_acc
 
-    # get data to test whether we're saturating our nonlinearites;
-    tmpdata = data.get_data_batches(batchsize=100, split=data.trainsplit)
-    x, y = next(tmpdata)
-    h, a = forward(x, params)
+
+def train(params, forward, data, config, optimizer, optimstate, randkey, verbose=True):
+  num_epochs = config['num_epochs']
+  batchsize = config['batchsize']
+
+  # dict to store experiment data:
+  expdata = {}
+  expdata['epoch'] = []
+  expdata['epoch_time'] = []
+  expdata['train_acc'] = []
+  expdata['test_acc'] = []
+  expdata['param_norms'] = []
+  expdata['grad_norms'] = []
+
+  # compute metrics and norms before we start training:
+  train_acc, test_acc = compute_metrics(params, forward, data)
+  param_norms = compute_norms(params)
+  grad_norms = None
+
+  # log experiment data:
+  expdata['epoch'].append(0)
+  expdata['epoch_time'].append(0.0)
+  expdata['train_acc'].append(train_acc)
+  expdata['test_acc'].append(test_acc)
+  expdata['param_norms'].append(param_norms)
+  expdata['grad_norms'].append(grad_norms)
+
+  print('start training...\n')
+
+  for epoch in range(1, num_epochs+1):
+
+    start_time = time.time()
+
+    # run through the data and train!
+    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
+        randkey, _ = random.split(randkey)
+        params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
 
     epoch_time = time.time() - start_time
 
-    # log the experiment data:
+    # compute metrics and norms:
+    train_acc, test_acc = compute_metrics(params, forward, data)
+    param_norms = compute_norms(params)
+    grad_norms = compute_norms(grads)
+
+    # log experiment data:
     expdata['epoch'].append(epoch)
     expdata['epoch_time'].append(epoch_time)
-    expdata['train_acc'].append(np.mean(train_acc))
-    expdata['test_acc'].append(np.mean(test_acc))
+    expdata['train_acc'].append(train_acc)
+    expdata['test_acc'].append(test_acc)
     expdata['param_norms'].append(param_norms)
     expdata['grad_norms'].append(grad_norms)
 
     if(verbose):
+      # get data to test whether we're saturating our nonlinearites;
+      tmpdata = data.get_data_batches(batchsize=100, split=data.trainsplit)
+      x, y = next(tmpdata)
+      h, a = forward(x, params)
+
       print("\nEpoch {} in {:0.2f} sec".format(epoch, epoch_time))
       print("Training set accuracy {}".format(train_acc))
       print("Test set accuracy {}".format(test_acc))

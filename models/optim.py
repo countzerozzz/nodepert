@@ -43,6 +43,7 @@ def npupdate(x, y, params, randkey, optimstate):
   h, a = forward(x, params)
   pred = h[-1]
 
+  # should call loss function code here:
   loss = jnp.mean(jnp.square(pred - y),1)
   noisyloss = jnp.mean(jnp.square(noisypred - y),1)
   lossdiff = (noisyloss - loss)/(sigma**2)
