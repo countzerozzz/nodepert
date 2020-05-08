@@ -4,8 +4,9 @@ from jax import random
 from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
+from jax.nn import sigmoid
 
-#define element-wise relu:
+# define element-wise relu:
 def relu(x):
   return jnp.maximum(0,x)
 
@@ -20,7 +21,7 @@ def init_layer(m, n, randkey):
 
   return weights, biases
 
-#init all the weights in a network of given size:
+# init all the weights in a network of given size:
 def init(sizes, key):
   keys = random.split(key, len(sizes))
   params = [init_layer(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
@@ -36,26 +37,36 @@ def forward(x, params):
     h.append(relu(a[-1]))
 
   w, b = params[-1]
-  logits = jnp.dot(w, h[-1]) + b
-  a.append(logits)
-  logsoftmax = logits - logsumexp(logits)
-  h.append(logsoftmax)
+  act = jnp.dot(w, h[-1]) + b
+  a.append(act)
+  # logsoftmax = a[-1] - logsumexp(a[-1])
+  # h.append(logsoftmax)
+  output = sigmoid(a[-1])
+  h.append(output)
   return h, a
 
-#upgrade to handle batches using 'vmap'
 batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+# upgrade to handle batches using 'vmap'
+
+# compute norms of parameters (frobenius norm for weiths, L2 for biases)
+@jit
+def compute_norms(params):
+    norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
+    return norms
 
 ###################################
 # node perturbation functionality #
 ###################################
 
-nodepert_noisescale = 1e-5
+nodepert_noisescale = 1e-6
 
-#currently the way that random numbers are handled here isn't very safe :(
+# currently the way that random numbers are handled here isn't very safe :(
+# this is now better, but not good...
 
-#also, it's terrible to have two functions for forward passes.
-#eventually we should make a single function and give an option to sample noise...
-#otherwise we have to manually track changes between these...
+# also, it's terrible to have two functions for forward passes.
+# eventually we should make a single function and give an option to sample noise...
+# otherwise we have to manually track changes between these...
+# this is getting worse! we're already trying both sigmoid and softmax
 
 # noisy forward pass:
 def noisyforward(x, params, randkey):
@@ -71,13 +82,15 @@ def noisyforward(x, params, randkey):
     h.append(relu(a[-1]))
 
   w, b = params[-1]
-  logits = jnp.dot(w, h[-1]) + b
+  act = jnp.dot(w, h[-1]) + b
   randkey, _ = random.split(randkey)
-  noise = nodepert_noisescale*random.normal(randkey, logits.shape)
+  noise = nodepert_noisescale*random.normal(randkey, act.shape)
   xi.append(noise)
-  a.append(logits + noise)
-  logsoftmax = a[-1] - logsumexp(a[-1])
-  h.append(logsoftmax)
+  a.append(act + noise)
+  # logsoftmax = a[-1] - logsumexp(a[-1])
+  # h.append(logsoftmax)
+  output = sigmoid(a[-1])
+  h.append(output)
   return h, a, xi
 
 batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0)))
