@@ -62,12 +62,12 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         randkey, _ = random.split(randkey)
         params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
 
-    epoch_time = time.time() - start_time
-
     # compute metrics and norms:
     train_acc, test_acc = compute_metrics(params, forward, data)
     param_norms = compute_norms(params)
     grad_norms = compute_norms(grads)
+
+    epoch_time = time.time() - start_time
 
     # log experiment data:
     expdata['epoch'].append(epoch)

@@ -27,6 +27,10 @@ def init(sizes, key):
   params = [init_layer(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
   return params
 
+def copyparams(params):
+    paramcopy = [(ww.copy(), bb.copy()) for (ww, bb) in params]
+    return paramcopy
+
 # build the forward pass for a single image:
 def forward(x, params):
   h = []; a = [];
