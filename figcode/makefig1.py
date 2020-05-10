@@ -11,18 +11,18 @@ npparams = pickle.load(open(path + "npparams.pickle", "rb"))
 sgdexpdata = pickle.load(open(path + "sgdexpdata.pickle", "rb"))
 sgdparams = pickle.load(open(path + "sgdparams.pickle", "rb"))
 
-path = "explogs/fig1exp_firstrun/"
-
-npexpdata2 = pickle.load(open(path + "npexpdata.pickle", "rb"))
-npparams2 = pickle.load(open(path + "npparams.pickle", "rb"))
-sgdexpdata2 = pickle.load(open(path + "sgdexpdata.pickle", "rb"))
-sgdparams2 = pickle.load(open(path + "sgdparams.pickle", "rb"))
-
-# merge data:
-for (kk,vv) in npexpdata2.items():
-    npexpdata.update({kk:vv})
-for (kk,vv) in sgdexpdata2.items():
-    sgdexpdata.update({kk:vv})
+# path = "explogs/fig1exp_firstrun/"
+#
+# npexpdata2 = pickle.load(open(path + "npexpdata.pickle", "rb"))
+# npparams2 = pickle.load(open(path + "npparams.pickle", "rb"))
+# sgdexpdata2 = pickle.load(open(path + "sgdexpdata.pickle", "rb"))
+# sgdparams2 = pickle.load(open(path + "sgdparams.pickle", "rb"))
+#
+# # merge data:
+# for (kk,vv) in npexpdata2.items():
+#     npexpdata.update({kk:vv})
+# for (kk,vv) in sgdexpdata2.items():
+#     sgdexpdata.update({kk:vv})
 
 fig, ax1 = pp.subplots()
 

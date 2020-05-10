@@ -26,7 +26,7 @@ optimizer = optim.npupdate
 optimstate = { 'lr' : 5e-5, 't' : 0 }
 
 # learning_rates = [1e-7, 1e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]
-learning_rates = [5e-5, 5e-4, 5e-3, 5e-2]
+learning_rates = [1e-4, 2e-4, 4e-4]
 
 # define the experiment results directory
 path = "explogs/fig1exp/"
