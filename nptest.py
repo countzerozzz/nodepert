@@ -19,8 +19,8 @@ print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = fc.batchforward
-optimizer = optim.sgdupdate
-optimstate = { 'lr' : 5e-5, 't' : 0 }
+optimizer = optim.npupdate
+optimstate = { 'lr' : 3e-4, 't' : 0 }
 
 # use this if you don't want to wait as long:
 # data.trainsplit = 'train[:5%]'
