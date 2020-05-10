@@ -90,6 +90,7 @@ for lr in learning_rates:
     delta_l=[]
     optimstate = { 'lr' : lr, 't' : 0 }
 
+    #set the percentage of test samples which should be averaged over, while calculating delta_L 
     for x, y in data.get_data_batches(batchsize=100, split='test[:20%]'):
         params_new, grads, optimstate = get_new_params(x, y, params, randkey, optimstate)
         delta_l.append(loss(x,y, params_new) - loss(x,y, params))
