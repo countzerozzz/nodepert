@@ -1,9 +1,6 @@
 import npimports
 from npimports import *
 
-import matplotlib
-import matplotlib.pyplot as pp
-
 path = "explogs/fig1exp/"
 
 npexpdata = pickle.load(open(path + "npexpdata.pickle", "rb"))

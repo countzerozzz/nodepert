@@ -3,6 +3,18 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+randkey = random.PRNGKey(0)
+
+# define the experiment results directory
+path = "explogs/fig2exp/"
+try:
+    os.mkdir(path)
+except OSError:
+    print ("creation of directory %s failed" % path)
+else:
+    print ("created the directory %s " % path)
+
+
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(5)
 
@@ -11,6 +23,7 @@ batchsize = 100
 train_lr = 5e-3
 # the points along the training trajectory which we want to compute linesearch
 linesearch_points=[0.93]
+expdata={}
 
 def linesearch_fn(randkey, start, stop, num):
     learning_rates=np.logspace(start, stop, num, endpoint=True, base=10, dtype=np.float32)
@@ -52,12 +65,13 @@ ptr=0
 
 for epoch in range(1, num_epochs+1):
     train_acc, test_acc = train.compute_metrics(params, forward, data)
+    train_acc = round(train_acc,3)
     
     if(train_acc > linesearch_points[ptr]):
-        print('\ncomputing linesearch, network snapshot @ {} train acc'.format(round(train_acc,3)))
+        print('\ncomputing linesearch, network snapshot @ {} train acc'.format(train_acc))
         start_time = time.time()
         #between base^(start) and base^(stop), will perform linesearch for these many values in a loginterval
-        print(linesearch_fn(randkey, start=-1, stop=-5, num=25))
+        expdata.update({train_acc : linesearch_fn(randkey, start=-1, stop=-5, num=25)})
         print('time to perform linesearch : ', round((time.time()-start_time), 2), ' s')
         ptr+=1
         if(ptr==len(linesearch_points)):
@@ -75,3 +89,5 @@ for epoch in range(1, num_epochs+1):
 
 print('training complete!\n')
 
+# save out results of experiment
+pickle.dump(expdata, open(path + "linesearch_data.pickle", "wb"))
