@@ -18,13 +18,10 @@ def loss_fn(x, y, params):
 def new_params(x, y, params, randkey, optimstate, update_step):
     lr = optimstate['lr']
     #cannot branch on concrete values in a jit function
-    if(update_step.shape[0] == 1):
-        h, a = forward(x, params)
-        pred = h[-1]
-        loss = jnp.mean(jnp.square(pred - y),1)
+    if(update_step.shape[0] == 2):
         grads = grad(loss_fn, argnums = (2))(x, y, params)
 
-    elif (update_step.shape[0] == 2):    
+    elif (update_step.shape[0] == 1):    
         sigma = fc.nodepert_noisescale
         randkey, _ = random.split(randkey)
 

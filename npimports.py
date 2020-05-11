@@ -13,7 +13,7 @@ import os
 
 import data.mnistloader as data
 import train
-import experiments.compute_linesearch as compute_linesearch
+import analysis.compute_linesearch as compute_linesearch
 import models.fc as fc
 import models.optim as optim
 import models.losses as losses
