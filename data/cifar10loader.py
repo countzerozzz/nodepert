@@ -9,7 +9,7 @@ data_dir = '/tmp/tfds'
 # you can convert them to NumPy arrays (or iterables of NumPy arrays) with tfds.dataset_as_numpy
 
 # get the dataset information first:
-_, dataset_info = tfds.load(name="mnist", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
+_, dataset_info = tfds.load(name="cifar10", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
 
 # compute dimensions using the dataset information
 num_classes = dataset_info.features['label'].num_classes
@@ -20,17 +20,18 @@ num_pixels = height * width * channels
 trainsplit = 'train[:100%]'
 testsplit = 'test[:100%]'
 
-train_data = tfds.load(name="mnist", split=trainsplit, batch_size=-1, data_dir=data_dir, with_info=False)
+train_data = tfds.load(name="cifar10", split=trainsplit, batch_size=-1, data_dir=data_dir, with_info=False)
 train_data = tfds.as_numpy(train_data)
 
 # full train set:
 train_images = train_data['image']
 
-# compute essential statistics for the dataset on the full trainset:
-data_minval = train_images.min()
-data_mean = train_images.mean()
-data_minval = train_images.max()
-data_stddev = train_images.std()
+# compute essential statistics on the full trainset (per channel):
+for cc in range(channels):
+    data_minval = train_images.min()
+    data_mean = train_images.mean()
+    data_minval = train_images.max()
+    data_stddev = train_images.std()
 
 # create a one-hot encoding of x of size k:
 def one_hot(x, k, dtype=np.float32):

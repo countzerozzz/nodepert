@@ -49,9 +49,7 @@ def npupdate(x, y, params, randkey, optimstate):
   grads=[]
   for ii in range(len(params)):
     dh = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
-    #! this takes the sum and not the mean. Taking the mean, 14x slower on CPU, (I think not affected on the GPU)
-    dw = jnp.einsum('ij,ik->kj', h[ii], dh)
-    # dw = jnp.mean(jnp.einsum('ij,ik->ikj', h[ii], dh), 0)
+    dw = jnp.einsum('ij,ik->kj', h[ii], dh) / x.shape[0]
     db = jnp.mean(dh, 0)
     grads.append((dw,db))
 

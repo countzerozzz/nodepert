@@ -26,7 +26,7 @@ optimizer = optim.npupdate
 optimstate = { 'lr' : 5e-5, 't' : 0 }
 
 # learning_rates = [1e-7, 1e-6, 1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2, 5e-2, 1e-1]
-learning_rates = [1e-4, 2e-4, 4e-4]
+learning_rates = [1.25e-4, 1.5e-4]
 
 # define the experiment results directory
 path = "explogs/fig1exp/"
@@ -62,29 +62,29 @@ pickle.dump(npparams, open(path + "npparams.pickle", "wb"))
 
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
-optimizer = optim.sgdupdate
-optimstate = { 'lr' : 5e-5, 't' : 0 }
-
-sgdparams = {}
-sgdexpdata = {}
-
-for lr in learning_rates:
-    optimstate['lr'] = lr
-    params = fc.copyparams(origparams)
-
-    # now train
-    params, optimstate, expdata = train.train( params,
-                                               forward,
-                                               data,
-                                               config,
-                                               optimizer,
-                                               optimstate,
-                                               randkey,
-                                               verbose = True)
-    sgdparams.update({lr : params})
-    sgdexpdata.update({lr : expdata})
-
-# save out results of experiment
-pickle.dump(sgdexpdata, open(path + "sgdexpdata.pickle", "wb"))
-pickle.dump(sgdparams, open(path + "sgdparams.pickle", "wb"))
+# forward = fc.batchforward
+# optimizer = optim.sgdupdate
+# optimstate = { 'lr' : 5e-5, 't' : 0 }
+#
+# sgdparams = {}
+# sgdexpdata = {}
+#
+# for lr in learning_rates:
+#     optimstate['lr'] = lr
+#     params = fc.copyparams(origparams)
+#
+#     # now train
+#     params, optimstate, expdata = train.train( params,
+#                                                forward,
+#                                                data,
+#                                                config,
+#                                                optimizer,
+#                                                optimstate,
+#                                                randkey,
+#                                                verbose = True)
+#     sgdparams.update({lr : params})
+#     sgdexpdata.update({lr : expdata})
+#
+# # save out results of experiment
+# pickle.dump(sgdexpdata, open(path + "sgdexpdata.pickle", "wb"))
+# pickle.dump(sgdparams, open(path + "sgdparams.pickle", "wb"))
