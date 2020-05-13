@@ -38,6 +38,7 @@ def new_params(x, y, params, randkey, optimstate, update_step):
         grads=[]
         for ii in range(len(params)):
             dh = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
+            # dw = jnp.mean(jnp.einsum('ij,ik->ikj', h[ii], dh), 0)
             dw = jnp.einsum('ij,ik->kj', h[ii], dh)
             db = jnp.mean(dh, 0)
             grads.append((dw,db))

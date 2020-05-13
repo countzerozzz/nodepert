@@ -22,7 +22,6 @@ def loss(x, y, params):
 
 @jit
 def sgdupdate(x, y, params, randkey, optimstate):
-    print('building sgdupdate.')
     lr = optimstate['lr']
     grads = grad(loss, argnums = (2))(x, y, params)
     return [(w - lr * dw, b - lr * db)
@@ -30,7 +29,6 @@ def sgdupdate(x, y, params, randkey, optimstate):
 
 @jit
 def npupdate(x, y, params, randkey, optimstate):
-  print('building npupdate')
   lr = optimstate['lr']
   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
@@ -51,7 +49,9 @@ def npupdate(x, y, params, randkey, optimstate):
   grads=[]
   for ii in range(len(params)):
     dh = jnp.einsum('ij,i->ij', xi[ii], lossdiff)
+    #! this takes the sum and not the mean. Taking the mean, 14x slower on CPU, (I think not affected on the GPU)
     dw = jnp.einsum('ij,ik->kj', h[ii], dh)
+    # dw = jnp.mean(jnp.einsum('ij,ik->ikj', h[ii], dh), 0)
     db = jnp.mean(dh, 0)
     grads.append((dw,db))
 
