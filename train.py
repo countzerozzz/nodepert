@@ -89,8 +89,8 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
       print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
       print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
       print("Norm of penultimate layer {}".format(jnp.linalg.norm(h[-2][0,:])))
-      print("Sample penultimate layer {}".format(h[-2][0,0:5]))
-      print("Sample final layer {}".format(h[-1][0,0:5]))
+      # print("Sample penultimate layer {}".format(h[-2][0,0:5]))
+      # print("Sample final layer {}".format(h[-1][0,0:5]))
     else:
       print('.', end='')
 

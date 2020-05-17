@@ -12,10 +12,10 @@ config['batchsize'] = batchsize = 100
 
 config['num_classes'] = num_classes = data.num_classes
 # build our network
-layer_sizes = [data.num_pixels, 50, 50, data.num_classes]
-randkey, _ = random.split(randkey)
-params = fc.init(layer_sizes, randkey)
-print("Network structure: {}".format(layer_sizes))
+# layer_sizes = [data.num_pixels, 50, 50, data.num_classes]
+# randkey, _ = random.split(randkey)
+# params = fc.init(layer_sizes, randkey)
+# print("Network structure: {}".format(layer_sizes))
 
 optimstate = { 'lr' : 1e-3, 't' : 0 }
 
@@ -23,13 +23,23 @@ x, y = next(data.get_data_batches())
 
 randkey, _ = random.split(randkey)
 
-h, a, xi, aux = fc.batchnewnoisyforward(x, params, randkey)
+#format (kernel height, kernel width, input channels, output channels)
+convlayer_sizes = [(3, 3, 1, 32), (3, 3, 32, 32), (3, 3, 32, 32)]
+fclayer_sizes = [conv.imgheight*conv.imgwidth*convlayer_sizes[-1][-1] , data.num_classes]
 
-optim.nploss(x, y, params, randkey)
+randkey, _ = random.split(randkey)
+convparams = conv.init_convlayers(convlayer_sizes, randkey)
+randkey, _ = random.split(randkey)
+fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 
-optim.newnpupdate(x, y, params, randkey, optimstate)
+convnetparams = convparams
+convnetparams.append(fcparams)
 
-# optim.
+# h, a = conv.batchforward(x, convnetparams)
+
+h, a, xi, aux = conv.batchnoisyforward(x, convnetparams, randkey)
+
+
 
 
 # # get forward pass, optimizer, and optimizer state + params

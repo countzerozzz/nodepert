@@ -8,12 +8,12 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 import models.fc as fc
+import models.conv as conv
 import models.losses as losses
 
 batchmseloss = losses.batchmseloss
 forward = fc.batchforward
-noisyforward=fc.batchnoisyforward
-newnoisyforward=fc.batchnewnoisyforward
+noisyforward = fc.batchnoisyforward
 
 
 # this is terrible! we should factor out the loss in this file or something
@@ -38,7 +38,7 @@ def nploss(x, y, params, randkey):
   randkey, _ = random.split(randkey)
 
   # forward pass with noise
-  h, a, xi, aux = newnoisyforward(x, params, randkey)
+  h, a, xi, aux = noisyforward(x, params, randkey)
   noisypred = h[-1]
 
   # forward pass with no noise

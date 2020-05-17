@@ -73,37 +73,8 @@ nodepert_noisescale = 1e-6
 # otherwise we have to manually track changes between these...
 # this is getting worse! we're already trying both sigmoid and softmax
 
-# noisy forward pass:
-def noisyforward(x, params, randkey):
-  h = []; a = []; xi = []
-  h.append(x)
-
-  for (w, b) in params[:-1]:
-    act = jnp.dot(w, h[-1]) + b
-    randkey, _ = random.split(randkey)
-    noise = nodepert_noisescale*random.normal(randkey, act.shape)
-    xi.append(noise)
-    a.append(act + noise)
-    h.append(relu(a[-1]))
-
-  w, b = params[-1]
-  act = jnp.dot(w, h[-1]) + b
-  randkey, _ = random.split(randkey)
-  noise = nodepert_noisescale*random.normal(randkey, act.shape)
-  xi.append(noise)
-  a.append(act + noise)
-  # logsoftmax = a[-1] - logsumexp(a[-1])
-  # h.append(logsoftmax)
-  output = sigmoid(a[-1])
-  h.append(output)
-  return h, a, xi
-
-batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0)))
-
-
-
 # new noisy forward pass:
-def newnoisyforward(x, params, randkey):
+def noisyforward(x, params, randkey):
   h = []; a = []; xi = []; aux = []
   h.append(x)
 
@@ -132,4 +103,33 @@ def newnoisyforward(x, params, randkey):
   h.append(output)
   return h, a, xi, aux
 
-batchnewnoisyforward = jit(vmap(newnoisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0)))
+batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0)))
+
+
+
+# noisy forward pass: (old version)
+# def noisyforward(x, params, randkey):
+#   h = []; a = []; xi = []
+#   h.append(x)
+#
+#   for (w, b) in params[:-1]:
+#     act = jnp.dot(w, h[-1]) + b
+#     randkey, _ = random.split(randkey)
+#     noise = nodepert_noisescale*random.normal(randkey, act.shape)
+#     xi.append(noise)
+#     a.append(act + noise)
+#     h.append(relu(a[-1]))
+#
+#   w, b = params[-1]
+#   act = jnp.dot(w, h[-1]) + b
+#   randkey, _ = random.split(randkey)
+#   noise = nodepert_noisescale*random.normal(randkey, act.shape)
+#   xi.append(noise)
+#   a.append(act + noise)
+#   # logsoftmax = a[-1] - logsumexp(a[-1])
+#   # h.append(logsoftmax)
+#   output = sigmoid(a[-1])
+#   h.append(output)
+#   return h, a, xi
+#
+# batchnoisyforward = jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0)))
