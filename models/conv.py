@@ -14,20 +14,18 @@ def relu(x):
 #helper function to init conv layer:
 def init_convlayer(kernel_height, kernel_width, input_channels, output_channels, key):
 
-  # use he style scaling (not glorot):
-  std = 1e-2*np.sqrt(2.0 / kernel_height*kernel_width*input_channels)
-  bound = np.sqrt(3.0) * std
+  # use he style scaling (not glorot) https://arxiv.org/pdf/1502.01852.pdf:
+  std = np.sqrt(2.0 / (kernel_height*kernel_width*input_channels))
 
   #make HWIO kernel -- note this seems wrong!!! HWOI??? bad naming???
   #NOTICE: ordering changes from argument ordering!!!
   w_key, b_key = random.split(key)
-  kernel = random.uniform(w_key,
-                          (kernel_height, kernel_width, output_channels, input_channels),
-                          minval=-bound, maxval=bound)
+  kernel = std*random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
 
   #for conv layers there are typically only 1 bias per channel
   biases = jnp.zeros((output_channels,))
   return kernel, biases
+
 
 #init all the conv layers in a network of given size:
 def init_convlayers(sizes, key):
