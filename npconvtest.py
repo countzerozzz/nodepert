@@ -20,6 +20,7 @@ config['num_classes'] = num_classes = data.num_classes
 
 
 
+
 #format (kernel height, kernel width, input channels, output channels)
 convlayer_sizes = [(3, 3, 1, 32), (3, 3, 32, 32), (3, 3, 32, 32)]
 fclayer_sizes = [conv.imgheight*conv.imgwidth*convlayer_sizes[-1][-1] , data.num_classes]
@@ -32,15 +33,18 @@ fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 convnetparams = convparams
 convnetparams.append(fcparams)
 
-
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
-optimizer = optim.sgdupdate
-optimstate = { 'lr' : 1e-4, 't' : 0 }
+optimizer = optim.npupdate
+optimstate = { 'lr' : 1e-3, 't' : 0 }
 
 # use this if you don't want to wait as long:
 # data.trainsplit = 'train[:5%]'
 # data.testsplit = 'test[:5%]'
+
+x, y = next(data.get_data_batches())
+
+# params, grads, optimstate = optimizer(x, y, convparams, randkey, optimstate)
 
 # now train
 params, optimstate, expdata = train.train(  convparams,
@@ -51,6 +55,9 @@ params, optimstate, expdata = train.train(  convparams,
                                             optimstate,
                                             randkey,
                                             verbose = True)
+
+
+
 # plotting:
 # import matplotlib.pyplot as pp
 # pp.plot(expdata['train_acc'])

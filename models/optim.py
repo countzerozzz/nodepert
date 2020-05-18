@@ -15,12 +15,14 @@ batchmseloss = losses.batchmseloss
 forward = fc.batchforward
 noisyforward = fc.batchnoisyforward
 
+# forward = conv.batchforward
+# noisyforward = conv.batchnoisyforward
 
 # this is terrible! we should factor out the loss in this file or something
 @jit
 def loss(x, y, params):
     h, a = forward(x, params)
-    loss = batchmseloss(h[-1], y).sum()
+    loss = batchmseloss(h[-1], y).mean()
     return loss
 
 @jit

@@ -7,7 +7,6 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 
-
 # define element-wise relu:
 def relu(x):
   return jnp.maximum(0,x)
@@ -16,7 +15,7 @@ def relu(x):
 def init_convlayer(kernel_height, kernel_width, input_channels, output_channels, key):
 
   # use he style scaling (not glorot):
-  std = np.sqrt(2.0 / kernel_height*kernel_width*input_channels)
+  std = 1e-2*np.sqrt(2.0 / kernel_height*kernel_width*input_channels)
   bound = np.sqrt(3.0) * std
 
   #make HWIO kernel -- note this seems wrong!!! HWOI??? bad naming???
@@ -45,7 +44,6 @@ imgwidth = 28
 convout_channels = 32
 nodepert_noisescale = 1e-6
 
-
 # build the conv forward pass for a single image:
 def forward(x, params):
   x = x.reshape(1,imgheight,imgwidth,1).astype(np.float32) # NHWC
@@ -56,7 +54,7 @@ def forward(x, params):
   for (kernel, biases) in params[:-1]:
 
     #output (lhs) will be in the form NCHW
-    act = jax.lax.conv(h[-1],                           # lhs = NCHW image tensor
+    act = jax.lax.conv(h[-1],                       # lhs = NCHW image tensor
                        kernel.transpose([2,3,0,1]), # rhs = IOHW conv kernel tensor [according to JAX page]
                        (1, 1),  # window strides
                        'SAME')  # padding mode
@@ -76,7 +74,9 @@ def forward(x, params):
   return h, a
 
 # upgrade to handle batches using 'vmap'
-batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+# batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+batchforward = vmap(forward, in_axes=(0, None), out_axes=(0, 0))
+
 
 
 # new noisy forward pass:
@@ -88,7 +88,7 @@ def noisyforward(x, params, randkey):
   h.append(x)
 
   for (kernel, biases) in params[:-1]:
-    # h[-1] = jax.lax.stop_gradient(h[-1])
+    h[-1] = jax.lax.stop_gradient(h[-1])
 
     # act = jnp.dot(w, h[-1]) + b
     #output (lhs) will be in the form NCHW
@@ -106,7 +106,7 @@ def noisyforward(x, params, randkey):
     aux.append(jnp.sum(a[-1]*noise*(1/(nodepert_noisescale**2))))
     h.append(relu(a[-1]))
 
-  # h[-1] = jax.lax.stop_gradient(h[-1])
+  h[-1] = jax.lax.stop_gradient(h[-1])
   w, b = params[-1]
   act = jnp.dot(w, h[-1].flatten()) + b
   randkey, _ = random.split(randkey)
