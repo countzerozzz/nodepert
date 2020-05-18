@@ -3,11 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-# randkey = random.PRNGKey(int(time.time()))
-randkey = random.PRNGKey(0)
+randkey = random.PRNGKey(int(time.time()))
 
-log_expdata=False
-path = 'explogs/train/'
 # define training configs
 config = {}
 config['num_epochs'] = num_epochs = 1000
@@ -15,13 +12,29 @@ config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 # build our network
-layer_sizes = [data.num_pixels, 500, data.num_classes]
+# layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
+# randkey, _ = random.split(randkey)
+# params = fc.init(layer_sizes, randkey)
+#
+# randkey, _ = random.split(randkey)
+
+
+
+
+#format (kernel height, kernel width, input channels, output channels)
+convlayer_sizes = [(3, 3, 1, 32), (3, 3, 32, 32), (3, 3, 32, 32)]
+fclayer_sizes = [conv.imgheight*conv.imgwidth*convlayer_sizes[-1][-1] , data.num_classes]
+
 randkey, _ = random.split(randkey)
-params = fc.init(layer_sizes, randkey)
-print("Network structure: {}".format(layer_sizes))
+convparams = conv.init_convlayers(convlayer_sizes, randkey)
+randkey, _ = random.split(randkey)
+fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
+
+convnetparams = convparams
+convnetparams.append(fcparams)
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
+forward = conv.batchforward
 optimizer = optim.npupdate
 optimstate = { 'lr' : 1e-3, 't' : 0 }
 
@@ -29,19 +42,21 @@ optimstate = { 'lr' : 1e-3, 't' : 0 }
 # data.trainsplit = 'train[:5%]'
 # data.testsplit = 'test[:5%]'
 
+x, y = next(data.get_data_batches())
+
+# params, grads, optimstate = optimizer(x, y, convparams, randkey, optimstate)
+
 # now train
-params, optimstate, expdata = train.train(  params,
+params, optimstate, expdata = train.train(  convparams,
                                             forward,
                                             data,
                                             config,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = False)
+                                            verbose = True)
 
-# save out results of experiment
-if(log_expdata):
-    pickle.dump(expdata, open(path + "100e.pickle", "wb"))
+
 
 # plotting:
 # import matplotlib.pyplot as pp

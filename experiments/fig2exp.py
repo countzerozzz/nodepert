@@ -28,14 +28,14 @@ expdata={}
 def linesearch_fn(randkey, start, stop, num):
     learning_rates=np.logspace(start, stop, num, endpoint=True, base=10, dtype=np.float32)
     npdelta_l=[]
-    sgddelta_l=[]    
-    
+    sgddelta_l=[]
+
     for lr in learning_rates:
         nptmp = []
         sgdtmp = []
         optimstate = { 'lr' : lr, 't' : 0 }
-        
-        #set the percentage of test samples which should be averaged over, while calculating delta_L 
+
+        #set the percentage of test samples which should be averaged over, while calculating delta_L
         for x, y in data.get_data_batches(batchsize=100, split='test[:25%]'):
             # update_step passing [jnp.zeros(1) = SGD, np.zeros(2) =np]
             nptmp.append(compute_linesearch.get_delta_l(x, y, params, randkey, optimstate, update_step=jnp.zeros(1)))
@@ -49,7 +49,7 @@ def linesearch_fn(randkey, start, stop, num):
     return (learning_rates, npdelta_l, sgddelta_l)
 
 # build our network
-layer_sizes = [data.num_pixels, 500, data.num_classes]
+layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
 randkey, _ = random.split(randkey)
 
 print("Network structure: {}".format(layer_sizes))
@@ -66,7 +66,7 @@ ptr=0
 for epoch in range(1, num_epochs+1):
     train_acc, test_acc = train.compute_metrics(params, forward, data)
     train_acc = round(train_acc,3)
-    
+
     if(train_acc > linesearch_points[ptr]):
         print('\ncomputing linesearch, network snapshot @ {} train acc'.format(train_acc))
         start_time = time.time()
