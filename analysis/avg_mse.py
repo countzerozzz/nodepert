@@ -6,18 +6,21 @@ from npimports import *
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
-num_epochs = 3
+num_epochs = 500
 batchsize = 100
-log_expdata = True
+log_expdata = False
 
-lr = 1e-4
+lr = 5e-3
 
 #define all networks
 networks = [
-# [data.num_pixels, 500, data.num_classes]
-# [data.num_pixels, 500, 500, data.num_classes]
-[data.num_pixels, 500, 500, 500, data.num_classes],
-# [data.num_pixels, 500, 500, 500, 500, data.num_classes]
+# [data.num_pixels, 500, data.num_classes],
+# [data.num_pixels, 500, 500, data.num_classes],
+# [data.num_pixels, 500, 500, 500, data.num_classes],
+# [data.num_pixels, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, 500, 500, data.num_classes]
 ]
 
 randkey, _ = random.split(randkey)
@@ -28,11 +31,11 @@ optimizer = optim.npupdate
 optimstate = { 'lr' : lr, 't' : 0 }
 
 expdata={}
-nn_metrics={}
-nn_metrics['delta_mse']=[]
-nn_metrics['test_acc']=[]
 
 for layer_sizes in networks:
+    nn_metrics={}
+    nn_metrics['delta_mse']=[]
+    nn_metrics['test_acc']=[]
     n_hl = len(layer_sizes) - 2
     print("Network structure: {}".format(layer_sizes))
     params = fc.init(layer_sizes, randkey)
@@ -66,4 +69,4 @@ path = "explogs/avg_mseexp/"
 
 # save out results of experiment
 if(log_expdata):
-    pickle.dump(expdata, open(path + "delta_mse2e_5.pickle", "wb"))
+    pickle.dump(expdata, open(path + "delta_mse5e", "wb"))

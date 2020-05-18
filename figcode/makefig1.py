@@ -1,15 +1,7 @@
 import npimports
 from npimports import *
 
-<<<<<<< HEAD
-import matplotlib
-import matplotlib.pyplot as pp
-
-
-path = "explogs/fig1exp_firstrun/"
-=======
 path = "explogs/fig1exp/"
->>>>>>> 06302e77a9190103d9ad914023fcd656b1c9f7da
 
 npexpdata = pickle.load(open(path + "npexpdata.pickle", "rb"))
 npparams = pickle.load(open(path + "npparams.pickle", "rb"))
