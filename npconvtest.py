@@ -36,7 +36,7 @@ convnetparams.append(fcparams)
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
 optimizer = optim.npupdate
-optimstate = { 'lr' : 1e-3, 't' : 0 }
+optimstate = { 'lr' : 5e-5, 't' : 0 }
 
 # use this if you don't want to wait as long:
 # data.trainsplit = 'train[:5%]'
