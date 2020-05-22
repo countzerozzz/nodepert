@@ -6,6 +6,7 @@ from jax import grad, jit, vmap, random, lax
 from jax.ops import index, index_add, index_update
 import matplotlib.pyplot as pp
 import matplotlib
+import pandas as pd
 import time, copy
 import pickle
 import os
@@ -13,6 +14,7 @@ import os
 
 import data.mnistloader as data
 import train
+import utils
 import analysis.compute_linesearch as compute_linesearch
 import models.fc as fc
 import models.conv as conv
@@ -23,6 +25,7 @@ import models.metrics as metrics
 import importlib
 importlib.reload(data)
 importlib.reload(train)
+importlib.reload(utils)
 importlib.reload(fc)
 importlib.reload(conv)
 importlib.reload(losses)
