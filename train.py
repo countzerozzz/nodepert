@@ -13,14 +13,14 @@ def compute_metrics(params, forward, data):
     for x, y in data.get_data_batches(batchsize=1000, split=data.trainsplit):
         h, a = forward(x, params)
         train_acc.append(accuracy(h[-1], y))
-    train_acc = np.mean(train_acc)
+    train_acc = 100 * np.mean(train_acc)
 
     # run through the test set and compute the metrics:
     test_acc = []
     for x, y in data.get_data_batches(batchsize=1000, split=data.testsplit):
       h, a = forward(x, params)
       test_acc.append(accuracy(h[-1], y))
-    test_acc = np.mean(test_acc)
+    test_acc = 100 * np.mean(test_acc)
 
     return train_acc, test_acc
 

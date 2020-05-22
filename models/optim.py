@@ -12,11 +12,11 @@ import models.conv as conv
 import models.losses as losses
 
 batchmseloss = losses.batchmseloss
-# forward = fc.batchforward
-# noisyforward = fc.batchnoisyforward
+forward = fc.batchforward
+noisyforward = fc.batchnoisyforward
 
-forward = conv.batchforward
-noisyforward = conv.batchnoisyforward
+# forward = conv.batchforward
+# noisyforward = conv.batchnoisyforward
 
 # this is terrible! we should factor out the loss in this file or something
 @jit

@@ -27,7 +27,7 @@ def sma_accuracy(arr, period):
 
 def parse_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-update_rule", type=str, default='npupdate')
+    ap.add_argument("-update_rule", type=str, default='np')
     ap.add_argument("-n_hl", type=int, default=2)
     ap.add_argument("-lr", type=float, default=1e-3)
     ap.add_argument("-batchsize", type=int, default=100)

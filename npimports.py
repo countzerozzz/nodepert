@@ -3,12 +3,14 @@ import numpy as np
 import jax as jax
 import jax.numpy as jnp
 from jax import grad, jit, vmap, random, lax
+from jax.experimental import optimizers
 from jax.ops import index, index_add, index_update
 import matplotlib.pyplot as pp
 import matplotlib
 import pandas as pd
 import time, copy
 import pickle
+import itertools
 import os
 
 
