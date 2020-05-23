@@ -7,7 +7,7 @@ randkey = random.PRNGKey(int(time.time()))
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 1000
+config['num_epochs'] = num_epochs = 2000
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
@@ -20,7 +20,7 @@ print("Network structure: {}".format(layer_sizes))
 # get forward pass, optimizer, and optimizer state + params
 forward = fc.batchforward
 optimizer = optim.npupdate
-optimstate = { 'lr' : 1e-3, 't' : 0 }
+optimstate = { 'lr' : 5e-3, 't' : 0 }
 
 # use this if you don't want to wait as long:
 # data.trainsplit = 'train[:5%]'
