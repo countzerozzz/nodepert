@@ -6,8 +6,9 @@ from npimports import *
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
-log_expdata=False
+log_expdata = False
 path = 'explogs/train/'
+
 # define training configs
 config = {}
 config['num_epochs'] = num_epochs = 2000
@@ -15,19 +16,19 @@ config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
 # build our network
-layer_sizes = [data.num_pixels, 500, data.num_classes]
+layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
-optimizer = optim.npupdate
-optimstate = { 'lr' : 5e-3, 't' : 0 }
+# forward = fc.batchforward
+forward = optim.forward = fc.batchforward
+optim.forward = fc.batchforward
+optim.noisyforward = fc.batchnoisyforward
 
-# use this if you don't want to wait as long:
-# data.trainsplit = 'train[:5%]'
-# data.testsplit = 'test[:5%]'
+optimizer = optim.npupdate
+optimstate = { 'lr' : 5e-3, 'wd' : 1e-4, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -37,7 +38,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = False)
+                                            verbose = True)
 
 # save out results of experiment
 if(log_expdata):

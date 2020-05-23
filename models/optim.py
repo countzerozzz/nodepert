@@ -11,28 +11,27 @@ import models.fc as fc
 import models.conv as conv
 import models.losses as losses
 
-batchmseloss = losses.batchmseloss
+# defaults
+mseloss = losses.batchmseloss
 forward = fc.batchforward
 noisyforward = fc.batchnoisyforward
-
-# forward = conv.batchforward
-# noisyforward = conv.batchnoisyforward
 
 # this is terrible! we should factor out the loss in this file or something
 @jit
 def loss(x, y, params):
     h, a = forward(x, params)
-    loss = batchmseloss(h[-1], y).mean()
+    loss = mseloss(h[-1], y).mean()
     return loss
 
 @jit
 def sgdupdate(x, y, params, randkey, optimstate):
+    print('building sgd update')
     lr = optimstate['lr']
     grads = grad(loss, argnums = (2))(x, y, params)
-    return [(w - lr * dw, b - lr * db)
+    return [(w - lr*dw, b - lr*db)
             for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
 
-# Peter Humphrey's way of defining the loss for node perturbation
+
 @jit
 def nploss(x, y, params, randkey):
   sigma = fc.nodepert_noisescale
@@ -46,25 +45,31 @@ def nploss(x, y, params, randkey):
   h, a = forward(x, params)
   pred = h[-1]
 
-  # should call loss function code here:
-  loss = jnp.mean(jnp.square(pred - y),1)
-  noisyloss = jnp.mean(jnp.square(noisypred - y),1)
+  loss = mseloss(pred, y)
+  noisyloss = mseloss(noisypred, y)
   lossdiff = (noisyloss - loss)
 
   lossdiff = jax.lax.stop_gradient(lossdiff)
   loss = jnp.mean(lossdiff * jnp.sum(jnp.asarray(aux),0))
-
   return loss
 
-# Peter Humphrey's way of doing updates for node perturbation
 @jit
 def npupdate(x, y, params, randkey, optimstate):
-  print('building new npupdate')
-  lr = optimstate['lr']
-  grads = grad(nploss, argnums = (2))(x, y, params, randkey)
+    print('building np update')
+    lr = optimstate['lr']
+    grads = grad(nploss, argnums = (2))(x, y, params, randkey)
+    return [(w - lr * dw, b - lr * db)
+            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
 
-  return [(w - lr * dw, b - lr * db)
-          for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+@jit
+def npwdupdate(x, y, params, randkey, optimstate):
+    print('building np update')
+    lr = optimstate['lr']
+    wd = optimstate['wd']
+    grads = grad(nploss, argnums = (2))(x, y, params, randkey)
+    return [(w - lr*dw - wd*w, b - lr*db - wd*b)
+            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+
 
 
 # This is the old, by hand way we used to compute the np updates:
