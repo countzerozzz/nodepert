@@ -19,6 +19,7 @@ You may need to install Python packages:
 pip3 install numpy
 pip3 install seaborn
 ```
+See requirements.txt
 
 ## Usage
 
