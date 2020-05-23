@@ -4,3 +4,4 @@ jaxlib
 numpy
 pandas
 matplotlib
+seaborn

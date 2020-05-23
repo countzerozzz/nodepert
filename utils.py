@@ -10,8 +10,9 @@ def file_writer(dir_path, expdata, meta_data):
     params = ["update_rule",update_rule.upper(),"depth", str(n_hl), "width", str(hl_size), "lr", str(lr),
               "num_epochs", str(num_epochs), "batchsize",str(batchsize)]
 
-    df = pd.DataFrame(expdata) 
-    df.to_pickle(dir_path) 
+    output = open(dir_path, 'wb')
+    pickle.dump(expdata, output)
+    output.close()
     return
 
 def str_to_bool(value):
