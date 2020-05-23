@@ -27,7 +27,6 @@ def loss(x, y, params):
 
 @jit
 def sgdupdate(x, y, params, randkey, optimstate):
-    print('building sgdupdate.')
     lr = optimstate['lr']
     grads = grad(loss, argnums = (2))(x, y, params)
     return [(w - lr * dw, b - lr * db)

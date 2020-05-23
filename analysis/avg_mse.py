@@ -6,17 +6,21 @@ from npimports import *
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
-num_epochs = 5
+num_epochs = 500
 batchsize = 100
+log_expdata = False
 
-lr = 5e-5
+lr = 5e-3
 
 #define all networks
 networks = [
-[data.num_pixels, 500, data.num_classes]
+# [data.num_pixels, 500, data.num_classes],
 # [data.num_pixels, 500, 500, data.num_classes],
 # [data.num_pixels, 500, 500, 500, data.num_classes],
-# [data.num_pixels, 500, 500, 500, 500, data.num_classes]
+# [data.num_pixels, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, 500, data.num_classes],
+[data.num_pixels, 500, 500, 500, 500, 500, 500, 500, data.num_classes]
 ]
 
 randkey, _ = random.split(randkey)
@@ -27,11 +31,11 @@ optimizer = optim.npupdate
 optimstate = { 'lr' : lr, 't' : 0 }
 
 expdata={}
-nn_metrics={}
-nn_metrics['delta_mse']=[]
-nn_metrics['test_acc']=[]
 
 for layer_sizes in networks:
+    nn_metrics={}
+    nn_metrics['delta_mse']=[]
+    nn_metrics['test_acc']=[]
     n_hl = len(layer_sizes) - 2
     print("Network structure: {}".format(layer_sizes))
     params = fc.init(layer_sizes, randkey)
@@ -44,10 +48,10 @@ for layer_sizes in networks:
         for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
             randkey, _ = random.split(randkey)
             params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
-            # to get values 5 times an epoch!
-            if(cnt%140==0):
+            # to get values 2 times an epoch!
+            if(cnt%400==0):
                 nptmp=[]
-                for x_ii, y_ii in data.get_data_batches(batchsize=100, split='test[:25%]'):
+                for x_ii, y_ii in data.get_data_batches(batchsize=batchsize, split='test[:10%]'):
                     nptmp.append(compute_linesearch.get_delta_l(x_ii, y_ii, params, randkey, optimstate, update_step=jnp.zeros(1)))
                 nn_metrics['delta_mse'].append(jnp.mean(jnp.array(nptmp)))
 
@@ -64,4 +68,5 @@ print(expdata)
 path = "explogs/avg_mseexp/"
 
 # save out results of experiment
-pickle.dump(expdata, open(path + "delta_mse.pickle", "wb"))
+if(log_expdata):
+    pickle.dump(expdata, open(path + "delta_mse5e", "wb"))

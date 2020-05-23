@@ -3,31 +3,31 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-# randkey = random.PRNGKey(int(time.time()))
-randkey = random.PRNGKey(0)
-
-log_expdata=False
-path = 'explogs/train/'
-# define training configs
+#parse arguments
 config = {}
-config['num_epochs'] = num_epochs = 2000
-config['batchsize'] = batchsize = 100
-config['num_classes'] = num_classes = data.num_classes
+update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata = utils.parse_args()
+path = 'explogs/scaling/depth/'
+seed=int(time.time())
+randkey = random.PRNGKey(seed)
 
 # build our network
-layer_sizes = [data.num_pixels, 500, data.num_classes]
+layer_sizes = [data.num_pixels]
+for i in range(n_hl):
+    layer_sizes.append(hl_size)
+layer_sizes.append(data.num_classes)
+
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = fc.batchforward
-optimizer = optim.npupdate
-optimstate = { 'lr' : 5e-3, 't' : 0 }
+if(update_rule == 'np'):
+    optimizer = optim.npupdate
+elif(update_rule == 'sgd'):
+    optimizer = optim.sgdupdate
 
-# use this if you don't want to wait as long:
-# data.trainsplit = 'train[:5%]'
-# data.testsplit = 'test[:5%]'
+optimstate = { 'lr' : lr, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -41,10 +41,6 @@ params, optimstate, expdata = train.train(  params,
 
 # save out results of experiment
 if(log_expdata):
-    pickle.dump(expdata, open(path + "100e.pickle", "wb"))
-
-# plotting:
-# import matplotlib.pyplot as pp
-# pp.plot(expdata['train_acc'])
-# pp.plot(expdata['test_acc'])
-# pp.show()
+    elapsed_time = np.sum(expdata['epoch_time'])
+    meta_data=update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], elapsed_time
+    utils.file_writer(path+'n_hl'+str(n_hl)+'.pkl', expdata, meta_data)

@@ -21,6 +21,7 @@ interpreter. Then issue:
 ```python
 import nptest
 ```
+If you aren't able to import specific modules (for example, ModuleNotFoundError: No module named 'npimports'), try adding the nodepert directory to the PYTHONPATH environment varible (export PYTHONPATH <path/to/nodepert>).
 
 ## Contributing
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
