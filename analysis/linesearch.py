@@ -69,7 +69,7 @@ def linesearchfunc(randkey, start, stop, num):
     return df
 
 # the points along the training trajectory which we want to compute linesearch
-linesearch_points=[0, 90]
+linesearch_points=[0, 95]
 
 params = fc.init(layer_sizes, randkey)
 optimstate = { 'lr' : lrtrain, 't' : 0 }
