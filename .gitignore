@@ -1,3 +1,9 @@
 # ignore everything in the experiment log directory
 explogs/
 *.pyc
+local/
+figcode/*.png
+.vscode/
+submit_job.sbatch
+output.out
+tmp.out
