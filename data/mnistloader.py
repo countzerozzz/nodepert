@@ -3,7 +3,8 @@ import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
 
-data_dir = '/tmp/tfds'
+data_dir = '/nfs/ghome/live/yashm/Desktop/research/nodepert/data/tfds'
+# data_dir = '/tmp/tfds'
 
 # fetch full dataset and info for evaluation
 # tfds.load returns tf.Tensors (or tf.data.Datasets if batch_size != -1)

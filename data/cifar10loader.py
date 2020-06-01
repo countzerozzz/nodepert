@@ -38,7 +38,6 @@ def normalize_data(x):
 
 # from paper: K. K. Pal and K. S. Sudeep, “Preprocessing for image classification by convolutional neural networks,” 2016 IEEE
 def zca_whiten_images(x):
-  x = np.reshape(x, (-1, num_pixels))
   #taking the per-pixel mean across the entire batch
   x = x - x.mean(axis=0)
   cov = np.cov(x, rowvar=False)
@@ -56,6 +55,7 @@ def zca_whiten_images(x):
 def prepare_data(x, y, apply_whitening):
     #note: (x = x / 255) works but (x /=255) gives error!!
     x = normalize_data(x)
+    x = np.reshape(x, (-1, num_pixels))
     
     if(apply_whitening):
       x = zca_whiten_images(x)
@@ -75,7 +75,7 @@ def get_rawdata_batches(batchsize=100, split='train[:100%]'):
   return tfds.as_numpy(ds)
 
 # create a generator that normalizes the data and makes it into JAX arrays
-def get_data_batches(batchsize=100, split='train[:100%]', apply_whitening=True):
+def get_data_batches(batchsize=100, split='train[:100%]', apply_whitening=False):
     ds = get_rawdata_batches(batchsize, split)
 
     # at the end of the dataset a 'StopIteration' exception is raised
