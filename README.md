@@ -13,13 +13,11 @@ Pull the nodepert package from git via:
 git clone https://github.com/silverpaths/nodepert.git
 ```
 
-You may need to install Python packages:
+See requirements.txt file for the project dependencies, which can be installed via pip: 
 
 ```bash
-pip3 install numpy
-pip3 install seaborn
+pip3 install -r requirements.txt
 ```
-See requirements.txt
 
 ## Usage
 
