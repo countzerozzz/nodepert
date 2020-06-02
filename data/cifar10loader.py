@@ -68,7 +68,7 @@ def prepare_data(x, y, preprocess):
     if(preprocess.lower() == 'zca'):
       x = zca_whiten_images(x)
     
-    elif(preprocess.lower() == 'normalization'):
+    elif(preprocess.lower() == 'normalize'):
       x = normalize_data(x, data_minval, data_maxval)
 
     else:
@@ -91,7 +91,7 @@ def get_rawdata_batches(batchsize=100, split='train[:100%]'):
   return tfds.as_numpy(ds)
 
 # create a generator that normalizes the data and makes it into JAX arrays
-def get_data_batches(batchsize=100, split='train[:100%]', preprocess='normalization'):
+def get_data_batches(batchsize=100, split='train[:100%]', preprocess = 'standardize'):
     ds = get_rawdata_batches(batchsize, split)
 
     # at the end of the dataset a 'StopIteration' exception is raised

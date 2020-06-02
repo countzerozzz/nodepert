@@ -18,6 +18,9 @@ train_x, train_y = list(zip(*data))
 data = pickle.load(open(inp_dir + 'test.pkl', 'rb'))
 test_x, test_y = list(zip(*data))
 
+num_classes = 10
+num_pixels = 3072
+
 # select which split of the data to use:
 trainsplit = 'train[:100%]'
 testsplit = 'test[:100%]'
@@ -26,6 +29,7 @@ testsplit = 'test[:100%]'
 def one_hot(y, num_classes, dtype=np.float32):
   return jnp.array(y[:, None] == jnp.arange(num_classes), dtype)
 
+# this dataloader is about 10 times slower than tfds, probably as it isn't pre-fetching batches.
 def get_data_batches(batchsize=100, split='train[:100%]'):
     if(re.search('train', split)):
         x = jnp.array(train_x)
