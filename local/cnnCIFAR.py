@@ -5,70 +5,50 @@ import tensorflow_datasets as tfds
 import numpy as np
 import csv
 import time
+import pandas as pd
+import pickle
 
 import utils
 
-data_dir = '/nfs/ghome/live/yashm/Desktop/research/nodepert/data/tfds'
-# data_dir = '/tmp/tfds'
+# data_dir = 'data/tfds'
 
-_, dataset_info = tfds.load(name="cifar10", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
+# _, dataset_info = tfds.load(name="cifar10", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
 
-# compute dimensions using the dataset information
-num_classes = dataset_info.features['label'].num_classes
-height, width, channels = dataset_info.features['image'].shape
-num_pixels = height * width * channels
+# # compute dimensions using the dataset information
+# num_classes = dataset_info.features['label'].num_classes
+# height, width, channels = dataset_info.features['image'].shape
+# num_pixels = height * width * channels
 
-train_data = tfds.load(name="cifar10", split='train[:100%]', batch_size=-1, data_dir=data_dir, with_info=False)
-train_data = tfds.as_numpy(train_data)
+# train_data = tfds.load(name="cifar10", split='train[:100%]', batch_size=-1, data_dir=data_dir, with_info=False)
+# train_data = tfds.as_numpy(train_data)
 
-test_data = tfds.load(name="cifar10", split='test[:100%]', batch_size=-1, data_dir=data_dir, with_info=False)
-test_data = tfds.as_numpy(test_data)
+# test_data = tfds.load(name="cifar10", split='test[:100%]', batch_size=-1, data_dir=data_dir, with_info=False)
+# test_data = tfds.as_numpy(test_data)
 
-# full train set:
-train_x, train_y = train_data['image'], train_data['label']
-test_x, test_y = test_data['image'], test_data['label']
+# # full train set:
+# train_x, train_y = train_data['image'], train_data['label']
+# test_x, test_y = test_data['image'], test_data['label']
 
-def normalize_data(x):
-  return (x - x.min()) / (x.max() - x.min())
+# train_x = train_x / 255
+# test_x = test_x / 255
 
-def zca_whiten_images(x):
-  #taking the per-pixel mean across the entire batch
-  x = x - x.mean(axis=0)
-  cov = np.cov(x, rowvar=False)
-  # calculate the singular values and vectors of the covariance matrix and use them to rotate the dataset.
-  U,S,V = np.linalg.svd(cov)
-  # add epsilon to prevent division by zero (using default value from the paper). Whitened image depends on epsilon and batch_size. 
-  epsilon = 0.1
-  x_zca = U.dot(np.diag(1.0/np.sqrt(S + epsilon))).dot(U.T).dot(x.T).T
-  # rescale whitened image to range [0,1]
-  x_zca = normalize_data(x_zca)
-  #reshaping to [NHWC] will be done in conv fwd pass
-  
-  return x_zca
+#! If it's using ZCA input then it fails to init conv layer: cudNN fails, but only sometimes. why?
+seed = 5
+inp_dir = 'data/zcaCIFAR/'
 
-def preprocess_data(x, y, batch_size, apply_whitening = True):
-    xtmp = []
-    n_batches = len(x) // batch_size
-    for i in range(n_batches):
-        x_batch = x[i*batch_size:(i+1)*batch_size]
-        x_batch = normalize_data(x_batch)
-        x_batch = np.reshape(x_batch, (-1, num_pixels))
+data = pickle.load(open(inp_dir + 'train.pkl', 'rb'))
+train_x, train_y = list(zip(*data))
+train_x = np.reshape(train_x, (-1, 32, 32, 3))
+train_y = np.reshape(train_y, (-1))
+print(train_x.shape)
 
-        if(apply_whitening):
-            x_batch = zca_whiten_images(x_batch)
-        xtmp.extend(x_batch)
-    #make y as one_hot encoding if using MSE
-    # y = tf.keras.utils.to_categorical(y, num_classes=num_classes)
-    xtmp = np.array(xtmp)
-    if(network == 'conv'):
-        xtmp = np.reshape(xtmp, (-1, height, width, channels))
-    
-    return xtmp, y
+data = pickle.load(open(inp_dir + 'test.pkl', 'rb'))
+test_x, test_y = list(zip(*data))
+test_x = np.reshape(test_x, (-1, 32, 32, 3))
+test_y = np.reshape(test_y, (-1))
+print(test_x.shape)
 
 network, update_rule, n_hl, lr, batch_size, hl_size, num_epochs, log_expdata = utils.parse_args()
-
-train_x, train_y = preprocess_data(train_x, train_y, batch_size, network)
-test_x, test_y = preprocess_data(test_x, test_y, batch_size, network)
 
 start_time = time.time()
 
@@ -91,7 +71,13 @@ elif(network == 'conv'):
     model.add(tf.keras.layers.Dense(10))
 
 #* pass learning_rate=lr into SGD for setting custom learning rate
-model.compile(optimizer=tf.keras.optimizers.SGD(),
+if (update_rule == 'sgd'):
+    optim = tf.keras.optimizers.SGD(learning_rate = lr)
+
+elif (update_rule == 'adam'):
+    optim = tf.keras.optimizers.Adam(learning_rate = lr)
+
+model.compile(optimizer=optim,
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), 
               #* while using MSE, have to make the labels into one-hot (uncomment to_categorical line on top!)
             #   loss=tf.keras.losses.MeanSquaredError(),
@@ -103,18 +89,22 @@ start_time = time.time()
 history = model.fit(train_x, train_y, epochs=num_epochs, batch_size=batch_size,
                     validation_data=(test_x, test_y), verbose = 1)
 
-print(history.history['accuracy'])
-print(history.history['loss'])
-# print(model.evaluate(test_x, test_y, batch_size=1000))
+print(history.history['acc'])
+print(history.history['val_acc'])
+print(model.evaluate(test_x, test_y, batch_size=1000))
 
-def file_writer():
+elapsed_time = time.time() - start_time
+print(elapsed_time)
+
+
+def file_writer(path):
     params = ["update_rule ",update_rule.upper()," depth ", str(n_hl), " width ", str(hl_size), " lr ", str(lr),
               " num_epochs ", str(num_epochs), " batch_size ",str(batch_size)]
 
     with open(path+'cnnCIFAR.csv', 'a') as csvFile:
         writer = csv.writer(csvFile)
         writer.writerow(params)
-        writer.writerow(history.history['accuracy'])
+        writer.writerow(history.history['val_acc'])
         writer.writerow(str(elapsed_time))
         writer.writerow("")
         csvFile.flush()
@@ -123,6 +113,5 @@ def file_writer():
     return
 
 if(log_expdata):
-    file_writer()
+    file_writer(path)
 
-print(time.time() - start_time)
