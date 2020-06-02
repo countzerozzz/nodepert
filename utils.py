@@ -36,9 +36,10 @@ def parse_args():
     ap.add_argument("-hl_size", type=int, default=500)
     ap.add_argument("-num_epochs", type=int, default=10)
     ap.add_argument('-log_expdata', type=str_to_bool, nargs='?', const=True, default=False)
+    ap.add_argument("-jobid", type=int, default=1)
     args= ap.parse_args()
 
-    return args.network, args.update_rule, args.n_hl, args.lr, args.batchsize, args.hl_size, args.num_epochs, args.log_expdata
+    return args.network, args.update_rule, args.n_hl, args.lr, args.batchsize, args.hl_size, args.num_epochs, args.log_expdata, args.jobid
 
 def get_elapsed_time(sec):
     sec=timedelta(seconds=int(sec))

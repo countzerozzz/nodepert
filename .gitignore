@@ -1,5 +1,6 @@
 # ignore everything in the experiment log directory
 explogs/
+__pycache__/
 *.pyc
 local/
 figcode/*.png
