@@ -3,6 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 #parse arguments
 config = {}
 update_rule, n_hl, lrtrain, config['batchsize'], hl_size, config['num_epochs'], log_expdata = utils.parse_args()

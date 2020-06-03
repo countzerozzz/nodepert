@@ -3,6 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 

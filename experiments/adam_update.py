@@ -3,18 +3,35 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 #parse arguments
 config = {}
-update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata = utils.parse_args()
-path = 'explogs/analysis/adamupdate/'
-seed=int(time.time())
+
+network, update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata, jobid = utils.parse_args()
+path = 'explogs/adamupdate/np/'
+seed=np.random.randint(0,1000)
 randkey = random.PRNGKey(seed)
+
+rows = np.logspace(5e-5, 5e-2, 100, endpoint=True, base=10, dtype=np.float32)
+ROW_DATA = 'learning_rate'
+# cols = [32] 
+# COL_DATA = 'convchannels'
+
+row_id = jobid % len(rows)
+# col_id = (jobid//len(rows)) % len(cols)
+
+lr = rows[row_id]
+# convchannels = cols[col_id]
+lr=5e-4
 
 # build our network
 layer_sizes = [data.num_pixels]
 for i in range(n_hl):
     layer_sizes.append(hl_size)
 layer_sizes.append(data.num_classes)
+
+print(layer_sizes)
 
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
@@ -40,29 +57,36 @@ opt_init, opt_update, get_params = optimizers.adam(lr)
 opt_state = opt_init(params)
 itercount = itertools.count()
 
-expdata = {}
-
 #no use of this optimstate here
 optimstate = { 'lr' : 0, 't' : 0 }
+test_acc = []
 
 for epoch in range(1, config['num_epochs']+1):
     start_time=time.time()
     
-    train_acc, test_acc = train.compute_metrics(params, forward, data)
+    test_acc.append(train.compute_metrics(params, forward, data)[1])
 
     print('EPOCH ', epoch)
     for x, y in data.get_data_batches(batchsize=config['batchsize'], split=data.trainsplit):
         randkey, _ = random.split(randkey)
-          # update_step passing [jnp.zeros(1) = SGD, np.zeros(2) =np]
         _, grads, _ = gradfunc(x, y, params, randkey, optimstate)
         opt_state = update(next(itercount), grads, opt_state)
         params = get_params(opt_state)
 
     epoch_time = time.time() - start_time
-    print('epoch training time: {}\n train acc: {}  test acc: {}\n'.format(round(epoch_time,2), round(train_acc, 3), round(test_acc, 3)))
+    print('epoch training time: {}\n test acc: {}\n'.format(round(epoch_time,2), round(test_acc[-1], 3)))
 
-# save out results of experiment
+final_acc = np.mean(test_acc[-5:])
+
+def file_writer(path):
+    with open(path+'adam.csv', 'a') as csvFile:
+        writer = csv.writer(csvFile, lineterminator=' ')
+        writer.writerow([str(final_acc)])
+        csvFile.flush()
+
+    csvFile.close()
+    return
+
 if(log_expdata):
-    elapsed_time = np.sum(expdata['epoch_time'])
-    meta_data=update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], elapsed_time
-    utils.file_writer(path+'expdata.pkl', expdata, meta_data)
+    Path(path).mkdir(parents=True, exist_ok=True)
+    file_writer(path)
