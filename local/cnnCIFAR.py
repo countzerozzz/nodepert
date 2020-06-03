@@ -55,24 +55,9 @@ test_y = tf.keras.utils.to_categorical(test_y, num_classes=10)
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 start_time = time.time()
 convchannels = 32
-activation = 'relu'
+actfunc = 'relu'
 loss_func = 'mse'
-
-rows = [0.005, 0.01, 0.05, 0.1, 0.5, 1] 
-ROW_DATA = 'lr'
-cols = ['mse', 'ce'] 
-COL_DATA = 'loss'
-
-# rows = ['sigmoid', 'tanh', 'relu', 'elu'] 
-# ROW_DATA = 'activations'
-# cols = [8, 16, 32, 64] 
-# COL_DATA = 'convchannels'
-
-row_id = jobid % len(rows)
-col_id = (jobid//len(rows)) % len(cols)
-
-lr = rows[row_id]
-loss_func = cols[col_id]
+lr = 0.1
 
 if(loss_func == 'mse'):
     loss_fn = tf.keras.losses.MeanSquaredError()
@@ -87,18 +72,18 @@ model = tf.keras.models.Sequential()
 if (network  == 'fc'):
     train_x = np.reshape(train_x, (-1, 3072))
     test_x = np.reshape(test_x, (-1, 3072))
-    model.add(tf.keras.layers.Dense(hl_size, input_dim=3072, activation='relu'))
+    model.add(tf.keras.layers.Dense(hl_size, input_dim=3072, activation=actfunc))
     for i in range(n_hl - 1):
-        model.add(tf.keras.layers.Dense(hl_size, activation='relu'))
+        model.add(tf.keras.layers.Dense(hl_size, activation=actfunc))
     model.add(tf.keras.layers.Dense(10))
 
 elif(network == 'conv'):
     #* Keras default values of initializer, [kernel: glorot, bias: zeros]
-    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), strides=1, activation=activation, input_shape=(32, 32, 3), kernel_initializer='glorot_uniform', bias_initializer='zeros'))
-    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), activation=activation))
-    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), activation=activation))
+    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), strides=1, activation=actfunc, input_shape=(32, 32, 3), kernel_initializer='glorot_uniform', bias_initializer='zeros'))
+    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), activation=actfunc))
+    model.add(tf.keras.layers.Conv2D(convchannels, (3, 3), activation=actfunc))
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(10))
+    model.add(tf.keras.layers.Dense(10, activation='sigmoid'))
 
 if (update_rule == 'sgd'):
     optim = tf.keras.optimizers.SGD(learning_rate = lr)

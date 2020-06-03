@@ -13,9 +13,9 @@ import time, copy
 import pickle
 import itertools
 import os
+from pathlib import Path
 
-
-import data.mnistloader as data
+import data
 import train
 import utils
 import models.fc as fc

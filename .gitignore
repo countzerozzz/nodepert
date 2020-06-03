@@ -7,5 +7,4 @@ figcode/*.png
 .vscode/
 submit_job.sbatch
 logs/
-data/tfds/
-data/zcaCIFAR/
+data/
