@@ -9,11 +9,11 @@ import data_loaders.mnistloader as data
 config = {}
 
 network, update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata, jobid = utils.parse_args()
-path = 'explogs/adamupdate/np/'
+path = 'explogs/adamupdate/sgd/'
 seed=np.random.randint(0,1000)
 randkey = random.PRNGKey(seed)
 
-rows = np.logspace(5e-5, 5e-2, 100, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(start=-6, stop=-1, num=100, endpoint=True, base=10, dtype=np.float32)
 ROW_DATA = 'learning_rate'
 # cols = [32] 
 # COL_DATA = 'convchannels'
@@ -23,15 +23,12 @@ row_id = jobid % len(rows)
 
 lr = rows[row_id]
 # convchannels = cols[col_id]
-lr=5e-4
 
 # build our network
 layer_sizes = [data.num_pixels]
 for i in range(n_hl):
     layer_sizes.append(hl_size)
 layer_sizes.append(data.num_classes)
-
-print(layer_sizes)
 
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
@@ -80,7 +77,7 @@ final_acc = np.mean(test_acc[-5:])
 
 def file_writer(path):
     with open(path+'adam.csv', 'a') as csvFile:
-        writer = csv.writer(csvFile, lineterminator=' ')
+        writer = csv.writer(csvFile, lineterminator=' , ')
         writer.writerow([str(final_acc)])
         csvFile.flush()
 
