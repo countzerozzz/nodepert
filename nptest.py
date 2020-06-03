@@ -3,6 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
@@ -11,7 +13,7 @@ path = 'explogs/train/'
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 2000
+config['num_epochs'] = num_epochs = 15
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 
@@ -27,8 +29,8 @@ forward = optim.forward = fc.batchforward
 optim.forward = fc.batchforward
 optim.noisyforward = fc.batchnoisyforward
 
-optimizer = optim.npupdate
-optimstate = { 'lr' : 5e-3, 'wd' : 1e-4, 't' : 0 }
+optimizer = optim.sgdupdate
+optimstate = { 'lr' : 5e-2, 'wd' : 1e-6, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -42,7 +44,8 @@ params, optimstate, expdata = train.train(  params,
 
 # save out results of experiment
 if(log_expdata):
-    pickle.dump(expdata, open(path + "100e.pickle", "wb"))
+    Path(path).mkdir(exist_ok=True)
+    pickle.dump(expdata, open(path + "traindata.pkl", "wb"))
 
 # plotting:
 # import matplotlib.pyplot as pp

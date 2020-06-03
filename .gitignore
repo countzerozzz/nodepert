@@ -2,10 +2,8 @@
 explogs/
 __pycache__/
 *.pyc
-local/
-figcode/*.png
+tmp/
 .vscode/
 submit_job.sbatch
 logs/
-data/tfds/
-data/zcaCIFAR/
+data/

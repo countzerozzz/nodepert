@@ -12,10 +12,10 @@ import pandas as pd
 import time, copy
 import pickle
 import itertools
-import os
+import os 
+from pathlib import Path
 
-
-import data.mnistloader as data
+import data_loaders
 import train
 import utils
 import models.fc as fc
@@ -25,7 +25,7 @@ import models.losses as losses
 import models.metrics as metrics
 
 import importlib
-importlib.reload(data)
+importlib.reload(data_loaders)
 importlib.reload(train)
 importlib.reload(utils)
 importlib.reload(fc)
