@@ -3,13 +3,13 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-import data.cifar10loaderV2 as data
+import data_loaders.mnistloader as data
 
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
-log_expdata = True
-path = 'explogs/preprocess/'
+log_expdata = False
+path = 'explogs/train/'
 
 # define training configs
 config = {}
@@ -45,7 +45,7 @@ params, optimstate, expdata = train.train(  params,
 # save out results of experiment
 if(log_expdata):
     Path(path).mkdir(exist_ok=True)
-    pickle.dump(expdata, open(path + "zca.pkl", "wb"))
+    pickle.dump(expdata, open(path + "traindata.pkl", "wb"))
 
 # plotting:
 # import matplotlib.pyplot as pp

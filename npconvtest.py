@@ -3,6 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
