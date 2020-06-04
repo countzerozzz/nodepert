@@ -9,11 +9,10 @@ import data_loaders.mnistloader as data
 config = {}
 
 network, update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata, jobid = utils.parse_args()
-path = 'explogs/adamupdate/sgd/'
-seed=np.random.randint(0,1000)
-randkey = random.PRNGKey(seed)
+path = os.path.join("explogs/adamupdate", update_rule)
+randkey = random.PRNGKey(jobid)
 
-rows = np.logspace(start=-6, stop=-1, num=100, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(start=-6, stop=-2, num=25, endpoint=True, base=10, dtype=np.float32)
 ROW_DATA = 'learning_rate'
 # cols = [32] 
 # COL_DATA = 'convchannels'
