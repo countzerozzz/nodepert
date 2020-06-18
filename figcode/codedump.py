@@ -1,40 +1,17 @@
 import npimports
 from npimports import *
 
-path = "explogs/adamupdate/"
+path = "explogs/train/np/"
 start_time = time.time()
-
-# expdata1 = pickle.load(open(path + "normalize.pkl", "rb"))
-# expdata2 = pickle.load(open(path + "standardize.pkl", "rb"))
-# expdata3 = pickle.load(open(path + "zca.pkl", "rb"))
 
 sns.set()
 # sns.set_palette(palette="paired")
 sns.set_palette(palette="muted")
 # sns.set_palette(palette="Paired") #Spectral
 # sns.set_palette(palette="Spectral")
-# fig, ax1 = pp.subplots()
 
-# epoch = expdata1['epoch']
-# acc = expdata1['test_acc']
-# acc = np.asarray(acc)
-# ax1.plot(epoch, acc, '.-', lw=1)
-
-# epoch = expdata2['epoch']
-# acc = expdata2['test_acc']
-# acc = np.asarray(acc)
-# ax1.plot(epoch, acc, '.-', lw=1)
-# df=pd.read_csv('myfile.csv', sep=',',header=None)
-
-df = pd.DataFrame(columns = ['test_acc', 'apply_grad', 'update_rule'])
-
-for update_rule in ['np', 'sgd']:
-    for apply_grad in ['vanilla', 'adam']:
-        tmp = pd.DataFrame()
-        tmp['test_acc'] = np.genfromtxt(path+update_rule+apply_grad+'.csv', delimiter=',', dtype='float')
-        tmp['apply_grad'] = pd.Series((tmp['test_acc'].size)*[apply_grad])
-        tmp['update_rule'] = pd.Series(25*[update_rule.upper()])
-        df = df.append(tmp, ignore_index=True)        
+# df = pd.DataFrame(columns = ['test_acc', 'apply_grad', 'update_rule'])
+df = pd.read_csv(path+'my_csv.csv')
 
 df.dropna(axis='index', how='any', inplace=True)
 df.reset_index(inplace=True, drop=True)
@@ -44,14 +21,27 @@ print(df.head(10))
 
 pp.ylim((0, 100)) 
 
-sns.violinplot(x='update_rule', y='test_acc', hue='apply_grad', data=df, inner='points', scale='count')
-pp.savefig('figs/npadam-violin.png', dpi=500)
+sns.lineplot(x='epoch', y='test_acc', style = 'jobid', label='normalize', data=df, marker='*')
 
-pp.clf()
-sns.stripplot(x='update_rule', y='test_acc', hue='apply_grad', data=df)
-pp.savefig('figs/npadam.png', dpi=500)
+pp.savefig('figs/train.png', dpi=500)
 
 print(time.time() - start_time)
+
+
+# sns.violinplot(x='update_rule', y='test_acc', hue='apply_grad', data=df, inner='points', scale='count')
+# pp.savefig('figs/npadam-violin.png', dpi=500)
+
+# pp.clf()
+# sns.stripplot(x='update_rule', y='test_acc', hue='apply_grad', data=df)
+
+
+# for update_rule in ['np', 'sgd']:
+#     for apply_grad in ['vanilla', 'adam']:
+#         tmp = pd.DataFrame()
+#         tmp['test_acc'] = np.genfromtxt(path+update_rule+apply_grad+'.csv', delimiter=',', dtype='float')
+#         tmp['apply_grad'] = pd.Series((tmp['test_acc'].size)*[apply_grad])
+#         tmp['update_rule'] = pd.Series(25*[update_rule.upper()])
+#         df = df.append(tmp, ignore_index=True)        
 
 
 # pp.ylabel("test_acc")
@@ -82,4 +72,8 @@ print(time.time() - start_time)
 # ax1.plot(0.0, 100.0, lw=1)
 # ax1.set_yscale('log')
 # ax1.set_xscale('log')
+
+# expdata1 = pickle.load(open(path + "normalize.pkl", "rb"))
+# expdata2 = pickle.load(open(path + "standardize.pkl", "rb"))
+# expdata3 = pickle.load(open(path + "zca.pkl", "rb"))
 
