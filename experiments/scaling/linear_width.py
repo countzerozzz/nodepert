@@ -3,10 +3,12 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+import data_loaders.mnistloader as data
+
 #parse arguments
 config = {}
 update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata = utils.parse_args()
-path = 'explogs/scaling/depth/'
+path = 'explogs/scaling/width/'
 seed=int(time.time())
 randkey = random.PRNGKey(seed)
 
@@ -43,4 +45,4 @@ params, optimstate, expdata = train.train(  params,
 if(log_expdata):
     elapsed_time = np.sum(expdata['epoch_time'])
     meta_data=update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], elapsed_time
-    utils.file_writer(path+'n_hl'+str(n_hl)+'.pkl', expdata, meta_data)
+    utils.file_writer(path+'hl_size'+str(hl_size)+'.pkl', expdata, meta_data)
