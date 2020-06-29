@@ -34,7 +34,7 @@ def copyparams(params):
 
 # build the forward pass for a single image:
 def forward(x, params):
-  h = []; a = [];
+  h = []; a = []
   h.append(x)
 
   for (w, b) in params[:-1]:
@@ -143,7 +143,7 @@ def noisylinforward(x, params, randkey):
   w, b = params[-1]
   act = jnp.dot(w, h[-1]) + b
   randkey, _ = random.split(randkey)
-  noise = nodepert_noisescale*random.normal(randkey, act.shape)
+  noise = nodepert_noisescale * random.normal(randkey, act.shape)
   xi.append(noise)
   a.append(act + noise)
   aux.append(jnp.sum(a[-1]*noise*(1/(nodepert_noisescale**2))))

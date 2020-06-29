@@ -27,6 +27,12 @@ def loss(x, y, params):
 def sgdupdate(x, y, params, randkey, optimstate):
     print('building sgd update')
     lr = optimstate['lr']
+    if('linear' in optimstate):
+        global forward
+        global noisyforward
+        forward = fc.batchlinforward
+        noisyforward = fc.batchnoisylinforward
+
     grads = grad(loss, argnums = (2))(x, y, params)
     return [(w - lr*dw, b - lr*db)
             for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
@@ -34,7 +40,7 @@ def sgdupdate(x, y, params, randkey, optimstate):
 
 @jit
 def nploss(x, y, params, randkey):
-  sigma = fc.nodepert_noisescale
+#   sigma = fc.nodepert_noisescale
   randkey, _ = random.split(randkey)
 
   # forward pass with noise
@@ -55,8 +61,14 @@ def nploss(x, y, params, randkey):
 
 @jit
 def npupdate(x, y, params, randkey, optimstate):
-    print('building np update')
     lr = optimstate['lr']
+    
+    if('linear' in optimstate):
+        global forward
+        global noisyforward
+        forward = fc.batchlinforward
+        noisyforward = fc.batchnoisylinforward
+
     grads = grad(nploss, argnums = (2))(x, y, params, randkey)
     return [(w - lr * dw, b - lr * db)
             for (w, b), (dw, db) in zip(params, grads)], grads, optimstate

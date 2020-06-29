@@ -13,7 +13,7 @@ file_path = os.path.join(path, 'my_csv.csv')
 
 randkey = random.PRNGKey(jobid)
 
-rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(start=-4, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
 ROW_DATA = 'learning_rate'
 
 row_id = jobid % len(rows)
@@ -40,8 +40,11 @@ elif(update_rule == 'sgd'):
 
 params = fc.init(layer_sizes, randkey)
 
-#set 
-optimstate = { 'lr' : lr, 't' : 0 , 'non-linear' : None}
+# Note: The way of creating a linear fwd pass is currently a hack! - value of 'linear' in the optimstate dictionary has no use (dummy val). 
+# The optim.npupdate function checks if 'linear' is present as a key in this dictionary and if so, calls the fc.batchlinforward. This hacky 
+# method is used as the npupdate function is jitted and branching can't be made by evaluating a value passed to the function.
+
+optimstate = { 'lr' : lr, 't' : 0 , 'linear' : 0}
 
 test_acc = []
 
