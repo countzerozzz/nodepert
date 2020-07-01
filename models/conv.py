@@ -12,7 +12,7 @@ def init_single_convlayer(kernel_height, kernel_width, input_channels, output_ch
   # use he style scaling (not glorot) https://arxiv.org/pdf/1502.01852.pdf:
   std = np.sqrt(2.0 / (kernel_height * kernel_width * input_channels))
 
-  #NOTICE: ordering changes from argument ordering!!
+  #NOTICE: ordering changes from function argument ordering!!
   kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
 
   #for conv layers there are typically only 1 bias per channel
@@ -28,7 +28,6 @@ def init_convlayers(sizes, key):
     params.append(init_single_convlayer(*sizes[ii], keys[ii]))
   return params
 
-# convout_channels = 32
 nodepert_noisescale = 1e-4
 
 # build the conv forward pass for a single image:
@@ -61,8 +60,7 @@ def forward(x, params):
   return h, a
 
 # upgrade to handle batches using 'vmap'
-# batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
-batchforward = vmap(forward, in_axes=(0, None), out_axes=(0, 0))
+batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 
 # new noisy forward pass:
 def noisyforward(x, params, randkey):
