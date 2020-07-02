@@ -3,8 +3,6 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-import data_loaders.mnistloader as data
-
 #parse arguments
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 

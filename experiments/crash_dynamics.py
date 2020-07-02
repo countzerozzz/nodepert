@@ -44,24 +44,24 @@ params_new = params
 optimstate = { 'lr' : lr, 't' : 0}
 
 test_acc = []
-num_batches = int(len(data.train_images) / batchsize)
+# num_batches = int(len(data.train_images) / batchsize)
+num_batches = 10
+
 high = -1
 crash = False
-crash_epoch = -1
+stored_epoch = -1
 
 #log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
 for epoch in range(1, num_epochs+1):
     start_time = time.time()
     test_acc.append(train.compute_metrics(params_new, forward, data)[1])
-    
+    print('EPOCH {}\n  test acc: {}'.format(epoch, round(test_acc[-1], 3)))
+
     high = max(test_acc)
-    if(high - test_acc[-1] > 10):
+    if(high - test_acc[-1] > 30):
         print('crash detected! Resetting params')
         crash = True
-        crash_epoch = epoch
         break
-    
-    print('EPOCH ', epoch)
 
     for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
         randkey, _ = random.split(randkey)
@@ -69,56 +69,60 @@ for epoch in range(1, num_epochs+1):
 
     if(epoch % 5 == 0):
         Path(path).mkdir(exist_ok=True)
-        pickle.dump(params, open(path + "model_params.pkl", "wb"))    
+        pickle.dump(params, open(path + "model_params.pkl", "wb"))
+        stored_epoch = epoch
     
     params = params_new
     epoch_time = time.time() - start_time
-    print('epoch training time: {}\n test acc: {}\n'.format(round(epoch_time,2), round(test_acc[-1], 3)))
+    print('epoch training time: {}\n'.format(round(epoch_time,2)))
 
 params = pickle.load(open(path + "model_params.pkl", "rb"))
 
 if(crash):
-    sign_symmetry_df = pd.DataFrame(columns = ['ss_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
-    sign_symmetry_df['update_rule'] = ""
+    # sign_symmetry_df = pd.DataFrame(columns = ['ss_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    # sign_symmetry_df['update_rule'] = ""
     # grad_norms_df = pd.DataFrame(columns = ['gnorm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     # grad_norms_df['update_rule'] = ""
-    # grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
-    # grad_angles_df['update_rule'] = ""
+    grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    grad_angles_df['update_rule'] = ""
     
-    for epoch in range(crash_epoch, crash_epoch + 5):
+    for epoch in range(stored_epoch, stored_epoch + 5):
         print('calculating dynamics for epoch {}.'.format(epoch))
+        if(train.compute_metrics(params, forward, data)[1] < 15):
+            break
 
         for ii in range(num_batches):
-            for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
-                randkey, _ = random.split(randkey)
-                params_new, npgrad, _ = optim.npupdate(x, y, params, randkey, optimstate)
-                _, sgdgrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
-                break
+            x, y = next(data.get_data_batches(batchsize=batchsize, split=data.trainsplit))
+            randkey, _ = random.split(randkey)
+            params_new, npgrad, _ = optim.npupdate(x, y, params, randkey, optimstate)
+            _, sgdgrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
 
-            for x, y in data.get_data_batches(batchsize=5000, split=data.trainsplit):
-                _, truegrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
-                break
+            x, y = next(data.get_data_batches(batchsize=5000, split=data.trainsplit))
+            _, truegrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
             
-            sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad))
-            # grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad))
-            # grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad))
+            # sign_symmetry_df = sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes))
+            # grad_norms_df = grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad, layer_sizes))
+            grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes))
         
-        params = params_new
+            params = params_new
             
 else:
     print("no crash detected, exiting...")
     exit()
 
-df = pd.DataFrame()
-df['test_acc'] = test_acc
-df['epoch'] = np.arange(start=1, stop=num_epochs+1, dtype=int) 
-df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['num_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+grad_angles_df.sort_values(by=['update_rule'], ascending=False, inplace=True)
 pd.set_option('display.max_columns', None)
-print(df.head(10))
+print(grad_angles_df.head(10))
+
+train_df = pd.DataFrame()
+train_df['test_acc'] = test_acc
+train_df['epoch'] = np.arange(start=1, stop=stored_epoch+1, dtype=int) 
+train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['num_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+# print(train_df.head(10))
 
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
     if(not os.path.exists(file_path)):
-        df.to_csv(file_path, mode='a', header=True)
+        train_df.to_csv(file_path, mode='a', header=True)
     else:
-        df.to_csv(file_path, mode='a', header=False)
+        train_df.to_csv(file_path, mode='a', header=False)
