@@ -1,3 +1,6 @@
+#disable long and useless tensorflow warnings!
+import silence_tensorflow.auto
+
 import numpy as np
 import jax.numpy as jnp
 

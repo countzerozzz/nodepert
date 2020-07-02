@@ -1,9 +1,9 @@
 # ignore everything in the experiment log directory
-explogs/
-__pycache__/
+explogs/*
+__pycache__/*
 *.pyc
-tmp/
-.vscode/
+tmp/*
+.vscode/*
 submit_job.sbatch
-logs/
-data/
+logs/*
+data/*
