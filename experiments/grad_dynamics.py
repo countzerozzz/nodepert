@@ -17,8 +17,15 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes):
 
     return sign_symmetry_df
 
-def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes):
-    return
+def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes):
+    col_names = ['gnorm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    graddiff_norms_df = pd.DataFrame(columns = col_names)
+    graddiff_norms_df['update_rule'] = ["np", "sgd"]
+    
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):         
+        graddiff_norms_df[column] = [jnp.linalg.norm(dwtrue - dwnp), jnp.linalg.norm(dwtrue - dwsgd)]
+        
+    return graddiff_norms_df
 
 def grad_angles(npgrad, sgdgrad, truegrad, layer_sizes):
     col_names = ['gangle_w' + str(i) for i in np.arange(1,len(layer_sizes))]

@@ -58,7 +58,7 @@ for epoch in range(1, num_epochs+1):
     print('EPOCH {}\n  test acc: {}'.format(epoch, round(test_acc[-1], 3)))
 
     high = max(test_acc)
-    if(high - test_acc[-1] > 30):
+    if(high - test_acc[-1] > 25):
         print('crash detected! Resetting params')
         crash = True
         break
@@ -81,8 +81,8 @@ params = pickle.load(open(path + "model_params.pkl", "rb"))
 if(crash):
     # sign_symmetry_df = pd.DataFrame(columns = ['ss_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     # sign_symmetry_df['update_rule'] = ""
-    # grad_norms_df = pd.DataFrame(columns = ['gnorm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
-    # grad_norms_df['update_rule'] = ""
+    graddiff_norms_df = pd.DataFrame(columns = ['gnorm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    graddiff_norms_df['update_rule'] = ""
     grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     grad_angles_df['update_rule'] = ""
     
@@ -101,7 +101,7 @@ if(crash):
             _, truegrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
             
             # sign_symmetry_df = sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes))
-            # grad_norms_df = grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad, layer_sizes))
+            graddiff_norms_df = graddiff_norms_df.append(grad_dynamics.graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes))
             grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes))
         
             params = params_new
@@ -110,15 +110,16 @@ else:
     print("no crash detected, exiting...")
     exit()
 
-grad_angles_df.sort_values(by=['update_rule'], ascending=False, inplace=True)
+# grad_angles_df.sort_values(by=['update_rule'], ascending=False, inplace=True)
 pd.set_option('display.max_columns', None)
 print(grad_angles_df.head(10))
+print(graddiff_norms_df.head(10))
 
 train_df = pd.DataFrame()
 train_df['test_acc'] = test_acc
-train_df['epoch'] = np.arange(start=1, stop=stored_epoch+1, dtype=int) 
+train_df['epoch'] = np.arange(start=1, stop=len(test_acc)+1, dtype=int) 
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['num_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
-# print(train_df.head(10))
+print(train_df.head(10))
 
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
