@@ -78,6 +78,13 @@ for epoch in range(1, num_epochs+1):
 params = pickle.load(open(path + "model_params.pkl", "rb"))
 
 if(crash):
+    sign_symmetry_df = pd.DataFrame(columns = ['ss_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    sign_symmetry_df['update_rule'] = ""
+    # grad_norms_df = pd.DataFrame(columns = ['gnorm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    # grad_norms_df['update_rule'] = ""
+    # grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    # grad_angles_df['update_rule'] = ""
+    
     for epoch in range(crash_epoch, crash_epoch + 5):
         print('calculating dynamics for epoch {}.'.format(epoch))
 
@@ -92,9 +99,9 @@ if(crash):
                 _, truegrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
                 break
             
-            grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad)
-            grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad)
-            grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad)
+            sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad))
+            # grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad))
+            # grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad))
         
         params = params_new
             
