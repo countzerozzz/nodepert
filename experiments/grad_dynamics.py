@@ -3,6 +3,8 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+NEG_INF = -10e6
+
 def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 
@@ -16,14 +18,27 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes):
     sign_symmetry_df = pd.DataFrame(columns = col_names)
     sign_symmetry_df['update_rule'] = ["np", "sgd"]
     for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):
-        ss_np = np.sum(np.array(jnp.multiply(dwnp, dwtrue)) >= 0)
-        ss_sgd = np.sum(np.array(jnp.multiply(dwsgd, dwtrue)) >= 0)
+        tmp = np.array(jnp.multiply(dwnp, dwtrue))
+        ss_np = np.sum(tmp >= 0) / np.sum(tmp >= NEG_INF)
+        tmp = np.array(jnp.multiply(dwsgd, dwtrue))
+        ss_sgd = np.sum(tmp >= 0) / np.sum(tmp >= NEG_INF)
+        
         sign_symmetry_df[column] = [ss_np, ss_sgd]
 
     return sign_symmetry_df
 
-def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes):
+def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes):
     col_names = ['gnorm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    grad_norms_df = pd.DataFrame(columns = col_names)
+    grad_norms_df['update_rule'] = ["np", "sgd", "true"]
+    
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):         
+        grad_norms_df[column] = [jnp.linalg.norm(dwnp), jnp.linalg.norm(dwsgd), jnp.linalg.norm(dwtrue)]
+        
+    return grad_norms_df
+
+def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes):
+    col_names = ['gdiff_norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
     graddiff_norms_df = pd.DataFrame(columns = col_names)
     graddiff_norms_df['update_rule'] = ["np", "sgd"]
     
