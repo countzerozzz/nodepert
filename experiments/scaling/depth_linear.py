@@ -4,7 +4,8 @@ importlib.reload(npimports)
 from npimports import *
 
 ### FUNCTIONALITY ###
-# this code is for finding the scalability of node perturbation with width for a single hidden layer, fully connected non-linear networks
+# this code is for finding the scalability of node perturbation with depth (constant width) for fully connected linear networks
+# note: critical lr for a linear network is much smaller!
 ###
 
 config = {}
@@ -20,11 +21,11 @@ randkey = random.PRNGKey(jobid)
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
 
-ROW_DATA = 'network width' 
-rows = [100, 500, 1000, 5000, 10000]
+ROW_DATA = 'network depth' 
+rows = [1, 2, 3, 4, 6, 8]
 row_id = jobid % len(rows)
-hl_size = rows[row_id]
-n_hl = 1
+n_hl = rows[row_id]
+hl_size = 500
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -37,7 +38,7 @@ params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
+forward = fc.batchlinforward
 if(update_rule == 'np'):
     gradfunc = optim.npupdate
 elif(update_rule == 'sgd'):
@@ -45,7 +46,11 @@ elif(update_rule == 'sgd'):
 
 params = fc.init(layer_sizes, randkey)
 
-optimstate = { 'lr' : lr, 't' : 0}
+# Note: The way of creating a linear fwd pass is currently a hack! - value of 'linear' in the optimstate dictionary has no use (dummy val). 
+# The optim.npupdate function checks if 'linear' is present as a key in this dictionary and if so, calls the fc.batchlinforward. This hacky 
+# method is used as the npupdate function is jitted and branching can't be made by evaluating a value passed to the function.
+
+optimstate = { 'lr' : lr, 't' : 0, 'linear': 1}
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -66,8 +71,8 @@ print(df.head(5))
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'width.csv')):
-        df.to_csv(path + 'width.csv', mode='a', header=True)
+    if(not os.path.exists(path + 'depth_linear.csv')):
+        df.to_csv(path + 'depth_linear.csv', mode='a', header=True)
     else:
-        df.to_csv(path + 'width.csv', mode='a', header=False)
+        df.to_csv(path + 'depth_linear.csv', mode='a', header=False)
     

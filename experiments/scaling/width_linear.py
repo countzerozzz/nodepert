@@ -4,7 +4,8 @@ importlib.reload(npimports)
 from npimports import *
 
 ### FUNCTIONALITY ###
-# this code is for finding the scalability of node perturbation with width for a single hidden layer, fully connected non-linear networks
+# this code is for finding the scalability of node perturbation with width for a fully connected, single hidden layer linear network
+# note: critical lr for a linear network is much smaller!
 ###
 
 config = {}
@@ -37,7 +38,7 @@ params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
+forward = fc.batchlinforward
 if(update_rule == 'np'):
     gradfunc = optim.npupdate
 elif(update_rule == 'sgd'):
@@ -45,7 +46,11 @@ elif(update_rule == 'sgd'):
 
 params = fc.init(layer_sizes, randkey)
 
-optimstate = { 'lr' : lr, 't' : 0}
+# Note: The way of creating a linear fwd pass is currently a hack! - value of 'linear' in the optimstate dictionary has no use (dummy val). 
+# The optim.npupdate function checks if 'linear' is present as a key in this dictionary and if so, calls the fc.batchlinforward. This hacky 
+# method is used as the npupdate function is jitted and branching can't be made by evaluating a value passed to the function.
+
+optimstate = { 'lr' : lr, 't' : 0, 'linear': 1}
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -66,8 +71,8 @@ print(df.head(5))
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'width.csv')):
-        df.to_csv(path + 'width.csv', mode='a', header=True)
+    if(not os.path.exists(path + 'width_linear.csv')):
+        df.to_csv(path + 'width_linear.csv', mode='a', header=True)
     else:
-        df.to_csv(path + 'width.csv', mode='a', header=False)
+        df.to_csv(path + 'width_linear.csv', mode='a', header=False)
     

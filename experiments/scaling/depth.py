@@ -9,8 +9,8 @@ from npimports import *
 
 config = {}
 # parse arguments
-network, update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata, jobid = utils.parse_args()
-config['compute_norms'] = False
+network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
+config['compute_norms'], config['batchsize'], config['num_epochs'] = False, batchsize, num_epochs
 
 # folder to log experiment results
 path = "explogs/scaling/"
@@ -37,7 +37,7 @@ params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchlinforward
+forward = fc.batchforward
 if(update_rule == 'np'):
     gradfunc = optim.npupdate
 elif(update_rule == 'sgd'):
@@ -55,17 +55,19 @@ params, optimstate, expdata = train.train(  params,
                                             gradfunc,
                                             optimstate,
                                             randkey,
-                                            verbose = True)
+                                            verbose = False)
 
-train_df = pd.DataFrame.from_dict(expdata)
+df = pd.DataFrame.from_dict(expdata)
+
 pd.set_option('display.max_columns', None)
-print(train_df.head(5))
+df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+print(df.head(5))
 
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
     if(not os.path.exists(path + 'depth.csv')):
-        train_df.to_csv(path + 'depth.csv', mode='a', header=True)
+        df.to_csv(path + 'depth.csv', mode='a', header=True)
     else:
-        train_df.to_csv(path + 'depth.csv', mode='a', header=False)
+        df.to_csv(path + 'depth.csv', mode='a', header=False)
     
