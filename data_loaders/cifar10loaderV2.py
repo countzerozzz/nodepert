@@ -20,6 +20,7 @@ test_x, test_y = list(zip(*data))
 
 num_classes = 10
 num_pixels = 3072
+num_train = 50000
 
 # select which split of the data to use:
 trainsplit = 'train[:100%]'

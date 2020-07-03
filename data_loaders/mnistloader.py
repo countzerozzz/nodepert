@@ -30,6 +30,7 @@ train_data = tfds.as_numpy(train_data)
 
 # full train set:
 train_images = train_data['image']
+num_train = len(train_images)
 
 # compute essential statistics for the dataset on the full trainset:
 data_minval = train_images.min()
