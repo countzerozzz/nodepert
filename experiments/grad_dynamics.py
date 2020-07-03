@@ -12,8 +12,13 @@ def angle_between(v1, v2):
     return np.degrees(np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)))
 
 def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes):
-    sign_symmetry_df = pd.DataFrame(columns = ['ss_w' + str(i) for i in np.arange(1,len(layer_sizes))])
-    sign_symmetry_df['update_rule'] = ""
+    col_names = ['ss_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    sign_symmetry_df = pd.DataFrame(columns = col_names)
+    sign_symmetry_df['update_rule'] = ["np", "sgd"]
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):
+        ss_np = np.sum(np.array(jnp.multiply(dwnp, dwtrue)) >= 0)
+        ss_sgd = np.sum(np.array(jnp.multiply(dwsgd, dwtrue)) >= 0)
+        sign_symmetry_df[column] = [ss_np, ss_sgd]
 
     return sign_symmetry_df
 
