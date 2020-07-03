@@ -35,8 +35,6 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
   expdata['epoch_time'] = []
   expdata['train_acc'] = []
   expdata['test_acc'] = []
-  expdata['param_norms'] = []
-  expdata['grad_norms'] = []
 
   # compute metrics and norms before we start training:
   train_acc, test_acc = compute_metrics(params, forward, data)
@@ -48,8 +46,12 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
   expdata['epoch_time'].append(0.0)
   expdata['train_acc'].append(train_acc)
   expdata['test_acc'].append(test_acc)
-  expdata['param_norms'].append(param_norms)
-  expdata['grad_norms'].append(grad_norms)
+  
+  if(config['compute_norms']):
+    expdata['param_norms'] = []
+    expdata['grad_norms'] = []
+    expdata['param_norms'].append(param_norms)
+    expdata['grad_norms'].append(grad_norms)
 
   print('start training...\n')
 
@@ -64,9 +66,7 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
 
     # compute metrics and norms:
     train_acc, test_acc = compute_metrics(params, forward, data)
-    param_norms = compute_norms(params)
-    grad_norms = compute_norms(grads)
-
+  
     epoch_time = time.time() - start_time
 
     # log experiment data:
@@ -74,8 +74,12 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     expdata['epoch_time'].append(epoch_time)
     expdata['train_acc'].append(train_acc)
     expdata['test_acc'].append(test_acc)
-    expdata['param_norms'].append(param_norms)
-    expdata['grad_norms'].append(grad_norms)
+    
+    if(config['compute_norms']):
+      param_norms = compute_norms(params)
+      grad_norms = compute_norms(grads)
+      expdata['param_norms'].append(param_norms)
+      expdata['grad_norms'].append(grad_norms)
 
     if(verbose):
       # get data to test whether we're saturating our nonlinearites;
@@ -86,9 +90,11 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
       print("\nEpoch {} in {:0.2f} sec".format(epoch, epoch_time))
       print("Training set accuracy {}".format(train_acc))
       print("Test set accuracy {}".format(test_acc))
-      print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
-      print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
-      print("Norm of penultimate layer {}".format(jnp.linalg.norm(h[-2][0,:])))
+      
+      if(config['compute_norms']):
+        print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
+        print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
+        print("Norm of penultimate layer {}".format(jnp.linalg.norm(h[-2][0,:])))
       # print("Sample penultimate layer {}".format(h[-2][0,0:5]))
       # print("Sample final layer {}".format(h[-1][0,0:5]))
     else:

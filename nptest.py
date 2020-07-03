@@ -3,8 +3,6 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-import data_loaders.mnistloader as data
-
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
@@ -15,7 +13,6 @@ path = 'explogs/train/'
 config = {}
 config['num_epochs'] = num_epochs = 15
 config['batchsize'] = batchsize = 100
-config['num_classes'] = num_classes = data.num_classes
 
 # build our network
 layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
