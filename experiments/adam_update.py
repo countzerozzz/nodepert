@@ -3,25 +3,26 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-import data_loaders.mnistloader as data
+### FUNCTIONALITY ###
+# this code updates network weights with an Adam-like update rule using the NP gradients. Storing the final accuracy reached by the network after some 
+# number of epochs. Paper: https://arxiv.org/pdf/1412.6980.pdf
+###
 
-#parse arguments
 config = {}
+# parse arguments
+network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
-network, update_rule, n_hl, lr, config['batchsize'], hl_size, config['num_epochs'], log_expdata, jobid = utils.parse_args()
-path = os.path.join("explogs/adamupdate", update_rule)
+# folder to log experiment results
+path = "explogs/adamupdate/"
 randkey = random.PRNGKey(jobid)
+
+# a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
+# the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
 
 rows = np.logspace(start=-6, stop=-2, num=25, endpoint=True, base=10, dtype=np.float32)
 ROW_DATA = 'learning_rate'
-# cols = [32] 
-# COL_DATA = 'convchannels'
-
 row_id = jobid % len(rows)
-# col_id = (jobid//len(rows)) % len(cols)
-
 lr = rows[row_id]
-# convchannels = cols[col_id]
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -41,48 +42,51 @@ elif(update_rule == 'sgd'):
     gradfunc = optim.sgdupdate
 
 params = fc.init(layer_sizes, randkey)
-forward = fc.batchforward
 itercount = itertools.count()
 
 @jit
 def update(i, grads, opt_state):
     return opt_update(i, grads, opt_state)
 
+# initialize the built-in JAX adam optimizer
 opt_init, opt_update, get_params = optimizers.adam(lr)
 
 opt_state = opt_init(params)
 itercount = itertools.count()
 
-#no use of this optimstate here
+# no use of this optimstate here and dummy value passed as the lr. This is just to get the np gradients.
 optimstate = { 'lr' : 0, 't' : 0 }
 test_acc = []
 
-for epoch in range(1, config['num_epochs']+1):
-    start_time=time.time()
+for epoch in range(1, num_epochs + 1):
+    start_time = time.time()
     
     test_acc.append(train.compute_metrics(params, forward, data)[1])
 
     print('EPOCH ', epoch)
-    for x, y in data.get_data_batches(batchsize=config['batchsize'], split=data.trainsplit):
+    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
         randkey, _ = random.split(randkey)
+        # get the gradients, throw away the traditional weight updates
         _, grads, _ = gradfunc(x, y, params, randkey, optimstate)
+        # pass the gradients to the JAX adam function
         opt_state = update(next(itercount), grads, opt_state)
         params = get_params(opt_state)
 
     epoch_time = time.time() - start_time
-    print('epoch training time: {}\n test acc: {}\n'.format(round(epoch_time,2), round(test_acc[-1], 3)))
+    print('epoch training time: {}\n test acc: {}\n'.format(round(epoch_time, 2), round(test_acc[-1], 3)))
 
-final_acc = np.mean(test_acc[-5:])
+df = pd.DataFrame()
+pd.set_option('display.max_columns', None)
+# take the mean of the last 5 epochs as the final accuracy
+df['final_acc'] = np.mean(test_acc[-5:])
+df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+print(df.head(5))
 
-def file_writer(path):
-    with open(path+'adam.csv', 'a') as csvFile:
-        writer = csv.writer(csvFile, lineterminator=' , ')
-        writer.writerow([str(final_acc)])
-        csvFile.flush()
-
-    csvFile.close()
-    return
-
+# save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    file_writer(path)
+    if(not os.path.exists(path + 'expdata.csv')):
+        df.to_csv(path + 'expdata.csv', mode='a', header=True)
+    else:
+        df.to_csv(path + 'expdata.csv', mode='a', header=False)
+    

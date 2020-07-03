@@ -3,12 +3,16 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+### FUNCTIONALITY ###
+# utility functions for crash_dynamics for measuring the grad_norm, (noise of gradient)_norm, sign symmetry and angle between 'true' gradient and gradient estimates.
+###
+
 NEG_INF = -10e6
 
 def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 
-#calculate the cosine of the angle between 2 vectors
+# calculate the cosine of the angle between 2 vectors
 def angle_between(v1, v2):
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
@@ -22,9 +26,9 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes):
     for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):
         # do a elementwise product and then calculate the number of entries which are positive
         tmp = np.array(jnp.multiply(dwnp, dwtrue))
-        ss_np = np.sum(tmp >= 0) / np.sum(tmp >= NEG_INF)
+        ss_np = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
         tmp = np.array(jnp.multiply(dwsgd, dwtrue))
-        ss_sgd = np.sum(tmp >= 0) / np.sum(tmp >= NEG_INF)
+        ss_sgd = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
         
         sign_symmetry_df[column] = [ss_np, ss_sgd]
 

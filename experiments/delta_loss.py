@@ -4,7 +4,8 @@ importlib.reload(npimports)
 from npimports import *
 
 ### FUNCTIONALITY ###
-# this code calculates the change in the loss function with every update as the training progresses
+# this code tracks the change in the loss with every update as the training progresses. Test accuracy is measured after every epoch whereas the 
+# average change in the loss is evaluated 'log_frequency' number of times in an epoch.
 ###
 
 # parse arguments
@@ -18,7 +19,7 @@ randkey = random.PRNGKey(jobid)
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
 
-ROW_DATA = 'number of hidden layers' 
+ROW_DATA = 'network depth' 
 rows = [1, 2, 3, 4]
 row_id = jobid % len(rows)
 n_hl = rows[row_id]
@@ -52,7 +53,7 @@ del_loss = []
 
 for epoch in range(1, num_epochs+1):
     start_time = time.time()
-    test_acc.append(train.compute_metrics(params_new, forward, data)[1])
+    test_acc.append(train.compute_metrics(params, forward, data)[1])
     print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
 
     epochdel_loss = []
@@ -60,27 +61,28 @@ for epoch in range(1, num_epochs+1):
         randkey, _ = random.split(randkey)
         params_new, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
         
-        epochdel_loss.append(optim.loss(x, y, new_params) - optim.loss(x, y, params))
+        epochdel_loss.append(optim.loss(x, y, params_new) - optim.loss(x, y, params))
         params = params_new
     
-    del_loss.extend(np.mean(epochdel_loss.reshape(-1, log_frequency), axis=1))
+    del_loss.extend(np.mean(np.array(epochdel_loss).reshape(-1, log_frequency), axis=0))
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
-train_df = pd.DataFrame()
-train_df['del_loss'] = del_loss
-train_df['test_acc'] = np.repeat(test_acc, log_frequency)
+df = pd.DataFrame()
+df['del_loss'] = del_loss
+df['test_acc'] = np.repeat(test_acc, log_frequency)
 epochs = np.arange(start=1, stop=len(test_acc)+1, dtype=int) 
-train_df['epoch'] = np.repeat(epochs, log_frequency)
-train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+df['epoch'] = np.repeat(epochs, log_frequency)
+df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
+
+pd.set_option('display.max_columns', None)
+print(df.head(15))
 
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
     if(not os.path.exists(file_path)):
-        train_df.to_csv(path + 'train_df.csv', mode='a', header=True)
-        delta_loss_df.to_csv(path + 'delta_loss.csv', mode='a', header=True)
+        df.to_csv(path + 'expdata.csv', mode='a', header=True)
     else:
-        train_df.to_csv(path + 'train_df.csv', mode='a', header=False)
-        delta_loss_df.to_csv(path + 'delta_loss.csv', mode='a', header=False)
+        df.to_csv(path + 'expdata.csv', mode='a', header=False)
     

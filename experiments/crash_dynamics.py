@@ -5,22 +5,26 @@ from npimports import *
 
 import grad_dynamics
 
-#parse arguments
+### FUNCTIONALITY ###
+# this code measures the grad_norm, (noise of gradient)_norm, sign symmetry and angle between 'true' gradient and gradient estimates when the network crashes.
+# there is a crash if the current accuracy is less than 'x%' from the max accuracy. When a crash is detected, the network restarts from the last checkpoint
+# and then performs the above mentioned calculations wrt the gradients.
+###
+
+# parse arguments
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
-#folder to log experiment results
+# folder to log experiment results
 path = "explogs/crash_dynamics/"
 
 randkey = random.PRNGKey(jobid)
 
-# a list for running parallel jobs in slurms. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
+# a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
 rows = np.logspace(start=-3, stop=-1, num=10, endpoint=True, base=10, dtype=np.float32)
-
 row_id = jobid % len(rows)
-
 lr = rows[row_id]
 
 # build our network
@@ -135,7 +139,7 @@ train_df['epoch'] = np.arange(start=1, stop=len(test_acc)+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
 print(train_df.head(10))
 
-#store the experimental data
+# save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
     grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=True)
