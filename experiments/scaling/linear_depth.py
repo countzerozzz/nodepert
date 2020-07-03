@@ -28,6 +28,10 @@ if(update_rule == 'np'):
 elif(update_rule == 'sgd'):
     optimizer = optim.sgdupdate
 
+# Note: The way of creating a linear fwd pass is currently a hack! - value of 'linear' in the optimstate dictionary has no use (dummy val). 
+# The optim.npupdate function checks if 'linear' is present as a key in this dictionary and if so, calls the fc.batchlinforward. This hacky 
+# method is used as the npupdate function is jitted and branching can't be made by evaluating a value passed to the function.
+
 optimstate = { 'lr' : lr, 't' : 0 }
 
 # now train
