@@ -36,4 +36,4 @@ Pull requests are welcome! For major changes, please open an issue first to disc
 A thanks to the creators of JAX who were responsive in helping us get set up when the installation for JAX failed.
 
 ## License
-???
+The source code for this project is licensed under the [MIT license](LICENSE.md).
