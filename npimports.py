@@ -27,8 +27,8 @@ import models.optim as optim
 import models.losses as losses
 import models.metrics as metrics
 #change here directly when we want to perform experiments with different datasets.
-# import data_loaders.mnist_loader as data
-import data_loaders.fmnist_loader as data
+import data_loaders.mnist_loader as data
+# import data_loaders.fmnist_loader as data
 # import data_loaders.cifar10_loader as data
 
 import importlib
