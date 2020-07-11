@@ -82,6 +82,14 @@ def npwdupdate(x, y, params, randkey, optimstate):
     return [(w - lr*dw - wd*w, b - lr*db - wd*b)
             for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
 
+@jit
+def sgdwdupdate(x, y, params, randkey, optimstate):
+    print('building sgd update')
+    lr = optimstate['lr']
+    wd = optimstate['wd']
+    grads = grad(loss, argnums = (2))(x, y, params)
+    return [(w - lr*dw - wd*w, b - lr*db - wd*b)
+            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
 
 
 # This is the old, by hand way we used to compute the np updates:
