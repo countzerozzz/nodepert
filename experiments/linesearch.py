@@ -3,15 +3,40 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
-#parse arguments
+from linesearch_utils import linesearchfunc
+
+### FUNCTIONALITY ###
+# the aim is to see how the critical learning rate (max lr above which the network doesn't learn) and optimal lr change as training progresses. 
+# we would like to know what this curve looks like as the training progresses. The next thing we want to compare are the curves when 
+# we are looking at a single update vs t-step update. Do they follow a similar pattern?
+###
+
 config = {}
-update_rule, n_hl, lrtrain, config['batchsize'], hl_size, config['num_epochs'], log_expdata = utils.parse_args()
-path = 'explogs/analysis/linesearch/'
-seed=int(time.time())
-randkey = random.PRNGKey(seed)
+# parse arguments
+network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
+config['compute_norms'], config['batchsize'], config['num_epochs'] = False, batchsize, num_epochs
+
+# folder to log experiment results
+path = "explogs/linesearch/"
+
+randkey = random.PRNGKey(jobid)
+
+# a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
+# the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
+
+step_type = 'single-step' # 't-step' 
+
+rows = [1,2,3]
+ROW_DATA = 'network depth'
+row_id = jobid % len(rows)
+n_hl = rows[row_id]
+
+# linesearch parameters: pick 'num' number of different lr values at regular log intervals in belween 10e(start) and 10e(end).
+start, stop, num = -6, -2, 10
 
 # build our network
 layer_sizes = [data.num_pixels]
+
 for i in range(n_hl):
     layer_sizes.append(hl_size)
 layer_sizes.append(data.num_classes)
@@ -23,85 +48,43 @@ print("Network structure: {}".format(layer_sizes))
 # get forward pass, optimizer, and optimizer state + params
 forward = fc.batchforward
 if(update_rule == 'np'):
-    optimizer = optim.npupdate
+    gradfunc = optim.npupdate
 elif(update_rule == 'sgd'):
-    optimizer = optim.sgdupdate
-
-forward = fc.batchforward
-batchmseloss = losses.batchmseloss
-
-@jit
-def lossfunc(x, y, params):
-    h, a = forward(x, params)
-    loss = batchmseloss(h[-1], y).sum()
-    return loss
-
-
-def linesearchfunc(randkey, start, stop, num):
-    learning_rates=np.logspace(start, stop, num, endpoint=True, base=10, dtype=np.float32)
-    df = pd.DataFrame()
-    df['lr'] = learning_rates
-    npdelta_l = []
-    sgddelta_l = []
-
-    for lr in learning_rates:
-        nptmp = []
-        sgdtmp = []
-        optimstate = { 'lr' : lr, 't' : 0 }
-        
-        #set the percentage of test samples which should be averaged over, while calculating delta_L 
-        for x, y in data.get_data_batches(batchsize=100, split='test[:25%]'):
-            randkey, _ = random.split(randkey)
-            params_new, _, _ = optim.npupdate(x, y, params, randkey, optimstate)
-            nptmp.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
-            params_new, _, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
-            sgdtmp.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
-
-        npdelta_l.append(jnp.mean(jnp.array(nptmp)))
-        sgddelta_l.append(jnp.mean(jnp.array(sgdtmp)))
-
-        print('NP - learning rate {} , average Delta_L {}'.format(lr, npdelta_l[-1]))
-        print('SGD - learning rate {} , average Delta_L {}\n'.format(lr, sgddelta_l[-1]))
-    
-    df['np'] = npdelta_l
-    df['sgd'] = sgddelta_l
-
-    return df
-
-# the points along the training trajectory which we want to compute linesearch
-linesearch_points=[0, 95]
+    gradfunc = optim.sgdupdate
 
 params = fc.init(layer_sizes, randkey)
-optimstate = { 'lr' : lrtrain, 't' : 0 }
-expdata = {}
-ptr=0
 
-for epoch in range(1, config['num_epochs']+1):
-    train_acc, test_acc = train.compute_metrics(params, forward, data)
-    
-    if(train_acc > linesearch_points[ptr]):
-        print('\ncomputing linesearch, network snapshot @ {} train acc'.format(round(train_acc,3)))
-        start_time = time.time()
-        #between base^(start) and base^(stop), will perform linesearch for 'num' values in a loginterval
-        expdata.update({linesearch_points[ptr] : linesearchfunc(randkey, start=0, stop=-4, num=25)})
-        print('time to perform linesearch : ', round((time.time()-start_time), 2), ' s')
-        ptr+=1
-        if(ptr==len(linesearch_points)):
-            break
+optimstate = { 'lr' : lr, 't' : 0}
+test_acc = []
+df = pd.DataFrame()
 
-    print('EPOCH ', epoch)
+for epoch in range(1, num_epochs+1):
     start_time = time.time()
+    test_acc.append(train.compute_metrics(params, forward, data)[1])
+    print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
 
-    for x, y in data.get_data_batches(batchsize=config['batchsize'], split=data.trainsplit):
+    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
         randkey, _ = random.split(randkey)
-        params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
+        params, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
 
+    # condition for performing linesearch: every x epochs or at some particular test accuracy
+    if(test_acc[-1] > 45):
+    # if(epoch % 5 == 0):
+        meta_data = (forward, step_type, n_hl, update_rule, hl_size)
+        df = df.append(linesearchfunc(randkey, params, start, stop, num, meta_data))
+        break
+    
     epoch_time = time.time() - start_time
-    print('epoch training time: {} train acc: {}'.format(round(epoch_time,2), round(train_acc, 3)))
+    print('epoch training time: {}s\n'.format(round(epoch_time, 2)))
 
-# save out results of experiment
+pd.set_option('display.max_columns', None)
+print(df.head(5))
+
+# save the results of our experiment
 if(log_expdata):
-    elapsed_time = 0
-    meta_data=update_rule, n_hl, lrtrain, config['batchsize'], hl_size, config['num_epochs'], elapsed_time
-    utils.file_writer(path+'expdata.pkl', expdata, meta_data)
- 
+    Path(path).mkdir(parents=True, exist_ok=True)
+    if(not os.path.exists(path + 'expdata.csv')):
+        df.to_csv(path + 'expdata.csv', mode='a', header=True)
+    else:
+        df.to_csv(path + 'expdata.csv', mode='a', header=False)
+    

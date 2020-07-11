@@ -81,7 +81,7 @@ print(df.head(15))
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(file_path)):
+    if(not os.path.exists(path + 'expdata.csv')):
         df.to_csv(path + 'expdata.csv', mode='a', header=True)
     else:
         df.to_csv(path + 'expdata.csv', mode='a', header=False)

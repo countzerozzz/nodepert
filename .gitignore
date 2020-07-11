@@ -4,6 +4,7 @@ __pycache__/*
 *.pyc
 tmp/*
 .vscode/*
-submit_job.sbatch
+*.sbatch
 logs/*
 data/*
+meta_jobscript.sh
