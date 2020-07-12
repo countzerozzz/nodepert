@@ -29,9 +29,7 @@ def sgdupdate(x, y, params, randkey, optimstate):
     lr = optimstate['lr']
     if('linear' in optimstate):
         global forward
-        global noisyforward
         forward = fc.batchlinforward
-        noisyforward = fc.batchnoisylinforward
 
     grads = grad(loss, argnums = (2))(x, y, params)
     return [(w - lr*dw, b - lr*db)

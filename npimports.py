@@ -11,7 +11,7 @@ import matplotlib.pyplot as pp
 import matplotlib
 import seaborn as sns
 import pandas as pd
-import time, copy
+import time, copy, re
 import pickle
 import csv
 import itertools

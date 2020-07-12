@@ -4,7 +4,5 @@ __pycache__/*
 *.pyc
 tmp/*
 .vscode/*
-*.sbatch
 logs/*
 data/*
-meta_jobscript.sh
