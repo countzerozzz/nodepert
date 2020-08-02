@@ -8,7 +8,7 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 import models.fc as fc
-import models.conv as conv
+# import models.conv as conv
 import models.losses as losses
 
 # defaults
@@ -60,7 +60,7 @@ def nploss(x, y, params, randkey):
 @jit
 def npupdate(x, y, params, randkey, optimstate):
     lr = optimstate['lr']
-    
+
     if('linear' in optimstate):
         global forward
         global noisyforward

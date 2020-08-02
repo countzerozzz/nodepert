@@ -15,7 +15,7 @@ import time, copy, re
 import pickle
 import csv
 import itertools
-import os 
+import os
 from pathlib import Path
 
 import data_loaders
@@ -26,6 +26,7 @@ import models.conv as conv
 import models.optim as optim
 import models.losses as losses
 import models.metrics as metrics
+
 #change here directly when we want to perform experiments with different datasets.
 import data_loaders.mnist_loader as data
 # import data_loaders.fmnist_loader as data
