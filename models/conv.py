@@ -1,7 +1,18 @@
-import npimports
-import importlib
-importlib.reload(npimports)
-from npimports import *
+import numpy as np
+import jax
+import jax.numpy as jnp
+from jax import random
+from jax import grad
+from jax import vmap
+from jax import jit
+from jax.scipy.special import logsumexp
+from jax.nn import sigmoid
+import data_loaders.mnist_loader as data
+
+# import npimports
+# import importlib
+# importlib.reload(npimports)
+# from npimports import *
 
 # define element-wise relu:
 def relu(x):

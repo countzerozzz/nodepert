@@ -13,6 +13,7 @@ path = 'explogs/train/'
 config = {}
 config['num_epochs'] = num_epochs = 15
 config['batchsize'] = batchsize = 100
+config['compute_norms'] = False
 
 # build our network
 layer_sizes = [data.num_pixels, 500, 500, data.num_classes]

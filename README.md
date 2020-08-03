@@ -19,6 +19,8 @@ See requirements.txt file for the project dependencies, which can be installed v
 pip3 install -r requirements.txt
 ```
 
+Note that this will install tensorflow, which may attempt to install a different version of numpy & scipy than you have installed at present.
+
 ## Usage
 
 To run a basic test, change into the cloned direction and open a Python
