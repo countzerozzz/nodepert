@@ -2,7 +2,7 @@
 
 if [ $1 == 'trial' ]
 then
-    sbatch --array=5 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'crash-dynamics' ]
 then

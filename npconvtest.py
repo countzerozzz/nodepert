@@ -10,7 +10,7 @@ randkey = random.PRNGKey(0)
 config = {}
 config['num_epochs'] = num_epochs = 5
 config['batchsize'] = batchsize = 100
-config['num_classes'] = num_classes = data.num_classes
+config['num_classes'] = data.num_classes
 config['compute_norms'] = False
 
 #length of convout_channels has to be same as convlayer_sizes!
@@ -32,7 +32,7 @@ params = convparams
 params.append(fcparams)
 
 # get forward pass, optimizer, and optimizer state + params
-forward = optim.forward = conv.batchforward
+forward = conv.batchforward
 optim.forward = conv.batchforward
 optim.noisyforward = conv.batchnoisyforward
 
