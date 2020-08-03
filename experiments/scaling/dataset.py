@@ -4,7 +4,7 @@ importlib.reload(npimports)
 from npimports import *
 
 ### FUNCTIONALITY ###
-# this code is for finding the scalability of node perturbation with width for a single hidden layer, fully connected non-linear networks
+# this code is for finding the scalability of node perturbation with depth (constant width) for fully connected non-linear networks
 ###
 
 config = {}
@@ -19,7 +19,6 @@ randkey = random.PRNGKey(jobid)
 
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
-
 num = 25 # number of learning rates
 
 rows = np.logspace(-5, -1, num, endpoint=True, base=10, dtype=np.float32)
@@ -67,8 +66,8 @@ print(df.head(5))
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'width.csv')):
-        df.to_csv(path + 'width.csv', mode='a', header=True)
+    if(not os.path.exists(path + 'dataset.csv')):
+        df.to_csv(path + 'dataset.csv', mode='a', header=True)
     else:
-        df.to_csv(path + 'width.csv', mode='a', header=False)
+        df.to_csv(path + 'dataset.csv', mode='a', header=False)
     
