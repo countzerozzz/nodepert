@@ -8,13 +8,13 @@ randkey = random.PRNGKey(0)
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 5
+config['num_epochs'] = num_epochs = 50
 config['batchsize'] = batchsize = 100
 config['num_classes'] = num_classes = data.num_classes
 config['compute_norms'] = False
 
 #length of convout_channels has to be same as convlayer_sizes!
-convout_channels = [32, 32, 32]
+convout_channels = [64, 64, 64]
 
 #format (kernel height, kernel width, input channels, output channels)
 convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
@@ -36,8 +36,8 @@ forward = optim.forward = conv.batchforward
 optim.forward = conv.batchforward
 optim.noisyforward = conv.batchnoisyforward
 
-optimizer = optim.npupdate
-optimstate = { 'lr' : 5e-5, 't' : 0 }
+optimizer = optim.sgdupdate
+optimstate = { 'lr' : 1e-2, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
