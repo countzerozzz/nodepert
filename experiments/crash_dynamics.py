@@ -56,9 +56,8 @@ optimstate = { 'lr' : lr, 't' : 0}
 test_acc = []
 
 # define metrics for measuring a crash
-high = -1
-crash = False
-stored_epoch = -1
+high = -1; crash = False
+stored_epoch = -1; interval = 1  # interval of batches to computer grad dynamics over after a crash.
 
 # log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
 for epoch in range(1, num_epochs + 1):
@@ -116,7 +115,7 @@ if(crash):
             params, npgrad, _ = optim.npupdate(x, y, params, randkey, optimstate)
             _, sgdgrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
 
-            if(batch_id % 1 == 0):
+            if(batch_id % interval == 0):
                 test_acc.append(train.compute_metrics(params, forward, data, split_percent)[1])
                 _, truegrad, _ = optim.sgdupdate(xl, yl, params, randkey, optimstate)
 
@@ -131,10 +130,10 @@ else:
     print("no crash detected, exiting...")
     exit()
 
-grad_norms_df['test_acc'] = np.repeat(test_acc, 3)
-graddiff_norms_df['test_acc'] = np.repeat(test_acc, 2)
-sign_symmetry_df['test_acc'] = np.repeat(test_acc, 2)
-grad_angles_df['test_acc'] = np.repeat(test_acc, 2)
+grad_norms_df['test_acc'], grad_norms_df['jobid'] = np.repeat(test_acc, 3), jobid
+graddiff_norms_df['test_acc'], graddiff_norms_df['jobid'] = np.repeat(test_acc, 2), jobid
+sign_symmetry_df['test_acc'], sign_symmetry_df['jobid'] = np.repeat(test_acc, 2), jobid
+grad_angles_df['test_acc'], grad_angles_df['jobid'] = np.repeat(test_acc, 2), jobid
 
 pd.set_option('display.max_columns', None)
 print(grad_norms_df.head(5))
@@ -148,10 +147,14 @@ print(train_df.head(10))
 
 # save the results of our experiment
 if(log_expdata):
+    use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=True)
-    graddiff_norms_df.to_csv(path + 'graddiff_norms.csv', mode='a', header=True)
-    sign_symmetry_df.to_csv(path + 'sign_symmetry.csv', mode='a', header=True)
-    grad_angles_df.to_csv(path + 'grad_angles.csv', mode='a', header=True)
-    train_df.to_csv(path + 'train_df.csv', mode='a', header=True)
+    if(not os.path.exists(path + 'grad_norms.csv')):
+        use_header = True
+    
+    grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=use_header)
+    graddiff_norms_df.to_csv(path + 'graddiff_norms.csv', mode='a', header=use_header)
+    sign_symmetry_df.to_csv(path + 'sign_symmetry.csv', mode='a', header=use_header)
+    grad_angles_df.to_csv(path + 'grad_angles.csv', mode='a', header=use_header)
+    train_df.to_csv(path + 'train_df.csv', mode='a', header=use_header)
     

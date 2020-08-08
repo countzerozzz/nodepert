@@ -56,15 +56,15 @@ for epoch in range(1, num_epochs+1):
     test_acc.append(train.compute_metrics(params, forward, data)[1])
     print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
 
-    epochdel_loss = []
+    batchdel_loss = []
     for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
         randkey, _ = random.split(randkey)
         params_new, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
         
-        epochdel_loss.append(optim.loss(x, y, params_new) - optim.loss(x, y, params))
+        batchdel_loss.append(optim.loss(x, y, params_new) - optim.loss(x, y, params))
         params = params_new
     
-    del_loss.extend(np.mean(np.array(epochdel_loss).reshape(-1, log_frequency), axis=0))
+    del_loss.extend(np.mean(np.array(batchdel_loss).reshape(-1, log_frequency), axis=0))
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 

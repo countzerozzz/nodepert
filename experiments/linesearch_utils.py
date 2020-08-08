@@ -37,13 +37,18 @@ def linesearchfunc(randkey, params, start, stop, num, meta_data):
                 params_new, _, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
                 sgdtmp.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
 
-            npdelta_l.append(jnp.mean(jnp.array(nptmp)))
-            sgddelta_l.append(jnp.mean(jnp.array(sgdtmp)))
+            npdelta_l.append(np.array(nptmp))
+            # npdelta_l.append(np.array(nptmp).mean)
+            sgddelta_l.append(np.array(sgdtmp).mean)
 
+    print([x for x in npdelta_l[i].mean])
     df['npdelta_l'] = npdelta_l
     df['sgddelta_l'] = sgddelta_l
+    print(df['npdelta_l'])
+    print(df['npdelta_l'].dtype)
+    df['npdelta_l'] = df['npdelta_l'].astype('float32')
     npopt_lr = df['lr'][df['npdelta_l'].idxmin()]
-    sgdopt_lr = df['lr'][df['sgddelta_l'].idxmin()]
+    # sgdopt_lr = df['lr'][df['sgddelta_l'].astype('float32').idxmin()]
     
     df['npopt_lr'], df['sgdopt_lr'] = npopt_lr, sgdopt_lr
     df['step_type'], df['n_hl'], df['trajectory'], df['hl_size'] = step_type, n_hl, update_rule, hl_size

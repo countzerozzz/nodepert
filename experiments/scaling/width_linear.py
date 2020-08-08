@@ -21,11 +21,12 @@ randkey = random.PRNGKey(jobid)
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
 
-ROW_DATA = 'network width' 
-rows = [100, 500, 1000, 5000, 10000]
+num = 25 # number of learning rates
+
+rows = np.logspace(-6, -3, num, endpoint=True, base=10, dtype=np.float32)
+ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
-hl_size = rows[row_id]
-n_hl = 1
+lr = rows[row_id]
 
 # build our network
 layer_sizes = [data.num_pixels]

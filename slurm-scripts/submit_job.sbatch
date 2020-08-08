@@ -8,7 +8,7 @@
 
 if [ $exp == 'trial' ]
 then
-    srun -u python experiments/crash_dynamics.py -log_expdata True -n_hl 3 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python npconvtest.py
 
 elif [ $exp == 'crash-dynamics' ]
 then
