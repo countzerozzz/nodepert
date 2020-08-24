@@ -47,6 +47,18 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
         
     return grad_norms_df
 
+# calculate the norm of the weights during the crash
+def w_norms(params, layer_sizes, epoch):
+    col_names = ['norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    w_norm_df = pd.DataFrame(columns = col_names)
+    w_norm_df['update_rule'] = ["np"]
+    w_norm_df['epoch'] = [epoch]
+
+    for column, (ww, _) in zip(col_names, params):         
+        w_norm_df[column] = [jnp.linalg.norm(ww)]
+        
+    return w_norm_df
+
 # calculate the norm of the 'noise' in the gradient estimates
 def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     col_names = ['gdiff_norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]

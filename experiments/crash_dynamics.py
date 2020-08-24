@@ -4,6 +4,7 @@ importlib.reload(npimports)
 from npimports import *
 
 import grad_dynamics
+from linesearch_utils import lossfunc
 
 ### FUNCTIONALITY ###
 # this code measures the grad_norm, (noise of gradient)_norm, sign symmetry and angle between 'true' gradient and gradient estimates when the network crashes.
@@ -67,7 +68,7 @@ for epoch in range(1, num_epochs + 1):
 
     # if the current accuracy is lesser than the max by 'x' amount, a crash is detected. break training and reset params
     high = max(test_acc)
-    if(high - test_acc[-1] > 25):
+    if(high - test_acc[-1] > 5):
         print('crash detected! Resetting params')
         crash = True
         break
@@ -104,6 +105,11 @@ if(crash):
     # dataframe to store the angles of np and sgd gradient with the true gradient, e.g. angle(gradtrue, gradnp)
     grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     grad_angles_df['update_rule'], grad_angles_df['epoch'] = "", ""
+    # dataframe to store the norm of the neural network weights
+    w_norms_df = pd.DataFrame(columns = ['norm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    w_norms_df['update_rule'], w_norms_df['epoch'] = "", ""
+    # dataframe to store the average change in MSE
+    deltal_df = pd.DataFrame(columns = ['epoch', 'del-MSE'])    
     
     xl, yl = next(data.get_data_batches(batchsize=3000, split=data.trainsplit))
     
@@ -112,12 +118,12 @@ if(crash):
         for batch_id in range(num_batches):
             x, y = xl[batch_id * batchsize:(batch_id + 1) * batchsize], yl[batch_id * batchsize:(batch_id + 1) * batchsize]
             randkey, _ = random.split(randkey)
-            params, npgrad, _ = optim.npupdate(x, y, params, randkey, optimstate)
+            params_new, npgrad, _ = optim.npupdate(x, y, params, randkey, optimstate)
             _, sgdgrad, _ = optim.sgdupdate(x, y, params, randkey, optimstate)
 
             if(batch_id % interval == 0):
-                test_acc.append(train.compute_metrics(params, forward, data, split_percent)[1])
-                _, truegrad, _ = optim.sgdupdate(xl, yl, params, randkey, optimstate)
+                test_acc.append(train.compute_metrics(params_new, forward, data, split_percent)[1])
+                _, truegrad, _ = optim.sgdupdate(xl, yl, params_new, randkey, optimstate)
 
                 epoch = round(ii + (batch_id + 1)/num_batches, 3)
                 
@@ -125,6 +131,12 @@ if(crash):
                 graddiff_norms_df = graddiff_norms_df.append(grad_dynamics.graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
                 sign_symmetry_df = sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
                 grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
+                
+                w_norms_df = w_norms_df.append(grad_dynamics.w_norms(params_new, layer_sizes, epoch))
+                deltal_df['del-MSE'] = [lossfunc(x,y, params_new) - lossfunc(x,y, params)]
+                deltal_df['epoch'] = [epoch]
+
+            params = params_new
             
 else:
     print("no crash detected, exiting...")
@@ -134,12 +146,14 @@ grad_norms_df['test_acc'], grad_norms_df['jobid'] = np.repeat(test_acc, 3), jobi
 graddiff_norms_df['test_acc'], graddiff_norms_df['jobid'] = np.repeat(test_acc, 2), jobid
 sign_symmetry_df['test_acc'], sign_symmetry_df['jobid'] = np.repeat(test_acc, 2), jobid
 grad_angles_df['test_acc'], grad_angles_df['jobid'] = np.repeat(test_acc, 2), jobid
+w_norms_df['test_acc'], w_norms_df['jobid'] = test_acc, jobid
+deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
-pd.set_option('display.max_columns', None)
-print(grad_norms_df.head(5))
-print(graddiff_norms_df.head(5))
-print(sign_symmetry_df.head(5))
-print(grad_angles_df.head(5))
+# pd.set_option('display.max_columns', None)
+# print(grad_norms_df.head(5))
+# print(graddiff_norms_df.head(5))
+# print(sign_symmetry_df.head(5))
+# print(grad_angles_df.head(5))
 
 train_df['epoch'] = np.arange(start=1, stop=train_df['test_acc'].size+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
@@ -149,12 +163,14 @@ print(train_df.head(10))
 if(log_expdata):
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'grad_norms.csv')):
+    if(not os.path.exists(path + 'w_norms.csv')):
         use_header = True
     
     grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=use_header)
     graddiff_norms_df.to_csv(path + 'graddiff_norms.csv', mode='a', header=use_header)
     sign_symmetry_df.to_csv(path + 'sign_symmetry.csv', mode='a', header=use_header)
     grad_angles_df.to_csv(path + 'grad_angles.csv', mode='a', header=use_header)
+    w_norms_df.to_csv(path + 'w_norms.csv', mode='a', header=use_header)
+    deltal_df.to_csv(path + 'deltal.csv', mode='a', header=use_header)
     train_df.to_csv(path + 'train_df.csv', mode='a', header=use_header)
     
