@@ -36,8 +36,9 @@ forward = conv.batchforward
 optim.forward = conv.batchforward
 optim.noisyforward = conv.batchnoisyforward
 
-optimizer = optim.sgdupdate
-optimstate = { 'lr' : 1e-2, 't' : 0 }
+# optimizer = optim.sgdupdate
+optimizer = optim.npupdate
+optimstate = { 'lr' : 2e-4, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
