@@ -2,11 +2,15 @@
 
 if [ $1 == 'trial' ]
 then
-    sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --nodelist=gpu-380-11 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'linesearch' ]
+then
+    sbatch --array=0-5 --export=ALL,exp='linesearch' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'crash-dynamics' ]
 then
-    sbatch --array=5,15,25,35,45 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
+    sbatch --array=13 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'weight-decay' ]
 then

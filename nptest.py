@@ -27,8 +27,8 @@ forward = optim.forward = fc.batchforward
 optim.forward = fc.batchforward
 optim.noisyforward = fc.batchnoisyforward
 
-optimizer = optim.sgdupdate
-optimstate = { 'lr' : 5e-2, 'wd' : 1e-6, 't' : 0 }
+optimizer = optim.npupdate
+optimstate = { 'lr' : 2e-2, 'wd' : 0, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,

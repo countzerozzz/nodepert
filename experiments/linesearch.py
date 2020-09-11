@@ -17,7 +17,7 @@ network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, job
 config['compute_norms'], config['batchsize'], config['num_epochs'] = False, batchsize, num_epochs
 
 # folder to log experiment results
-path = "explogs/linesearch/"
+path = "explogs/"
 
 randkey = random.PRNGKey(jobid)
 
@@ -26,13 +26,14 @@ randkey = random.PRNGKey(jobid)
 
 step_type = 'single-step' # 't-step' 
 
-rows = [1,2,3]
+rows = [1,2,3,4,6,8]
 ROW_DATA = 'network depth'
 row_id = jobid % len(rows)
 n_hl = rows[row_id]
 
 # linesearch parameters: pick 'num' number of different lr values at regular log intervals in belween 10e(start) and 10e(end).
-start, stop, num = -6, -2, 10
+start, stop, num = -4, 1, 100
+network_acc = 95
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -68,9 +69,9 @@ for epoch in range(1, num_epochs+1):
         params, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
 
     # condition for performing linesearch: every x epochs or at some particular test accuracy
-    if(test_acc[-1] > 45):
+    if(test_acc[-1] > network_acc):
     # if(epoch % 5 == 0):
-        meta_data = (forward, step_type, n_hl, update_rule, hl_size)
+        meta_data = (forward, step_type, n_hl, update_rule, hl_size, network_acc)
         df = df.append(linesearchfunc(randkey, params, start, stop, num, meta_data))
         break
     
@@ -83,8 +84,8 @@ print(df.head(5))
 # save the results of our experiment
 if(log_expdata):
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'expdata.csv')):
-        df.to_csv(path + 'expdata.csv', mode='a', header=True)
+    if(not os.path.exists(path + 'linesearch.csv')):
+        df.to_csv(path + 'linesearch.csv', mode='a', header=True)
     else:
-        df.to_csv(path + 'expdata.csv', mode='a', header=False)
+        df.to_csv(path + 'linesearch.csv', mode='a', header=False)
     

@@ -29,9 +29,9 @@ import models.metrics as metrics
 
 #change here directly when we want to perform experiments with different datasets. Need to change in conv.py as well, this is bad 
 # - will fix this by using global vars for data.height, data.width, data.channels, etc.
-import data_loaders.mnist_loader as data
+# import data_loaders.mnist_loader as data
 # import data_loaders.fmnist_loader as data
-# import data_loaders.cifar10_loader as data
+import data_loaders.cifar10_loader as data
 
 import importlib
 importlib.reload(data_loaders)

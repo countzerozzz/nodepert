@@ -18,18 +18,18 @@ network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, job
 # folder to log experiment results
 path = "explogs/crash_dynamics/"
 
-randkey = random.PRNGKey(jobid)
+randkey = random.PRNGKey(11)
 
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
-rows = np.logspace(start=-3, stop=-1, num=10, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
 row_id = jobid % len(rows)
 lr = rows[row_id]
 
-split_percent = '[:5%]'
-num_batches = int(3000 / batchsize)
+split_percent = '[:10%]'
+num_batches = int(6000 / batchsize)
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -50,7 +50,6 @@ elif(update_rule == 'sgd'):
     gradfunc = optim.sgdupdate
 
 params = fc.init(layer_sizes, randkey)
-params_new = params
 
 optimstate = { 'lr' : lr, 't' : 0}
 
@@ -63,19 +62,15 @@ stored_epoch = -1; interval = 1  # interval of batches to computer grad dynamics
 # log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
 for epoch in range(1, num_epochs + 1):
     start_time = time.time()
-    test_acc.append(train.compute_metrics(params_new, forward, data, split_percent = split_percent)[1])
+    test_acc.append(train.compute_metrics(params, forward, data, split_percent = split_percent)[1])
     print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
 
     # if the current accuracy is lesser than the max by 'x' amount, a crash is detected. break training and reset params
     high = max(test_acc)
-    if(high - test_acc[-1] > 5):
+    if(high - test_acc[-1] > 25):
         print('crash detected! Resetting params')
         crash = True
         break
-
-    for x, y in data.get_data_batches(batchsize=batchsize, split='train[:5%]'):
-        randkey, _ = random.split(randkey)
-        params_new, grads, optimstate = gradfunc(x, y, params_new, randkey, optimstate)
 
     # every 5 epochs checkpoint the network params
     if((epoch-1) % 5 == 0):
@@ -83,7 +78,10 @@ for epoch in range(1, num_epochs + 1):
         pickle.dump(params, open(path + "model_params.pkl", "wb"))
         stored_epoch = epoch
     
-    params = params_new
+    for x, y in data.get_data_batches(batchsize=batchsize, split='train'+split_percent):
+        randkey, _ = random.split(randkey)
+        params, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
+    
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
@@ -110,8 +108,9 @@ if(crash):
     w_norms_df['update_rule'], w_norms_df['epoch'] = "", ""
     # dataframe to store the average change in MSE
     deltal_df = pd.DataFrame(columns = ['epoch', 'del-MSE'])    
-    
-    xl, yl = next(data.get_data_batches(batchsize=3000, split=data.trainsplit))
+    deltal, epochs = [], []
+
+    xl, yl = next(data.get_data_batches(batchsize=6000, split=data.trainsplit))
     
     for ii in range(stored_epoch, stored_epoch + 5):
         print('calculating dynamics for epoch {}.'.format(ii))
@@ -133,8 +132,8 @@ if(crash):
                 grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
                 
                 w_norms_df = w_norms_df.append(grad_dynamics.w_norms(params_new, layer_sizes, epoch))
-                deltal_df['del-MSE'] = [lossfunc(x,y, params_new) - lossfunc(x,y, params)]
-                deltal_df['epoch'] = [epoch]
+                deltal.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
+                epochs.append(epoch)
 
             params = params_new
             
@@ -147,6 +146,7 @@ graddiff_norms_df['test_acc'], graddiff_norms_df['jobid'] = np.repeat(test_acc, 
 sign_symmetry_df['test_acc'], sign_symmetry_df['jobid'] = np.repeat(test_acc, 2), jobid
 grad_angles_df['test_acc'], grad_angles_df['jobid'] = np.repeat(test_acc, 2), jobid
 w_norms_df['test_acc'], w_norms_df['jobid'] = test_acc, jobid
+deltal_df['del-MSE'], deltal_df['epoch'] = deltal, epochs
 deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
 # pd.set_option('display.max_columns', None)
@@ -157,7 +157,7 @@ deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
 train_df['epoch'] = np.arange(start=1, stop=train_df['test_acc'].size+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
-print(train_df.head(10))
+# print(train_df.head(10))
 
 # save the results of our experiment
 if(log_expdata):
