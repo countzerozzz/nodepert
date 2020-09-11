@@ -41,6 +41,21 @@ def parse_args():
 
     return args.network, args.update_rule, args.n_hl, args.lr, args.batchsize, args.hl_size, args.num_epochs, args.log_expdata, args.jobid
 
+def parse_conv_args():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-update_rule", type=str, default='np')
+    ap.add_argument("-conv_depth", type=int, default=3)
+    ap.add_argument("-num_channels", type=int, default=32)
+    ap.add_argument("-lr", type=float, default=1e-2)
+    ap.add_argument("-batchsize", type=int, default=100)
+    ap.add_argument("-num_epochs", type=int, default=10)
+    ap.add_argument('-log_expdata', type=str_to_bool, nargs='?', const=True, default=False)
+    ap.add_argument("-jobid", type=int, default=0)
+    args= ap.parse_args()
+
+    return args.update_rule, args.conv_depth, args.num_channels, args.lr, args.batchsize, args.num_epochs, args.log_expdata, args.jobid
+
+
 def get_elapsed_time(sec):
     sec=timedelta(seconds=int(sec))
     d = datetime(1,1,1) + sec

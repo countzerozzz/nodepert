@@ -27,11 +27,15 @@ import models.optim as optim
 import models.losses as losses
 import models.metrics as metrics
 
-#change here directly when we want to perform experiments with different datasets. Need to change in conv.py as well, this is bad 
-# - will fix this by using global vars for data.height, data.width, data.channels, etc.
+#change here directly when we want to perform experiments with different datasets.
 # import data_loaders.mnist_loader as data
+# dataset = 'MNIST'
+
 # import data_loaders.fmnist_loader as data
+# dataset = 'f-MNIST'
+
 import data_loaders.cifar10_loader as data
+dataset = 'CIFAR10'
 
 import importlib
 importlib.reload(data_loaders)

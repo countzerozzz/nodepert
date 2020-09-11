@@ -6,3 +6,4 @@ tmp/*
 .vscode/*
 logs/*
 data/*
+figcode/
