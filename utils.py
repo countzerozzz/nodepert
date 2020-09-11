@@ -48,4 +48,3 @@ def get_elapsed_time(sec):
         return str(d.hour)+"hours"+ str(d.minute)+"min "+ str(d.second)+"sec"
     else:
         return str(d.minute)+"min "+ str(d.second)+"sec"
-    
