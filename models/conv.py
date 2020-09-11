@@ -8,7 +8,8 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 
-import data_loaders.mnist_loader as data
+# import data_loaders.mnist_loader as data
+import npimports
 
 # define element-wise relu:
 def relu(x):
@@ -16,7 +17,7 @@ def relu(x):
 
 #helper function to init conv layer:
 def init_single_convlayer(kernel_height, kernel_width, input_channels, output_channels, w_key):
-  # use he style scaling (not glorot) https://arxiv.org/pdf/1502.01852.pdf:
+  # use he style initialization (not glorot):
   std = np.sqrt(2.0 / (kernel_height * kernel_width * input_channels))
 
   #NOTICE: ordering changes from function argument ordering!!
@@ -39,7 +40,7 @@ nodepert_noisescale = 1e-4
 
 # build the conv forward pass for a single image:
 def forward(x, params):
-  x = x.reshape(1, data.height, data.width, data.channels).astype(np.float32) # NHWC
+  x = x.reshape(1, npimports.data.height, npimports.data.width, npimports.data.channels).astype(np.float32) # NHWC
   x = jnp.transpose(x, [0,3,1,2])
   h = []; a = []
   h.append(x)
@@ -52,7 +53,7 @@ def forward(x, params):
                        (1, 1),  # window strides
                        'SAME')  # padding mode
 
-    act = act + jnp.repeat(biases, [data.height * data.width]).reshape(1, convout_channels, data.height, data.width)
+    act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)
 
     a.append(act)
     h.append(relu(a[-1]))
@@ -71,7 +72,7 @@ batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 
 # new noisy forward pass:
 def noisyforward(x, params, randkey):
-  x = x.reshape(1, data.height, data.width, 1).astype(np.float32) # NHWC
+  x = x.reshape(1, npimports.data.height, npimports.data.width, 1).astype(np.float32) # NHWC
   x = jnp.transpose(x, [0,3,1,2])
 
   h = []; a = []; xi = []; aux = []
@@ -88,7 +89,7 @@ def noisyforward(x, params, randkey):
                        (1, 1),  # window strides
                        'SAME')  # padding mode
 
-    act = act + jnp.repeat(biases, [data.height * data.width]).reshape(1, convout_channels, data.height, data.width)
+    act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)
 
     randkey, _ = random.split(randkey)
     noise = nodepert_noisescale * random.normal(randkey, act.shape)

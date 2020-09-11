@@ -8,7 +8,7 @@ randkey = random.PRNGKey(0)
 
 # define training configs
 config = {}
-config['num_epochs'] = num_epochs = 50
+config['num_epochs'] = num_epochs = 10
 config['batchsize'] = batchsize = 100
 config['num_classes'] = data.num_classes
 config['compute_norms'] = False
