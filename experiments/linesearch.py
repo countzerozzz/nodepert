@@ -26,11 +26,11 @@ randkey = random.PRNGKey(jobid)
 
 step_type = 'single-step' # 't-step' 
 
-rows = [1,2,3,4,6,8]
-ROW_DATA = 'network depth'
+rows = [100, 500, 1000, 5000, 10000]
+ROW_DATA = 'network width'
 row_id = jobid % len(rows)
-n_hl = rows[row_id]
-
+hl_size = rows[row_id]
+n_hl = 1
 # linesearch parameters: pick 'num' number of different lr values at regular log intervals in belween 10e(start) and 10e(end).
 start, stop, num = -4, 1, 100
 network_acc = 95

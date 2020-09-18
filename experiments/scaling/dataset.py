@@ -19,9 +19,10 @@ randkey = random.PRNGKey(jobid)
 
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different configs.
-num = 25 # number of learning rates
+# num = 25 # number of learning rates
 
-rows = np.logspace(-4, -1, num, endpoint=True, base=10, dtype=np.float32)
+# rows = np.logspace(-4, -1, num, endpoint=True, base=10, dtype=np.float32)
+rows = [0.0005, 0.001]
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
 lr = rows[row_id]

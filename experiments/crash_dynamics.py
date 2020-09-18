@@ -57,7 +57,7 @@ test_acc = []
 
 # define metrics for measuring a crash
 high = -1; crash = False
-stored_epoch = -1; interval = 1  # interval of batches to computer grad dynamics over after a crash.
+stored_epoch = -1; interval = 3  # interval of batches to computer grad dynamics over after a crash.
 
 # log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
 for epoch in range(1, num_epochs + 1):
@@ -149,8 +149,8 @@ w_norms_df['test_acc'], w_norms_df['jobid'] = test_acc, jobid
 deltal_df['del-MSE'], deltal_df['epoch'] = deltal, epochs
 deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
-# pd.set_option('display.max_columns', None)
-# print(grad_norms_df.head(5))
+pd.set_option('display.max_columns', None)
+print(w_norms_df.head(5))
 # print(graddiff_norms_df.head(5))
 # print(sign_symmetry_df.head(5))
 # print(grad_angles_df.head(5))

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-2:00
+#SBATCH --time=0-12:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -9,8 +9,16 @@
 
 if [ $exp == 'trial' ]
 then
-    srun -u python experiments/conv/conv_main.py -log_expdata False -num_epochs 10 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python nptest.py
     # srun -u python npconvtest.py
+
+elif [ $exp == 'conv-sgd' ]
+then
+    srun -u python experiments/conv/conv_main.py -log_expdata True -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+
+elif [ $exp == 'conv-np' ]
+then
+    srun -u python experiments/conv/conv_main.py -log_expdata True -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'crash-dynamics' ]
 then
@@ -59,7 +67,7 @@ then
 
 elif [ $exp == 'scale-dataset' ]
 then
-    srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 10 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
     # srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 100 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'scale-width-lin' ]

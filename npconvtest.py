@@ -14,7 +14,7 @@ config['num_classes'] = data.num_classes
 config['compute_norms'] = False
 
 #length of convout_channels has to be same as convlayer_sizes!
-convout_channels = [64, 64, 64]
+convout_channels = [32, 32, 32]
 
 #format (kernel height, kernel width, input channels, output channels)
 convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),

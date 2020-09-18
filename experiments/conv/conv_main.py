@@ -16,6 +16,14 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/"
 
+num = 7 # number of learning rates
+
+rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
+
+ROW_DATA = 'learning_rate'
+row_id = jobid % len(rows)
+lr = rows[row_id]
+
 #len(convout_channels) has to be same as convlayer_sizes!
 convout_channels = [num_channels] * conv_depth
 # convout_channels = [32, 32, 32]
@@ -45,7 +53,7 @@ if(update_rule == 'np'):
 elif(update_rule == 'sgd'):
     optimizer = optim.sgdupdate
 
-optimstate = { 'lr' : 2e-4, 't' : 0 }
+optimstate = { 'lr' : lr, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -55,7 +63,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = True)
+                                            verbose = False)
 
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset

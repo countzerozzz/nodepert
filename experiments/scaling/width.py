@@ -22,7 +22,7 @@ randkey = random.PRNGKey(jobid)
 
 num = 25 # number of learning rates
 
-rows = np.logspace(-5, -1, num, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(-4, 0, num, endpoint=True, dtype=np.float32)
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
 lr = rows[row_id]

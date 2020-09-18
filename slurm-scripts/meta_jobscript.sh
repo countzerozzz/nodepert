@@ -4,13 +4,22 @@ if [ $1 == 'trial' ]
 then
     sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
 
+elif [ $1 == 'conv-sgd' ]
+then
+    sbatch --array=0-6 --export=ALL,exp='conv-sgd' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'conv-np' ]
+then
+    sbatch --array=0-6 --export=ALL,exp='conv-np' slurm-scripts/submit_job.sbatch
+
 elif [ $1 == 'linesearch' ]
 then
-    sbatch --array=0-5 --export=ALL,exp='linesearch' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-4 --export=ALL,exp='linesearch' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'crash-dynamics' ]
 then
-    sbatch --array=13 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
+    # sbatch --array=13 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
+    sbatch --array=12-13 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'weight-decay' ]
 then
@@ -30,7 +39,7 @@ then
 
 elif [ $1 == 'scale-dataset' ]
 then
-    sbatch --array=0-24 --export=ALL,exp='scale-dataset' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-1 --export=ALL,exp='scale-dataset' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'scale-width-lin' ]
 then
