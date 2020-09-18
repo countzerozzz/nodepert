@@ -4,7 +4,9 @@ importlib.reload(npimports)
 from npimports import *
 
 ### FUNCTIONALITY ###
-# this code is for comparing conv network performance for SGD vs NP
+# A much larger, all convolutional network, with good performance with SGD. Implementation details as mentioned in the paper: 
+# https://arxiv.org/pdf/1412.6806.pdf
+# difference: dropout, SGD + momentum, decaying LR
 ###
 
 config = {}
@@ -16,24 +18,28 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/"
 
-num = 7 # number of learning rates
+# num = 7 # number of learning rates
+# rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
 
-rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
-
-ROW_DATA = 'learning_rate'
-row_id = jobid % len(rows)
-lr = rows[row_id]
+# ROW_DATA = 'learning_rate'
+# row_id = jobid % len(rows)
+# lr = rows[row_id]
 
 #len(convout_channels) has to be same as convlayer_sizes!
-convout_channels = [num_channels] * conv_depth
-# convout_channels = [32, 32, 32]
+# convout_channels = [num_channels] * conv_depth
+convout_channels = [96, 96, 96, 192, 192, 10]
 
 #format (kernel height, kernel width, input channels, output channels)
 convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
                    (3, 3, convout_channels[0], convout_channels[1]),
-                   (3, 3, convout_channels[1], convout_channels[2])]
+                   (3, 3, convout_channels[1], convout_channels[2]),
+                   (3, 3, convout_channels[2], convout_channels[3]),
+                   (3, 3, convout_channels[3], convout_channels[4]),
+                   (1, 1, convout_channels[4], convout_channels[5])]
 
-fclayer_sizes = [data.height * data.width * convlayer_sizes[-1][-1], data.num_classes]
+down_factor = 2 * ((len(convout_channels) + 1) // 3)
+down_factor = 1
+fclayer_sizes = [int((data.height / down_factor) * (data.width / down_factor) * convlayer_sizes[-1][-1]), data.num_classes]
 
 randkey = random.PRNGKey(jobid)
 convparams = conv.init_convlayers(convlayer_sizes, randkey)
@@ -42,6 +48,8 @@ fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 
 params = convparams
 params.append(fcparams)
+
+print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
@@ -63,7 +71,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = False)
+                                            verbose = True)
 
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset

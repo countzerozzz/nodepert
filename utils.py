@@ -43,12 +43,12 @@ def parse_args():
 
 def parse_conv_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-update_rule", type=str, default='np')
+    ap.add_argument("-update_rule", type=str, default='sgd')
     ap.add_argument("-conv_depth", type=int, default=3)
     ap.add_argument("-num_channels", type=int, default=32)
     ap.add_argument("-lr", type=float, default=1e-2)
     ap.add_argument("-batchsize", type=int, default=100)
-    ap.add_argument("-num_epochs", type=int, default=10)
+    ap.add_argument("-num_epochs", type=int, default=5)
     ap.add_argument('-log_expdata', type=str_to_bool, nargs='?', const=True, default=False)
     ap.add_argument("-jobid", type=int, default=0)
     args= ap.parse_args()

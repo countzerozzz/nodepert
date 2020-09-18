@@ -36,7 +36,7 @@ def init_convlayers(sizes, key):
     params.append(init_single_convlayer(*sizes[ii], keys[ii]))
   return params
 
-nodepert_noisescale = 1e-4
+nodepert_noisescale = 1e-5
 
 # build the conv forward pass for a single image:
 def forward(x, params):
@@ -45,12 +45,15 @@ def forward(x, params):
   h = []; a = []
   h.append(x)
 
-  for (kernel, biases) in params[:-1]:
+  for ind, (kernel, biases) in enumerate(params[:-1]):
+    stride = 1
+    if((ind+1)%3 == 0):
+      stride = 1
     convout_channels = kernel.shape[-2]
     #output (lhs) will be in the form NCHW
     act = jax.lax.conv(h[-1],                       # lhs = NCHW image tensor
                        kernel.transpose([2,3,0,1]), # rhs = IOHW conv kernel tensor [according to JAX page]
-                       (1, 1),  # window strides
+                       (stride, stride),  # window strides
                        'SAME')  # padding mode
 
     act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)
@@ -86,7 +89,7 @@ def noisyforward(x, params, randkey):
     #output (lhs) will be in the form NCHW
     act = jax.lax.conv(h[-1],                           # lhs = NCHW image tensor
                        kernel.transpose([2,3,0,1]), # rhs = IOHW conv kernel tensor [according to JAX page]
-                       (1, 1),  # window strides
+                       (stride, stride),  # window strides
                        'SAME')  # padding mode
 
     act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)

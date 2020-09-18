@@ -4,13 +4,13 @@ if [ $1 == 'trial' ]
 then
     sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
 
-elif [ $1 == 'conv-sgd' ]
+elif [ $1 == 'conv-base' ]
 then
-    sbatch --array=0-6 --export=ALL,exp='conv-sgd' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
 
-elif [ $1 == 'conv-np' ]
+elif [ $1 == 'conv-large' ]
 then
-    sbatch --array=0-6 --export=ALL,exp='conv-np' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='conv-large' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'linesearch' ]
 then
