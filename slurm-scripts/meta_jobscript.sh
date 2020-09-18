@@ -6,7 +6,7 @@ then
 
 elif [ $1 == 'conv-base' ]
 then
-    sbatch --array=0 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-24 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'conv-large' ]
 then

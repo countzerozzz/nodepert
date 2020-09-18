@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-12:00
+#SBATCH --time=0-5:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -14,7 +14,8 @@ then
 
 elif [ $exp == 'conv-base' ]
 then
-    srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 5 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'conv-large' ]
 then

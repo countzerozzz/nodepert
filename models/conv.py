@@ -8,7 +8,6 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 
-# import data_loaders.mnist_loader as data
 import npimports
 
 # define element-wise relu:
@@ -81,7 +80,11 @@ def noisyforward(x, params, randkey):
   h = []; a = []; xi = []; aux = []
   h.append(x)
 
-  for (kernel, biases) in params[:-1]:
+  for ind, (kernel, biases) in enumerate(params[:-1]):
+    stride = 1
+    if((ind+1)%3 == 0):
+      stride = 1
+
     convout_channels = kernel.shape[-2]
     h[-1] = jax.lax.stop_gradient(h[-1])
 
