@@ -75,7 +75,7 @@ batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 
 # new noisy forward pass:
 def noisyforward(x, params, randkey):
-  x = x.reshape(1, npimports.data.height, npimports.data.width, 1).astype(np.float32) # NHWC
+  x = x.reshape(1, npimports.data.height, npimports.data.width, npimports.data.channels).astype(np.float32) # NHWC
   x = jnp.transpose(x, [0,3,1,2])
 
   h = []; a = []; xi = []; aux = []
