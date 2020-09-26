@@ -9,7 +9,7 @@ from npimports import *
 # We use the same network architecture, however, exclude the following while training: dropout, SGD + momentum, decaying LR
 ###
 
-tf.config.experimental.set_visible_devices([], "GPU")
+# tf.config.experimental.set_visible_devices([], "GPU")
 config = {}
 # parse arguments:
 update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
@@ -21,10 +21,11 @@ path = "explogs/conv/"
 
 # num = 7 # number of learning rates
 # rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
+rows = [0.001, 0.005, 0.01, 0.05, 0.1]
 
-# ROW_DATA = 'learning_rate'
-# row_id = jobid % len(rows)
-# lr = rows[row_id]
+ROW_DATA = 'learning_rate'
+row_id = jobid % len(rows)
+lr = rows[row_id]
 
 #len(convout_channels) has to be same as convlayer_sizes!
 # convout_channels = [num_channels] * conv_depth
@@ -77,7 +78,7 @@ params, optimstate, expdata = train.train(  params,
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset
 pd.set_option('display.max_columns', None)
-df['network'], df['update_rule'], df['conv_depth'], df['num_channels'], df['lr'], df['batchsize'], df['total_epochs'], df['jobid'] = network, update_rule, conv_depth, num_channels, lr, batchsize, num_epochs, jobid
+df['network'], df['update_rule'], df['lr'], df['batchsize'], df['total_epochs'], df['jobid'] = network, update_rule, lr, batchsize, num_epochs, jobid
 print(df.head(5))
 
 # save the results of our experiment
