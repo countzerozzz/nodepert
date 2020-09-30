@@ -41,10 +41,20 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     grad_norms_df = pd.DataFrame(columns = col_names)
     grad_norms_df['update_rule'] = ["np", "sgd", "true"]
     grad_norms_df['epoch'] = np.repeat(epoch, 3)
-    
-    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):         
+    dw_allnp, dw_allsgd, dw_alltrue = [], [], []
+
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):          
         grad_norms_df[column] = [jnp.linalg.norm(dwnp), jnp.linalg.norm(dwsgd), jnp.linalg.norm(dwtrue)]
-        
+        dw_allnp.extend(dwnp.flatten())
+        dw_allsgd.extend(dwsgd.flatten())
+        dw_alltrue.extend(dwtrue.flatten())
+    
+    tmpnp = float(np.array(jnp.linalg.norm(jnp.asarray(dw_allnp))))
+    tmpsgd = float(np.array(jnp.linalg.norm(jnp.asarray(tmpsgd))))
+    tmptrue = float(np.array(jnp.linalg.norm(jnp.asarray(tmptrue))))
+    
+    grad_norms_df['all'] = [tmpnp, tmpsgd, tmptrue]
+    
     return grad_norms_df
 
 # calculate the norm of the weights during the crash
@@ -53,15 +63,16 @@ def w_norms(params, layer_sizes, epoch):
     w_norm_df = pd.DataFrame(columns = col_names)
     w_norm_df['update_rule'] = ["np"]
     w_norm_df['epoch'] = [epoch]
-    w_all = 0
+    w_all = []
     
     for column, (ww, _) in zip(col_names, params):         
-        tmp = jnp.linalg.norm(ww)
+        flat_ww = ww.flatten()
+        tmp = jnp.linalg.norm(flat_ww)
         w_norm_df[column] = [tmp]
-        # w_all.extend(jax.numpy.ravel(ww, order='C'))
-        w_all += tmp
+        w_all.extend(flat_ww)
     
-    w_norm_df['all'] = [w_all]
+    tmp = float(np.array(jnp.linalg.norm(jnp.asarray(w_all))))
+    w_norm_df['all'] = [tmp]
     return w_norm_df
 
 # calculate the norm of the 'noise' in the gradient estimates
