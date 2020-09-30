@@ -28,9 +28,12 @@ randkey = random.PRNGKey(11)
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
-rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
+# rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
+rows = [0.009, 0.009, 0.01, 0.01, 0.015, 0.015, 0.02, 0.02]
+
 row_id = jobid % len(rows)
 lr = rows[row_id]
+print('learning rate', lr)
 
 split_percent = '[:10%]'
 num_batches = int(6000 / batchsize)

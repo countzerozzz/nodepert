@@ -50,10 +50,13 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
         dw_alltrue.extend(dwtrue.flatten())
     
     tmpnp = float(np.array(jnp.linalg.norm(jnp.asarray(dw_allnp))))
-    tmpsgd = float(np.array(jnp.linalg.norm(jnp.asarray(tmpsgd))))
-    tmptrue = float(np.array(jnp.linalg.norm(jnp.asarray(tmptrue))))
+    tmpsgd = float(np.array(jnp.linalg.norm(jnp.asarray(dw_allsgd))))
+    tmptrue = float(np.array(jnp.linalg.norm(jnp.asarray(dw_alltrue))))
     
     grad_norms_df['all'] = [tmpnp, tmpsgd, tmptrue]
+    ratio_np = tmpnp / tmptrue
+    ratio_sgd = tmpsgd / tmptrue
+    grad_norms_df['ratios'] = [ratio_np, ratio_sgd, -1]
     
     return grad_norms_df
 
