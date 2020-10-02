@@ -29,7 +29,7 @@ ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
 lr = rows[row_id]
 # weight decay : [0.0, 1e-4, 1e-3, 1e-2]
-wd = 0.0
+wd = 1e-5
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -68,7 +68,6 @@ df = pd.DataFrame.from_dict(expdata)
 pd.set_option('display.max_columns', None)
 df['wd'] = wd
 df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
-print(df.head(5))
 
 # save the results of our experiment
 if(log_expdata):

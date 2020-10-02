@@ -7,6 +7,7 @@ from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
+from jax.nn import softmax
 
 import npimports
 
@@ -43,11 +44,16 @@ def forward(x, params):
   x = jnp.transpose(x, [0,3,1,2])
   h = []; a = []
   h.append(x)
+  curr_height = npimports.data.height
+  curr_width = npimports.data.width
 
   for ind, (kernel, biases) in enumerate(params[:-1]):
     stride = 1
-    if((ind+1)%3 == 0):
-      stride = 1
+    if(ind == 1 or ind == 3):
+      stride = 2
+      curr_height = int(curr_height / 2)
+      curr_width = int(curr_width / 2)
+    
     convout_channels = kernel.shape[-2]
     #output (lhs) will be in the form NCHW
     act = jax.lax.conv(h[-1],                       # lhs = NCHW image tensor
@@ -55,7 +61,7 @@ def forward(x, params):
                        (stride, stride),  # window strides
                        'SAME')  # padding mode
 
-    act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)
+    act = act + jnp.repeat(biases, [curr_height * curr_width]).reshape(1, convout_channels, curr_height, curr_width)
 
     a.append(act)
     h.append(relu(a[-1]))
@@ -65,8 +71,13 @@ def forward(x, params):
   a.append(act)
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
-  output = sigmoid(a[-1])
+  
+  output = softmax(a[-1])
   h.append(output)
+  
+  # output = sigmoid(a[-1])
+  # h.append(output)
+
   return h, a
 
 # upgrade to handle batches using 'vmap'
@@ -80,10 +91,15 @@ def noisyforward(x, params, randkey):
   h = []; a = []; xi = []; aux = []
   h.append(x)
 
+  curr_height = npimports.data.height
+  curr_width = npimports.data.width
+
   for ind, (kernel, biases) in enumerate(params[:-1]):
     stride = 1
-    if((ind+1)%3 == 0):
-      stride = 1
+    if(ind == 1 or ind == 3):
+      stride = 2
+      curr_height = int(curr_height / 2)
+      curr_width = int(curr_width / 2)
 
     convout_channels = kernel.shape[-2]
     h[-1] = jax.lax.stop_gradient(h[-1])
@@ -95,7 +111,7 @@ def noisyforward(x, params, randkey):
                        (stride, stride),  # window strides
                        'SAME')  # padding mode
 
-    act = act + jnp.repeat(biases, [npimports.data.height * npimports.data.width]).reshape(1, convout_channels, npimports.data.height, npimports.data.width)
+    act = act + jnp.repeat(biases, [curr_height * curr_width]).reshape(1, convout_channels, curr_height, curr_width)
 
     randkey, _ = random.split(randkey)
     noise = nodepert_noisescale * random.normal(randkey, act.shape)
@@ -115,8 +131,13 @@ def noisyforward(x, params, randkey):
 
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
-  output = sigmoid(a[-1])
+
+  output = softmax(a[-1])
   h.append(output)
+  
+  # output = sigmoid(a[-1])
+  # h.append(output)
+  
   return h, a, xi, aux
 
 # upgrade to handle batches using 'vmap'

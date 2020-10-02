@@ -82,7 +82,7 @@ for epoch in range(1, num_epochs + 1):
     # every 5 epochs checkpoint the network params
     if((epoch-1) % 5 == 0):
         Path(path + "model_params/").mkdir(exist_ok=True)
-        pickle.dump(params, open(path + "model_params/" + jobid + ".pkl", "wb"))
+        pickle.dump(params, open(path + "model_params/" + str(jobid) + ".pkl", "wb"))
         stored_epoch = epoch
     
     for x, y in data.get_data_batches(batchsize=batchsize, split='train'+split_percent):
@@ -92,7 +92,7 @@ for epoch in range(1, num_epochs + 1):
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
-params = pickle.load(open(path + "model_params/" + jobid + ".pkl", "rb"))
+params = pickle.load(open(path + "model_params/" + str(jobid) + ".pkl", "rb"))
 train_df = pd.DataFrame()
 train_df['test_acc'] = test_acc
 

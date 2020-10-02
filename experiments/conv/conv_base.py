@@ -16,9 +16,10 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/conv/"
 
-num = 25 # number of learning rates
+num = 5 # number of learning rates
 
-rows = np.logspace(-4, -1, num, endpoint=True, dtype=np.float32)
+# rows = np.logspace(-4, -1, num, endpoint=True, dtype=np.float32)
+rows = [0.00005, 0.00008, 0.0001, 0.0002]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
