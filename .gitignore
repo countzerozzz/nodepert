@@ -2,7 +2,7 @@
 explogs/*
 __pycache__/*
 *.pyc
-tmp/*
+tmp_tf/*
 .vscode/*
 logs/*
 data/*

@@ -53,6 +53,23 @@ def parse_conv_args():
 
     return args.update_rule, args.lr, args.batchsize, args.num_epochs, args.log_expdata, args.jobid
 
+def parse_conv_args_tf():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-optimizer", type=str, default='sgd')
+    ap.add_argument("-lr", type=float, default=5e-2)
+    ap.add_argument("-batchsize", type=int, default=100)
+    ap.add_argument("-num_epochs", type=int, default=5)
+    ap.add_argument("-network", type=str, default='All-CNN-A')
+    ap.add_argument("-dropout", type=str_to_bool, nargs='?', const=True, default=False)
+    ap.add_argument("-final_actfunc", type=str, default='sigmoid')
+    ap.add_argument("-loss_func", type=str, default='mse')
+    ap.add_argument('-log_expdata', type=str_to_bool, nargs='?', const=True, default=False)
+    ap.add_argument("-jobid", type=int, default=0)
+    args= ap.parse_args()
+
+    return args.optimizer, args.lr, args.batchsize, args.num_epochs, args.network, args.dropout, args.final_actfunc, \
+            args.loss_func, args.log_expdata, args.jobid
+
 
 def get_elapsed_time(sec):
     sec=timedelta(seconds=int(sec))
