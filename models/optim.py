@@ -13,14 +13,18 @@ import models.losses as losses
 
 # defaults
 mseloss = losses.batchmseloss
+celoss = losses.celoss
 forward = fc.batchforward
 noisyforward = fc.batchnoisyforward
 
 # this is terrible! we should factor out the loss in this file or something
+# changing the loss to ce - we also need to make the last layer as logsoftmax!
+
 @jit
 def loss(x, y, params):
     h, a = forward(x, params)
     loss = mseloss(h[-1], y).mean()
+    # loss = celoss(h[-1], y).mean()
     return loss
 
 @jit

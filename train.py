@@ -10,14 +10,14 @@ import pdb
 def compute_metrics(params, forward, data, split_percent = '[:100%]'):
     # run through the training set and compute the metrics:
     train_acc = []
-    for x, y in data.get_data_batches(batchsize=1000, split='train' + split_percent):
+    for x, y in data.get_data_batches(batchsize=100, split='train' + split_percent):
         h, a = forward(x, params)
         train_acc.append(accuracy(h[-1], y))
     train_acc = 100 * np.mean(train_acc)
 
     # run through the test set and compute the metrics:
     test_acc = []
-    for x, y in data.get_data_batches(batchsize=1000, split='test' + split_percent):
+    for x, y in data.get_data_batches(batchsize=100, split='test' + split_percent):
       h, a = forward(x, params)
       test_acc.append(accuracy(h[-1], y))
     test_acc = 100 * np.mean(test_acc)

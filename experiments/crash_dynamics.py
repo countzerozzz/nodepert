@@ -15,6 +15,10 @@ from linesearch_utils import lossfunc
 # parse arguments
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
+# set flags for which of the metrics to compute
+# gradient norms, difference in gradient norms, sign symmetry, gradient angles, weight norms
+flags = [1, 0, 0, 0, 1]
+
 # folder to log experiment results
 path = "explogs/crash_dynamics/"
 
@@ -24,9 +28,12 @@ randkey = random.PRNGKey(11)
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
-rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
+# rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
+rows = [0.009, 0.01, 0.015, 0.02, 0.025]
+
 row_id = jobid % len(rows)
 lr = rows[row_id]
+print('learning rate', lr)
 
 split_percent = '[:10%]'
 num_batches = int(6000 / batchsize)
@@ -74,8 +81,8 @@ for epoch in range(1, num_epochs + 1):
 
     # every 5 epochs checkpoint the network params
     if((epoch-1) % 5 == 0):
-        Path(path).mkdir(exist_ok=True)
-        pickle.dump(params, open(path + "model_params.pkl", "wb"))
+        Path(path + "model_params/").mkdir(exist_ok=True)
+        pickle.dump(params, open(path + "model_params/" + str(jobid) + ".pkl", "wb"))
         stored_epoch = epoch
     
     for x, y in data.get_data_batches(batchsize=batchsize, split='train'+split_percent):
@@ -85,7 +92,7 @@ for epoch in range(1, num_epochs + 1):
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
-params = pickle.load(open(path + "model_params.pkl", "rb"))
+params = pickle.load(open(path + "model_params/" + str(jobid) + ".pkl", "rb"))
 train_df = pd.DataFrame()
 train_df['test_acc'] = test_acc
 
@@ -126,12 +133,21 @@ if(crash):
 
                 epoch = round(ii + (batch_id + 1)/num_batches, 3)
                 
-                grad_norms_df = grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
-                graddiff_norms_df = graddiff_norms_df.append(grad_dynamics.graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
-                sign_symmetry_df = sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
-                grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
+                if(flags[0]):
+                    grad_norms_df = grad_norms_df.append(grad_dynamics.grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
                 
-                w_norms_df = w_norms_df.append(grad_dynamics.w_norms(params_new, layer_sizes, epoch))
+                if(flags[1]):
+                    graddiff_norms_df = graddiff_norms_df.append(grad_dynamics.graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
+                
+                if(flags[2]):
+                    sign_symmetry_df = sign_symmetry_df.append(grad_dynamics.sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
+                
+                if(flags[3]):
+                    grad_angles_df = grad_angles_df.append(grad_dynamics.grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch))
+                
+                if(flags[4]):
+                    w_norms_df = w_norms_df.append(grad_dynamics.w_norms(params_new, layer_sizes, epoch))
+                
                 deltal.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
                 epochs.append(epoch)
 
@@ -166,11 +182,21 @@ if(log_expdata):
     if(not os.path.exists(path + 'w_norms.csv')):
         use_header = True
     
-    grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=use_header)
-    graddiff_norms_df.to_csv(path + 'graddiff_norms.csv', mode='a', header=use_header)
-    sign_symmetry_df.to_csv(path + 'sign_symmetry.csv', mode='a', header=use_header)
-    grad_angles_df.to_csv(path + 'grad_angles.csv', mode='a', header=use_header)
-    w_norms_df.to_csv(path + 'w_norms.csv', mode='a', header=use_header)
+    if(flags[0]):
+        grad_norms_df.to_csv(path + 'grad_norms.csv', mode='a', header=use_header)
+    
+    if(flags[1]):
+        graddiff_norms_df.to_csv(path + 'graddiff_norms.csv', mode='a', header=use_header)
+    
+    if(flags[2]):
+        sign_symmetry_df.to_csv(path + 'sign_symmetry.csv', mode='a', header=use_header)
+    
+    if(flags[3]):
+        grad_angles_df.to_csv(path + 'grad_angles.csv', mode='a', header=use_header)
+    
+    if(flags[4]):
+        w_norms_df.to_csv(path + 'w_norms.csv', mode='a', header=use_header)
+    
     deltal_df.to_csv(path + 'deltal.csv', mode='a', header=use_header)
     train_df.to_csv(path + 'train_df.csv', mode='a', header=use_header)
     

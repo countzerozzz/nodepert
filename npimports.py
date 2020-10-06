@@ -7,6 +7,7 @@ from jax.experimental import optimizers
 from jax.ops import index, index_add, index_update
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
+from jax.nn import softmax
 import matplotlib.pyplot as pp
 import matplotlib
 import seaborn as sns

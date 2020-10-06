@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-12:00
+#SBATCH --time=0-7:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -12,13 +12,14 @@ then
     srun -u python nptest.py
     # srun -u python npconvtest.py
 
-elif [ $exp == 'conv-sgd' ]
+elif [ $exp == 'conv-base' ]
 then
-    srun -u python experiments/conv/conv_main.py -log_expdata True -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    # srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 5 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 10 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
-elif [ $exp == 'conv-np' ]
+elif [ $exp == 'conv-large' ]
 then
-    srun -u python experiments/conv/conv_main.py -log_expdata True -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/All-CNN-A.py -log_expdata True -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'crash-dynamics' ]
 then
@@ -26,15 +27,8 @@ then
 
 elif [ $exp == 'weight-decay' ]
 then
-    srun -u python experiments/weight_decay/weight_decay_0.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_s.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_m.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_l.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-
-    srun -u python experiments/weight_decay/weight_decay_0.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_s.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_m.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/weight_decay/weight_decay_l.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/weight_decay/weight_decay.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}   
+    srun -u python experiments/weight_decay/weight_decay.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'adam-update' ]
 then
@@ -67,64 +61,54 @@ then
 
 elif [ $exp == 'scale-dataset' ]
 then
-    srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    # srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 100 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    # srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/dataset.py -log_expdata True -n_hl 3 -hl_size 2000 -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
 
-elif [ $exp == 'scale-width-lin' ]
+elif [ $exp == 'scale-width1' ]
 then
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+
+elif [ $exp == 'scale-width2' ]
+then
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+
+elif [ $exp == 'scale-width3' ]
+then
+
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+
+elif [ $exp == 'scale-width4' ]
+then
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+
+
+elif [ $exp == 'scale-depth1' ]
+then
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
     
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width_linear.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-
-elif [ $exp == 'scale-depth-lin' ]
+elif [ $exp == 'scale-depth2' ]
 then
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
 
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth_linear.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-
-elif [ $exp == 'scale-width' ]
+elif [ $exp == 'scale-depth3' ]
 then
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 100 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 1000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 5000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/width.py -log_expdata True -n_hl 1 -hl_size 10000 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-
-elif [ $exp == 'scale-depth' ]
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    
+elif [ $exp == 'scale-depth4' ]
 then
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 50 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 4 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 6 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 8 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 fi
 

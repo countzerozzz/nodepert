@@ -9,24 +9,24 @@ from npimports import *
 
 config = {}
 # parse arguments:
-update_rule, conv_depth, num_channels, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
-network = 'conv'
+update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
+network = 'conv-base'
 config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_classes'] = False, batchsize, num_epochs, data.num_classes
 
 # folder to log experiment results
-path = "explogs/"
+path = "explogs/conv/"
 
-num = 7 # number of learning rates
+num = 5 # number of learning rates
 
-rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
+# rows = np.logspace(-4, -1, num, endpoint=True, dtype=np.float32)
+rows = [0.00005, 0.00008, 0.0001, 0.0002]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
 lr = rows[row_id]
 
 #len(convout_channels) has to be same as convlayer_sizes!
-convout_channels = [num_channels] * conv_depth
-# convout_channels = [32, 32, 32]
+convout_channels = [32, 32, 32]
 
 #format (kernel height, kernel width, input channels, output channels)
 convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
@@ -42,6 +42,9 @@ fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 
 params = convparams
 params.append(fcparams)
+
+num_params = utils.get_params_count(params)
+# print('total params: {}'.format(num_params))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
@@ -68,13 +71,14 @@ params, optimstate, expdata = train.train(  params,
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset
 pd.set_option('display.max_columns', None)
-df['network'], df['update_rule'], df['conv_depth'], df['num_channels'], df['lr'], df['batchsize'], df['total_epochs'], df['jobid'] = network, update_rule, conv_depth, num_channels, lr, batchsize, num_epochs, jobid
-print(df.head(5))
+df['network'], df['update_rule'], df['lr'], df['batchsize'], df['total_epochs'], df['num_params'], df['jobid'] = network, update_rule, lr, batchsize, num_epochs, num_params, jobid
+# print(df.head(5))
 
 # save the results of our experiment
 if(log_expdata):
+    use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'conv.csv')):
-        df.to_csv(path + 'conv.csv', mode='a', header=True)
-    else:
-        df.to_csv(path + 'conv.csv', mode='a', header=False)
+    if(not os.path.exists(path + 'conv_base.csv')):
+        use_header = True
+    
+    df.to_csv(path + 'conv_base.csv', mode='a', header=use_header)
