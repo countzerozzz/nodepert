@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-7:00
+#SBATCH --time=0-12:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -12,6 +12,10 @@ then
     srun -u python nptest.py
     # srun -u python npconvtest.py
 
+elif [ $exp == 'tmp-tf' ]
+then
+    srun -u python tmp_tf/convTF.py -log_expdata False -num_epochs 2 -optimizer sgd -lr 0.05 -final_actfunc 'softmax' -loss_func 'mse' -jobid ${SLURM_ARRAY_TASK_ID}    
+
 elif [ $exp == 'conv-base' ]
 then
     # srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 5 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
@@ -19,7 +23,7 @@ then
 
 elif [ $exp == 'conv-large' ]
 then
-    srun -u python experiments/conv/All-CNN-A.py -log_expdata True -num_epochs 50 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/All-CNN-A.py -log_expdata True -num_epochs 10 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'crash-dynamics' ]
 then
