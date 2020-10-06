@@ -12,7 +12,7 @@ from pathlib import Path
 
 import utils
 
-
+print(tf.config.list_physical_devices('GPU'))
 data_dir = 'data/tfds'
 
 _, dataset_info = tfds.load(name="cifar10", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
@@ -66,6 +66,16 @@ optimizer, lr, batchsize, num_epochs, network, dropout, final_actfunc, loss_func
 
 np.random.seed(jobid)
 tf.compat.v1.set_random_seed(jobid)
+
+#* learning rates for MSE
+# rows = [0.25, 0.1, 0.05, 0.01]
+
+#* learning rates for cross entropy
+rows = [0.1, 0.05, 0.01, 0.005]
+
+ROW_DATA = 'learning_rate'
+row_id = jobid % len(rows)
+lr = rows[row_id]
 
 start_time = time.time()
 actfunc = 'relu'
