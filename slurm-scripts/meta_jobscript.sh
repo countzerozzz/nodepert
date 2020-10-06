@@ -4,9 +4,13 @@ if [ $1 == 'trial' ]
 then
     sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
 
-elif [ $1 == 'tmp-tf' ]
+elif [ $1 == 'tmp-tf1' ]
 then
-    sbatch --array=0 --export=ALL,exp='tmp-tf' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-3 --export=ALL,exp='tmp-tf1' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'tmp-tf2' ]
+then
+    sbatch --array=0-3 --export=ALL,exp='tmp-tf2' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'conv-base' ]
 then

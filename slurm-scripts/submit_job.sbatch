@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-12:00
+#SBATCH --time=0-18:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -12,9 +12,19 @@ then
     srun -u python nptest.py
     # srun -u python npconvtest.py
 
-elif [ $exp == 'tmp-tf' ]
+elif [ $exp == 'tmp-tf1' ]
 then
-    srun -u python tmp_tf/convTF.py -log_expdata False -num_epochs 2 -optimizer sgd -lr 0.05 -final_actfunc 'softmax' -loss_func 'mse' -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'mse' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'mse' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd-momentum' -final_actfunc 'softmax' -loss_func 'mse' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}
+
+elif [ $exp == 'tmp-tf2' ]
+then
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'cross-entropy' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd-momentum' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'conv-base' ]
 then
