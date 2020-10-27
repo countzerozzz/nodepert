@@ -21,7 +21,7 @@ path = "explogs/conv/"
 
 # num = 7 # number of learning rates
 # rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
-rows = [0.02, 0.05, 0.1, 0.2]
+rows = [0.01, 0.05, 0.1, 0.25]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -53,7 +53,8 @@ params = convparams
 params.append(fcparams)
 
 print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
-# print(utils.get_params_count(params))
+print(utils.get_params_count(params))
+
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
 optim.forward = conv.batchforward
@@ -74,7 +75,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = True)
+                                            verbose = False)
 
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset
@@ -86,7 +87,7 @@ print(df.head(5))
 if(log_expdata):
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'conv_large.csv')):
+    if(not os.path.exists(path + 'conv_large2.csv')):
         use_header = True
     
-    df.to_csv(path + 'conv_large.csv', mode='a', header=use_header)
+    df.to_csv(path + 'conv_large2.csv', mode='a', header=use_header)

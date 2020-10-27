@@ -18,7 +18,7 @@ def relu(x):
 #helper function to init conv layer:
 def init_single_convlayer(kernel_height, kernel_width, input_channels, output_channels, w_key):
   # use he style initialization (not glorot):
-  std = np.sqrt(2.0 / (kernel_height * kernel_width * input_channels))
+  std = np.sqrt(2.0 / (kernel_height * kernel_width * 0.5 * (input_channels + output_channels)))
 
   #NOTICE: ordering changes from function argument ordering!!
   kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
@@ -56,6 +56,7 @@ def forward(x, params):
     
     convout_channels = kernel.shape[-2]
     #output (lhs) will be in the form NCHW
+
     act = jax.lax.conv(h[-1],                       # lhs = NCHW image tensor
                        kernel.transpose([2,3,0,1]), # rhs = IOHW conv kernel tensor [according to JAX page]
                        (stride, stride),  # window strides
@@ -72,11 +73,11 @@ def forward(x, params):
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
   
-  output = softmax(a[-1])
-  h.append(output)
-  
-  # output = sigmoid(a[-1])
+  # output = softmax(a[-1])
   # h.append(output)
+  
+  output = sigmoid(a[-1])
+  h.append(output)
 
   return h, a
 
@@ -132,11 +133,11 @@ def noisyforward(x, params, randkey):
   # logsoftmax = a[-1] - logsumexp(a[-1])
   # h.append(logsoftmax)
 
-  output = softmax(a[-1])
-  h.append(output)
-  
-  # output = sigmoid(a[-1])
+  # output = softmax(a[-1])
   # h.append(output)
+  
+  output = sigmoid(a[-1])
+  h.append(output)
   
   return h, a, xi, aux
 

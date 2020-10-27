@@ -31,6 +31,8 @@ def loss(x, y, params):
 def sgdupdate(x, y, params, randkey, optimstate):
     print('building sgd update')
     lr = optimstate['lr']
+    
+    # this is a hack for quickly including a linear FC networks: should be changed later !!
     if('linear' in optimstate):
         global forward
         forward = fc.batchlinforward

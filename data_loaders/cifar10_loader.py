@@ -73,7 +73,7 @@ def prepare_data(x, y, preprocess):
       x = normalize_data(x, data_minval, data_maxval)
 
     else:
-      # passed x should be of the form [NHWWC]
+      # passed x should be of the form [NHWC]
       x = channel_standardization(x, chmean, chstd)
 
     x = np.reshape(x, (-1, num_pixels))

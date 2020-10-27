@@ -19,7 +19,7 @@ path = "explogs/conv/"
 num = 5 # number of learning rates
 
 # rows = np.logspace(-4, -1, num, endpoint=True, dtype=np.float32)
-rows = [0.00005, 0.00008, 0.0001, 0.0002]
+rows = [0.01, 0.05, 0.1, 0.25]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -33,7 +33,8 @@ convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
                    (3, 3, convout_channels[0], convout_channels[1]),
                    (3, 3, convout_channels[1], convout_channels[2])]
 
-fclayer_sizes = [data.height * data.width * convlayer_sizes[-1][-1], data.num_classes]
+down_factor = 2
+fclayer_sizes = [int((data.height / down_factor) * (data.width / down_factor) * convlayer_sizes[-1][-1]), data.num_classes]
 
 randkey = random.PRNGKey(jobid)
 convparams = conv.init_convlayers(convlayer_sizes, randkey)
@@ -78,7 +79,7 @@ df['network'], df['update_rule'], df['lr'], df['batchsize'], df['total_epochs'],
 if(log_expdata):
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'conv_base.csv')):
+    if(not os.path.exists(path + 'conv_base2.csv')):
         use_header = True
     
-    df.to_csv(path + 'conv_base.csv', mode='a', header=use_header)
+    df.to_csv(path + 'conv_base2.csv', mode='a', header=use_header)

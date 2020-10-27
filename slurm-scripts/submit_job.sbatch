@@ -12,28 +12,18 @@ then
     srun -u python nptest.py
     # srun -u python npconvtest.py
 
-elif [ $exp == 'tmp-tf1' ]
+elif [ $exp == 'tmp-tf' ]
 then
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'mse' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'mse' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd-momentum' -final_actfunc 'softmax' -loss_func 'mse' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}
-
-elif [ $exp == 'tmp-tf2' ]
-then
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'cross-entropy' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 400 -optimizer 'sgd-momentum' -final_actfunc 'softmax' -loss_func 'cross-entropy' -dropout True -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python tmp_tf/convTF.py -log_expdata True -num_epochs 200 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'conv-base' ]
 then
     # srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 5 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
-    srun -u python experiments/conv/conv_base.py -log_expdata False -num_epochs 10 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'conv-large' ]
 then
-    srun -u python experiments/conv/All-CNN-A.py -log_expdata True -num_epochs 10 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/conv/All-CNN-A.py -log_expdata True -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'crash-dynamics' ]
 then

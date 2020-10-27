@@ -67,11 +67,14 @@ optimizer, lr, batchsize, num_epochs, network, dropout, final_actfunc, loss_func
 np.random.seed(jobid)
 tf.compat.v1.set_random_seed(jobid)
 
-#* learning rates for MSE
-# rows = [0.25, 0.1, 0.05, 0.01]
+#* learning rates for MSE / SGD
+rows = [0.25, 0.1, 0.05, 0.01]
+
+#* learning rates for Adam
+# rows = [0.0005, 0.001, 0.005, 0.01]
 
 #* learning rates for cross entropy
-rows = [0.1, 0.05, 0.01, 0.005]
+# rows = [0.1, 0.05, 0.01, 0.005]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -128,8 +131,11 @@ elif(network == 'All-CNN-A'):
 if (optimizer == 'sgd'):
     optim = tf.keras.optimizers.SGD(learning_rate = lr)
 
-if (optimizer == 'sgd-momentum'):
+elif (optimizer == 'sgd-momentum'):
     optim = tf.keras.optimizers.SGD(learning_rate = lr, momentum=0.9)
+
+elif (optimizer == 'adam'):
+    optim = tf.keras.optimizers.Adam(learning_rate = lr)
 
 model.compile(optimizer=optim,
               loss=loss_fn, 
