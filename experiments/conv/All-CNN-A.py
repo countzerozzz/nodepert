@@ -52,6 +52,7 @@ fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 params = convparams
 params.append(fcparams)
 
+print(xla_bridge.get_backend().platform)
 print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
 print(utils.get_params_count(params))
 

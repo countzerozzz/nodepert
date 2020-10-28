@@ -73,13 +73,10 @@ np.random.seed(jobid)
 tf.compat.v1.set_random_seed(jobid)
 
 #* learning rates for MSE / SGD
-# rows = [0.25, 0.1, 0.05, 0.01]
+rows = [0.25, 0.1, 0.05, 0.01]
 
-#* learning rates for Adam
-rows = [0.0005, 0.001, 0.005, 0.01]
-
-#* learning rates for cross entropy
-# rows = [0.1, 0.05, 0.01, 0.005]
+#* learning rates for CE / Adam
+# rows = [0.0005, 0.001, 0.005, 0.01]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -116,22 +113,23 @@ elif(network == 'conv-small'):
     model.add(tf.keras.layers.Dense(10, activation=final_actfunc))
 
 elif(network == 'All-CNN-A'):
+    initializer = tf.keras.initializers.GlorotNormal()
     #* All-CNN-A architecture as in paper https://arxiv.org/pdf/1412.6806.pdf (without final 6x6 global averaging penultimate layer)
-    model.add(tf.keras.layers.Conv2D(96, (5, 5), strides=1, activation=actfunc, padding='same', input_shape=(32, 32, 3), kernel_initializer='glorot_uniform', bias_initializer='zeros'))
+    model.add(tf.keras.layers.Conv2D(96, (5, 5), strides=1, activation=actfunc, padding='same', input_shape=(32, 32, 3), kernel_initializer=initializer, bias_initializer='zeros'))
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.2))
-    model.add(tf.keras.layers.Conv2D(96, (3, 3), strides=2, activation=actfunc, padding='same'))
+    model.add(tf.keras.layers.Conv2D(96, (3, 3), strides=2, activation=actfunc, padding='same', kernel_initializer=initializer))
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.5))
-    model.add(tf.keras.layers.Conv2D(192, (5, 5), strides=1, activation=actfunc, padding='same'))
-    model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=2, activation=actfunc, padding='same'))
+    model.add(tf.keras.layers.Conv2D(192, (5, 5), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=2, activation=actfunc, padding='same', kernel_initializer=initializer))
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.5))
-    model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=1, activation=actfunc, padding='same'))
-    model.add(tf.keras.layers.Conv2D(192, (1, 1), strides=1, activation=actfunc, padding='same'))
-    model.add(tf.keras.layers.Conv2D(10, (1, 1), strides=1, activation=actfunc, padding='same'))
+    model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(192, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.Conv2D(10, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
     model.add(tf.keras.layers.Flatten())
-    model.add(tf.keras.layers.Dense(10, activation=final_actfunc))
+    model.add(tf.keras.layers.Dense(10, activation=final_actfunc, kernel_initializer=initializer))
 
 if (optimizer == 'sgd'):
     optim = tf.keras.optimizers.SGD(learning_rate = lr)
