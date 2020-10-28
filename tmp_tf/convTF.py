@@ -47,9 +47,15 @@ def channel_standardization(x, chmean, chstd):
 
 train_x = channel_standardization(train_x, chmean, chstd)
 test_x = channel_standardization(test_x, chmean, chstd)
+
+# data_minval = train_x.min()
+# data_maxval = train_x.max()
+
+# train_x = normalize_data(train_x, data_minval, data_maxval)
+# test_x = normalize_data(test_x, data_minval, data_maxval)
+
 train_y = tf.keras.utils.to_categorical(train_y, num_classes=10)
 test_y = tf.keras.utils.to_categorical(test_y, num_classes=10)
-
 
 class TimeHistory(tf.keras.callbacks.Callback):
     def on_train_begin(self, logs={}):
@@ -61,17 +67,16 @@ class TimeHistory(tf.keras.callbacks.Callback):
     def on_epoch_end(self, batch, logs={}):
         self.times.append(time.time() - self.epoch_time_start)
 
-
 optimizer, lr, batchsize, num_epochs, network, dropout, final_actfunc, loss_func, log_expdata, jobid = utils.parse_conv_args_tf()
 
 np.random.seed(jobid)
 tf.compat.v1.set_random_seed(jobid)
 
 #* learning rates for MSE / SGD
-rows = [0.25, 0.1, 0.05, 0.01]
+# rows = [0.25, 0.1, 0.05, 0.01]
 
 #* learning rates for Adam
-# rows = [0.0005, 0.001, 0.005, 0.01]
+rows = [0.0005, 0.001, 0.005, 0.01]
 
 #* learning rates for cross entropy
 # rows = [0.1, 0.05, 0.01, 0.005]

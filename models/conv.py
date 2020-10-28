@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -18,10 +19,16 @@ def relu(x):
 #helper function to init conv layer:
 def init_single_convlayer(kernel_height, kernel_width, input_channels, output_channels, w_key):
   # use he style initialization (not glorot):
-  std = np.sqrt(2.0 / (kernel_height * kernel_width * 0.5 * (input_channels + output_channels)))
+  # std = np.sqrt(2.0 / (kernel_height * kernel_width * 0.5 * (input_channels + output_channels)))
 
   #NOTICE: ordering changes from function argument ordering!!
-  kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
+  #random normal sampling of parameters
+  # kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
+
+  #uniform sampling of parameters (xavier uniform initialization): http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
+
+  limit = round(math.sqrt(6 / (kernel_height * kernel_width * (input_channels + output_channels))), 4)
+  kernel = random.uniform(w_key, (kernel_height, kernel_width, output_channels, input_channels), np.float32, -1*limit, limit)
 
   #for conv layers there are typically only 1 bias per channel
   biases = jnp.zeros((output_channels,))
