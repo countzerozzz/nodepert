@@ -15,8 +15,8 @@ def relu(x):
 def init_layer(m, n, randkey):
   w_key, _ = random.split(randkey)
 
-  # use uniform he style scaling (not glorot):
-  std = np.sqrt(2.0 / m)
+  # use Xavier normal initialization
+  std = np.sqrt(2.0 / (m + n))
   weights = std*random.normal(w_key, (n, m))
   biases = jnp.zeros((n,))
 

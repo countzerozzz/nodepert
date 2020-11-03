@@ -21,7 +21,7 @@ def init_single_convlayer(kernel_height, kernel_width, input_channels, output_ch
   
   #NOTICE: ordering changes from function argument ordering!!
   #random normal sampling of parameters
-  std = np.sqrt(2.0 / (kernel_height * kernel_width * 0.5 * (input_channels + output_channels)))
+  std = np.sqrt(2.0 / (kernel_height * kernel_width * (input_channels + output_channels)))
   kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
 
   # uniform sampling of parameters (xavier uniform initialization): http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf

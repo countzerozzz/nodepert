@@ -19,8 +19,8 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/conv/"
 
-# num = 7 # number of learning rates
-# rows = np.logspace(-5, -2, num, endpoint=True, dtype=np.float32)
+# num = 10 # number of learning rates
+# rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 rows = [0.01, 0.05, 0.1, 0.25]
 
 ROW_DATA = 'learning_rate'
