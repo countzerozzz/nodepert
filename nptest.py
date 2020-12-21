@@ -27,8 +27,8 @@ forward = optim.forward = fc.batchforward
 optim.forward = fc.batchforward
 optim.noisyforward = fc.batchnoisyforward
 
-optimizer = optim.npupdate
-optimstate = { 'lr' : 2e-3, 'wd' : 0, 't' : 0 }
+optimizer = optim.sgdupdate
+optimstate = { 'lr' : 0.25, 'wd' : 0, 't' : 0 }
 
 # now train
 params, optimstate, expdata = train.train(  params,
@@ -38,7 +38,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = True)
+                                            verbose = False)
 
 # save out results of experiment
 if(log_expdata):

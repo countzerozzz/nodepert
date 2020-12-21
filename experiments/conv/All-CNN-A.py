@@ -19,9 +19,14 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/conv/"
 
-# num = 10 # number of learning rates
+# num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
-rows = [0.01, 0.05, 0.1, 0.25]
+
+# np update: (mse)
+# rows = [0.000005, 0.00001, 0.00005, 0.0001]
+
+# sgd update: (mse)
+rows = [0.01, 0.05, 0.1, 0.25, 0.5]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -54,7 +59,8 @@ params.append(fcparams)
 
 print(xla_bridge.get_backend().platform)
 print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
-print(utils.get_params_count(params))
+print(utils.get_params_count(convparams))
+print(utils.get_params_count([fcparams]))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward

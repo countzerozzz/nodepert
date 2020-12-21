@@ -73,10 +73,10 @@ np.random.seed(jobid)
 tf.compat.v1.set_random_seed(jobid)
 
 #* learning rates for MSE / SGD
-rows = [0.25, 0.1, 0.05, 0.01]
+# rows = [0.01, 0.05, 0.1, 0.25, 0.5]
 
 #* learning rates for CE / Adam
-# rows = [0.0005, 0.001, 0.005, 0.01]
+rows = [0.0001, 0.0003, 0.0005, 0.0008]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -96,12 +96,15 @@ path = 'explogs/conv/'
 model = tf.keras.models.Sequential()
 
 if (network  == 'fc'):
+    n_hl = 2
+    hl_size = 500
+    initializer = tf.keras.initializers.GlorotNormal()
     train_x = np.reshape(train_x, (-1, 3072))
     test_x = np.reshape(test_x, (-1, 3072))
-    model.add(tf.keras.layers.Dense(hl_size, input_dim=3072, activation=actfunc))
+    model.add(tf.keras.layers.Dense(hl_size, input_dim=3072, activation=actfunc, kernel_initializer=initializer))
     for i in range(n_hl - 1):
-        model.add(tf.keras.layers.Dense(hl_size, activation=actfunc))
-    model.add(tf.keras.layers.Dense(10))
+        model.add(tf.keras.layers.Dense(hl_size, activation=actfunc, kernel_initializer=initializer))
+    model.add(tf.keras.layers.Dense(10, activation=final_actfunc, kernel_initializer=initializer))
 
 elif(network == 'conv-small'):
     convchannels = 32
@@ -112,24 +115,60 @@ elif(network == 'conv-small'):
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dense(10, activation=final_actfunc))
 
+elif (network == 'conv-large'):
+    initializer = tf.keras.initializers.GlorotNormal()
+    model.add(tf.keras.layers.Conv2D(96, (5, 5), strides=1, activation=actfunc, padding='same', input_shape=(32, 32, 3), kernel_initializer=initializer, bias_initializer='zeros'))
+    model.add(tf.keras.layers.BatchNormalization())
+    if(dropout):
+        model.add(tf.keras.layers.Dropout(0.2))
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=2, padding="same"))
+    model.add(tf.keras.layers.BatchNormalization())
+    if(dropout):
+        model.add(tf.keras.layers.Dropout(0.5))
+    model.add(tf.keras.layers.Conv2D(192, (5, 5), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.MaxPooling2D(pool_size=(3, 3), strides=2, padding="same"))
+    model.add(tf.keras.layers.BatchNormalization())
+    if(dropout):
+        model.add(tf.keras.layers.Dropout(0.5))
+    
+    model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Conv2D(192, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.BatchNormalization())
+    model.add(tf.keras.layers.Conv2D(10, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    model.add(tf.keras.layers.BatchNormalization())
+    
+    model.add(tf.keras.layers.Flatten())
+    model.add(tf.keras.layers.Dense(10, activation=final_actfunc, kernel_initializer=initializer))
+    model.add(tf.keras.layers.BatchNormalization())
+
 elif(network == 'All-CNN-A'):
     initializer = tf.keras.initializers.GlorotNormal()
     #* All-CNN-A architecture as in paper https://arxiv.org/pdf/1412.6806.pdf (without final 6x6 global averaging penultimate layer)
     model.add(tf.keras.layers.Conv2D(96, (5, 5), strides=1, activation=actfunc, padding='same', input_shape=(32, 32, 3), kernel_initializer=initializer, bias_initializer='zeros'))
+    # model.add(tf.keras.layers.BatchNormalization())
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.2))
     model.add(tf.keras.layers.Conv2D(96, (3, 3), strides=2, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.5))
     model.add(tf.keras.layers.Conv2D(192, (5, 5), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=2, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     if(dropout):
         model.add(tf.keras.layers.Dropout(0.5))
     model.add(tf.keras.layers.Conv2D(192, (3, 3), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Conv2D(192, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Conv2D(10, (1, 1), strides=1, activation=actfunc, padding='same', kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
     model.add(tf.keras.layers.Flatten())
     model.add(tf.keras.layers.Dense(10, activation=final_actfunc, kernel_initializer=initializer))
+    # model.add(tf.keras.layers.BatchNormalization())
 
 if (optimizer == 'sgd'):
     optim = tf.keras.optimizers.SGD(learning_rate = lr)
@@ -145,6 +184,19 @@ model.compile(optimizer=optim,
               metrics=['accuracy'])
 
 print(model.summary())
+
+for i in range(7):
+    weights = model.layers[i].get_weights()
+    kernel = weights[0]
+    bias = weights[1]
+    print(np.std(kernel))
+    # print(np.std(bias)))
+
+    # print('Layer {} kernel - std : {}'.format(i, np.std(kernel)))
+    # print('Layer {} bias - std : {}'.format(i, np.std(bias)))
+
+# print(np.std(model.layers[7].get_weights()))
+
 start_time = time.time()
 
 time_callback = TimeHistory()

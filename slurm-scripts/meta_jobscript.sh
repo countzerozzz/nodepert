@@ -6,11 +6,11 @@ then
 
 elif [ $1 == 'tmp-tf' ]
 then
-    sbatch --array=0-3 --export=ALL,exp='tmp-tf' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='tmp-tf' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'conv-base' ]
 then
-    sbatch --array=0 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-3 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'conv-large' ]
 then

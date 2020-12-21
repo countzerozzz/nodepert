@@ -16,10 +16,10 @@ config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_
 # folder to log experiment results
 path = "explogs/conv/"
 
-num = 5 # number of learning rates
+# num = 7 # number of learning rates
+# rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
-# rows = np.logspace(-4, -1, num, endpoint=True, dtype=np.float32)
-rows = [0.01, 0.05, 0.1, 0.25]
+rows = [0.00005, 0.0001, 0.0005, 0.001]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -33,7 +33,7 @@ convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
                    (3, 3, convout_channels[0], convout_channels[1]),
                    (3, 3, convout_channels[1], convout_channels[2])]
 
-down_factor = 2
+down_factor = 1
 fclayer_sizes = [int((data.height / down_factor) * (data.width / down_factor) * convlayer_sizes[-1][-1]), data.num_classes]
 
 randkey = random.PRNGKey(jobid)
