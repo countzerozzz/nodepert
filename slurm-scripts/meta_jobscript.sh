@@ -4,17 +4,21 @@ if [ $1 == 'trial' ]
 then
     sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
 
-elif [ $1 == 'tmp-tf' ]
+elif [ $1 == 'tf-all-cnn-a' ]
 then
-    sbatch --array=0 --export=ALL,exp='tmp-tf' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='tf-all-cnn-a' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'all-cnn-a' ]
+then
+    sbatch --array=0 --export=ALL,exp='all-cnn-a' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'tf-conv-base' ]
+then
+    sbatch --array=0 --export=ALL,exp='tf-conv-base' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'conv-base' ]
 then
     sbatch --array=0 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
-
-elif [ $1 == 'conv-large' ]
-then
-    sbatch --array=0 --export=ALL,exp='conv-large' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'scale-dataset' ]
 then

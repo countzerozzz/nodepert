@@ -17,7 +17,7 @@ network = 'All-CNN-A'
 config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_classes'] = False, batchsize, num_epochs, data.num_classes
 
 # folder to log experiment results
-path = "explogs/conv/"
+path = "explogs/np-weirdness/"
 
 # num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
@@ -94,7 +94,7 @@ print(df.head(5))
 if(log_expdata):
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'conv_large2.csv')):
+    if(not os.path.exists(path + 'all-cnn-a-JAX.csv')):
         use_header = True
     
-    df.to_csv(path + 'conv_large2.csv', mode='a', header=use_header)
+    df.to_csv(path + 'all-cnn-a-JAX.csv', mode='a', header=use_header)
