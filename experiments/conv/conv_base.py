@@ -19,7 +19,11 @@ path = "explogs/np-weirdness/"
 # num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
-rows = [0.00005, 0.0001, 0.0005, 0.001]
+# np update: (mse)
+# rows = [0.000005, 0.00001, 0.00005, 0.0001]
+
+# sgd update: (mse)
+rows = [0.01, 0.05, 0.1, 0.25, 0.5]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)

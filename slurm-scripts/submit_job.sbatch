@@ -14,19 +14,19 @@ then
 
 elif [ $exp == 'tf-all-cnn-a' ]
 then
-    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 2 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'All-CNN-A' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 350 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'All-CNN-A' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'all-cnn-a' ]
 then
-    srun -u python experiments/conv/All_CNN_A.py -log_expdata True -num_epochs 2 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python experiments/conv/All_CNN_A.py -log_expdata True -num_epochs 350 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'tf-conv-base' ]
 then
-    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 2 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'conv-base' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 350 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'conv-base' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'conv-base' ]
 then
-    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 2 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}       
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 350 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}       
 
 
 elif [ $exp == 'crash-dynamics' ]
