@@ -24,14 +24,24 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     sign_symmetry_df = pd.DataFrame(columns = col_names)
     sign_symmetry_df['update_rule'] = ["np", "sgd"]
     sign_symmetry_df['epoch'] = np.repeat(epoch, 2)
+    full_dwnp, full_dwsgd, full_dwtrue = [],[],[]
+
     for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):
         # do a elementwise product and then calculate the number of entries which are positive
+        full_dwnp.extend(dwnp); full_dwsgd.extend(dwsgd); full_dwtrue.extend(dwtrue)
         tmp = np.array(jnp.multiply(dwnp, dwtrue))
         ss_np = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
         tmp = np.array(jnp.multiply(dwsgd, dwtrue))
         ss_sgd = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
         
         sign_symmetry_df[column] = [ss_np, ss_sgd]
+
+    tmp = np.array(jnp.multiply(full_dwnp, full_dwtrue))
+    ss_np_avg = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
+    tmp = np.array(jnp.multiply(full_dwsgd, full_dwtrue))
+    ss_sgd_avg = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
+    
+    sign_symmetry_df['ss_all'] = [ss_np_avg, ss_sgd_avg]
 
     return sign_symmetry_df
 
@@ -41,19 +51,19 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     grad_norms_df = pd.DataFrame(columns = col_names)
     grad_norms_df['update_rule'] = ["np", "sgd", "true"]
     grad_norms_df['epoch'] = np.repeat(epoch, 3)
-    dw_allnp, dw_allsgd, dw_alltrue = [], [], []
+    full_dwnp, full_dwsgd, full_dwtrue = [], [], []
 
     for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):          
         grad_norms_df[column] = [jnp.linalg.norm(dwnp), jnp.linalg.norm(dwsgd), jnp.linalg.norm(dwtrue)]
-        dw_allnp.extend(dwnp.flatten())
-        dw_allsgd.extend(dwsgd.flatten())
-        dw_alltrue.extend(dwtrue.flatten())
+        full_dwnp.extend(dwnp.flatten())
+        full_dwsgd.extend(dwsgd.flatten())
+        full_dwtrue.extend(dwtrue.flatten())
     
-    tmpnp = float(np.array(jnp.linalg.norm(jnp.asarray(dw_allnp))))
-    tmpsgd = float(np.array(jnp.linalg.norm(jnp.asarray(dw_allsgd))))
-    tmptrue = float(np.array(jnp.linalg.norm(jnp.asarray(dw_alltrue))))
+    tmpnp = float(np.array(jnp.linalg.norm(jnp.asarray(full_dwnp))))
+    tmpsgd = float(np.array(jnp.linalg.norm(jnp.asarray(full_dwsgd))))
+    tmptrue = float(np.array(jnp.linalg.norm(jnp.asarray(full_dwtrue))))
     
-    grad_norms_df['all'] = [tmpnp, tmpsgd, tmptrue]
+    grad_norms_df['gnorm_all'] = [tmpnp, tmpsgd, tmptrue]
     ratio_np = tmpnp / tmptrue
     ratio_sgd = tmpsgd / tmptrue
     grad_norms_df['ratios'] = [ratio_np, ratio_sgd, -1]
@@ -75,8 +85,26 @@ def w_norms(params, layer_sizes, epoch):
         w_all.extend(flat_ww)
     
     tmp = float(np.array(jnp.linalg.norm(jnp.asarray(w_all))))
-    w_norm_df['all'] = [tmp]
+    w_norm_df['norm_w_all'] = [tmp]
     return w_norm_df
+
+# calculate the variance of the weights during the crash
+def w_vars(params, layer_sizes, epoch):
+    col_names = ['var_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    w_var_df = pd.DataFrame(columns = col_names)
+    w_var_df['update_rule'] = ["np"]
+    w_var_df['epoch'] = [epoch]
+    w_all = []
+    
+    for column, (ww, _) in zip(col_names, params):         
+        flat_ww = ww.flatten()
+        tmp = jnp.var(flat_ww)
+        w_var_df[column] = [tmp]
+        w_all.extend(flat_ww)
+    
+    tmp = float(np.array(jnp.var(jnp.asarray(w_all))))
+    w_var_df['norm_w_all'] = [tmp]
+    return w_var_df
 
 # calculate the norm of the 'noise' in the gradient estimates
 def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):

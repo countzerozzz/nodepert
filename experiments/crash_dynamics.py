@@ -15,9 +15,9 @@ from linesearch_utils import lossfunc
 # parse arguments
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
-# set flags for which of the metrics to compute
-# gradient norms, difference in gradient norms, sign symmetry, gradient angles, weight norms
-flags = [1, 0, 0, 0, 1]
+# set flags for which of the metrics to compute during the crash.
+# gradient norms, difference in gradient norms, sign symmetry, gradient angles, weight norms, variance of weight
+flags = [1, 1, 1, 1, 1, 1]
 
 # folder to log experiment results
 path = "explogs/crash_dynamics/"
@@ -111,8 +111,12 @@ if(crash):
     grad_angles_df = pd.DataFrame(columns = ['gangle_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     grad_angles_df['update_rule'], grad_angles_df['epoch'] = "", ""
     # dataframe to store the norm of the neural network weights
-    w_norms_df = pd.DataFrame(columns = ['norm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    w_norms_df = pd.DataFrame(columns = [ 'norm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     w_norms_df['update_rule'], w_norms_df['epoch'] = "", ""
+    # dataframe to store the variance of the neural network weights
+    w_var_df = pd.DataFrame(columns = ['var_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    w_var_df['update_rule'], w_var_df['epoch'] = "", ""
+    
     # dataframe to store the average change in MSE
     deltal_df = pd.DataFrame(columns = ['epoch', 'del-MSE'])    
     deltal, epochs = [], []
@@ -148,6 +152,9 @@ if(crash):
                 if(flags[4]):
                     w_norms_df = w_norms_df.append(grad_dynamics.w_norms(params_new, layer_sizes, epoch))
                 
+                if(flags[5]):
+                    w_var_df = w_var_df.append(grad_dynamics.w_vars(params_new, layer_sizes, epoch))
+                
                 deltal.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
                 epochs.append(epoch)
 
@@ -157,19 +164,23 @@ else:
     print("no crash detected, exiting...")
     exit()
 
+#need to use np.repeat as different dataframes have different number of rows depending on the value being calculated.
 grad_norms_df['test_acc'], grad_norms_df['jobid'] = np.repeat(test_acc, 3), jobid
 graddiff_norms_df['test_acc'], graddiff_norms_df['jobid'] = np.repeat(test_acc, 2), jobid
 sign_symmetry_df['test_acc'], sign_symmetry_df['jobid'] = np.repeat(test_acc, 2), jobid
 grad_angles_df['test_acc'], grad_angles_df['jobid'] = np.repeat(test_acc, 2), jobid
 w_norms_df['test_acc'], w_norms_df['jobid'] = test_acc, jobid
+w_var_df['test_acc'], w_var_df['jobid'] = test_acc, jobid
 deltal_df['del-MSE'], deltal_df['epoch'] = deltal, epochs
 deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
 pd.set_option('display.max_columns', None)
+print(grad_norms_df.head(5))
+print(graddiff_norms_df.head(5))
+print(sign_symmetry_df.head(5))
+print(grad_angles_df.head(5))
 print(w_norms_df.head(5))
-# print(graddiff_norms_df.head(5))
-# print(sign_symmetry_df.head(5))
-# print(grad_angles_df.head(5))
+print(w_vars_df.head(5))
 
 train_df['epoch'] = np.arange(start=1, stop=train_df['test_acc'].size+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
@@ -196,6 +207,9 @@ if(log_expdata):
     
     if(flags[4]):
         w_norms_df.to_csv(path + 'w_norms.csv', mode='a', header=use_header)
+
+    if(flags[5]):
+        w_var_df.to_csv(path + 'w_vars.csv', mode='a', header=use_header)
     
     deltal_df.to_csv(path + 'deltal.csv', mode='a', header=use_header)
     train_df.to_csv(path + 'train_df.csv', mode='a', header=use_header)
