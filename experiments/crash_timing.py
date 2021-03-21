@@ -15,7 +15,7 @@ from linesearch_utils import lossfunc
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
 # folder to log experiment results
-path = "explogs/crash_dynamics/"
+path = "explogs/crash_timing/"
 
 randkey = random.PRNGKey(jobid)
 
@@ -29,10 +29,6 @@ rows = np.linspace(0.005, 0.025, num=20)
 
 row_id = jobid % len(rows)
 lr = rows[row_id]
-print('learning rate', lr)
-
-split_percent = '[:10%]'
-num_batches = int(6000 / batchsize)
 
 # build our network
 layer_sizes = [data.num_pixels]
@@ -59,51 +55,54 @@ optimstate = { 'lr' : lr, 't' : 0}
 test_acc = []
 
 # define metrics for measuring a crash
-high = -1; crash = False
-stored_epoch = -1; interval = 3  # interval of batches to computer grad dynamics over after a crash.
+is_training = False; crash = False
+high = -1; crash_epoch = -1
 
-# log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
 for epoch in range(1, num_epochs + 1):
     start_time = time.time()
-    test_acc.append(train.compute_metrics(params, forward, data, split_percent = split_percent)[1])
+    test_acc.append(train.compute_metrics(params, forward, data)[1])
     print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
 
     # if the current accuracy is lesser than the max by 'x' amount, a crash is detected. break training and reset params
     high = max(test_acc)
+    
+    if(high > 25):
+        is_training = True
+    
     if(high - test_acc[-1] > 25):
         print('crash detected! Resetting params')
         crash = True
+        crash_epoch = epoch
         break
 
-    # every 5 epochs checkpoint the network params
-    if((epoch-1) % 5 == 0):
-        Path(path + "model_params/").mkdir(exist_ok=True)
-        pickle.dump(params, open(path + "model_params/" + str(jobid) + ".pkl", "wb"))
-        stored_epoch = epoch
-    
-    for x, y in data.get_data_batches(batchsize=batchsize, split='train'+split_percent):
+    for x, y in data.get_data_batches(batchsize=batchsize):
         randkey, _ = random.split(randkey)
         params, grads, optimstate = gradfunc(x, y, params, randkey, optimstate)
     
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
-params = pickle.load(open(path + "model_params/" + str(jobid) + ".pkl", "rb"))
-train_df = pd.DataFrame()
-train_df['test_acc'] = test_acc
+    if(is_training == False and epoch > 50):
+        break
+
+df = pd.DataFrame()
+df['crash'], df['crash_epoch'], df['is_training'] = [crash], [crash_epoch], [is_training]
+df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
 
 if(crash):
-
+    print("crash detected at epoch: {}".format(crash_epoch))
             
 else:
     print("no crash detected, exiting...")
-    exit()
+
+pd.set_option('display.max_columns', None)
+print(df.head(5))
 
 # save the results of our experiment
 if(log_expdata):
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'w_norms.csv')):
+    if(not os.path.exists(path + 'expdata.csv')):
         use_header = True
         
-    deltal_df.to_csv(path + 'deltal.csv', mode='a', header=use_header)
+    df.to_csv(path + 'expdata.csv', mode='a', header=use_header)
