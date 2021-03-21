@@ -17,7 +17,6 @@ def init_layer(m, n, randkey):
 
   # use Xavier normal initialization
   std = np.sqrt(2.0 / (m + n))
-  print(std)
   weights = std*random.normal(w_key, (n, m))
   biases = jnp.zeros((n,))
 
