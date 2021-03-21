@@ -36,6 +36,7 @@ row_id = jobid % len(rows)
 lr = rows[row_id]
 print('learning rate', lr)
 
+# if split percent is changed, the num_batches will also have to be adjusted accordingly.
 split_percent = '[:10%]'
 num_batches = int(6000 / batchsize)
 
