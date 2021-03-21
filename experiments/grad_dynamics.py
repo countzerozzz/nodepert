@@ -28,7 +28,7 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
 
     for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):
         # do a elementwise product and then calculate the number of entries which are positive
-        full_dwnp.extend(dwnp); full_dwsgd.extend(dwsgd); full_dwtrue.extend(dwtrue)
+        full_dwnp.extend(dwnp.flatten()); full_dwsgd.extend(dwsgd.flatten()); full_dwtrue.extend(dwtrue.flatten())
         tmp = np.array(jnp.multiply(dwnp, dwtrue))
         ss_np = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
         tmp = np.array(jnp.multiply(dwsgd, dwtrue))
@@ -36,12 +36,12 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
         
         sign_symmetry_df[column] = [ss_np, ss_sgd]
 
-    tmp = np.array(jnp.multiply(full_dwnp, full_dwtrue))
-    ss_np_avg = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
-    tmp = np.array(jnp.multiply(full_dwsgd, full_dwtrue))
-    ss_sgd_avg = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
+    tmp = np.array(jnp.multiply(jnp.asarray(full_dwnp), jnp.asarray(full_dwtrue)))
+    ss_np_all = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
+    tmp = np.array(jnp.multiply(jnp.asarray(full_dwsgd), jnp.asarray(full_dwtrue)))
+    ss_sgd_all = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
     
-    sign_symmetry_df['ss_all'] = [ss_np_avg, ss_sgd_avg]
+    sign_symmetry_df['ss_all'] = [ss_np_all, ss_sgd_all]
 
     return sign_symmetry_df
 
