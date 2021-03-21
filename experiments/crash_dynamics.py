@@ -22,14 +22,15 @@ flags = [1, 1, 1, 1, 1, 1]
 # folder to log experiment results
 path = "explogs/crash_dynamics/"
 
-randkey = random.PRNGKey(11)
+randkey = random.PRNGKey(jobid)
 
 # a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine, 
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
 # rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
-rows = [0.009, 0.01, 0.015, 0.02, 0.025]
+rows = np.linspace(0.005, 0.025, num=20)
+# rows = [0.009, 0.01, 0.015, 0.02, 0.025]
 
 row_id = jobid % len(rows)
 lr = rows[row_id]
@@ -180,7 +181,7 @@ print(graddiff_norms_df.head(5))
 print(sign_symmetry_df.head(5))
 print(grad_angles_df.head(5))
 print(w_norms_df.head(5))
-print(w_vars_df.head(5))
+print(w_var_df.head(5))
 
 train_df['epoch'] = np.arange(start=1, stop=train_df['test_acc'].size+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
