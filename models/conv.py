@@ -17,12 +17,12 @@ def relu(x):
   return jnp.maximum(0, x)
 
 #helper function to init conv layer:
-def init_single_convlayer(kernel_height, kernel_width, input_channels, output_channels, w_key):
+def init_single_convlayer(kernel_height, kernel_width, input_channels, output_channels, randkey):
   
   #NOTICE: ordering changes from function argument ordering!!
   #random normal sampling of parameters
+  w_key, b_key = random.split(randkey)
   std = np.sqrt(2.0 / (kernel_height * kernel_width * (input_channels + output_channels)))
-  print(std)
   kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
 
   # uniform sampling of parameters (xavier uniform initialization): http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
@@ -31,7 +31,9 @@ def init_single_convlayer(kernel_height, kernel_width, input_channels, output_ch
   # kernel = random.uniform(w_key, (kernel_height, kernel_width, output_channels, input_channels), minval=-1*limit, maxval=limit)
 
   #for conv layers there are typically only 1 bias per channel
-  biases = jnp.zeros((output_channels,))
+  # biases = jnp.zeros((output_channels,))
+  biases = std * random.normal(w_key, (output_channels,))
+
   return kernel, biases
 
 #init all the conv layers in a network of given size:
