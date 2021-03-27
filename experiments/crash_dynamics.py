@@ -16,8 +16,8 @@ from linesearch_utils import lossfunc
 network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, log_expdata, jobid = utils.parse_args()
 
 # set flags for which of the metrics to compute during the crash.
-# gradient norms, difference in gradient norms, sign symmetry, gradient angles, weight norms, variance of weight
-flags = [1, 1, 1, 1, 1, 1]
+# gradient norms, difference in gradient norms, sign symmetry, gradient angles, weight norms, variance of weight, layer activations of the network
+flags = [1, 1, 1, 1, 1, 1, 1]
 
 # folder to log experiment results
 path = "explogs/crash_dynamics/"
@@ -119,6 +119,10 @@ if(crash):
     w_var_df = pd.DataFrame(columns = ['var_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     w_var_df['update_rule'], w_var_df['epoch'] = "", ""
     
+    # dataframe to store the activity of neurons at every layer
+    n_activity_df = pd.DataFrame(columns = ['activity_l'+ str(i) for i in np.arange(1,len(layer_sizes))])
+    n_activity_df['update_rule'], n_activity_df['epoch'] = "", ""
+    
     # dataframe to store the average change in MSE
     deltal_df = pd.DataFrame(columns = ['epoch', 'del-MSE'])    
     deltal, epochs = [], []
@@ -157,6 +161,10 @@ if(crash):
                 if(flags[5]):
                     w_var_df = w_var_df.append(grad_dynamics.w_vars(params_new, layer_sizes, epoch))
                 
+                if(flags[6]):
+                    n_activity_df = n_activity_df.append(grad_dynamics.compute_layer_activity(x, y, params_new, layer_sizes, epoch))
+                
+                
                 deltal.append(lossfunc(x,y, params_new) - lossfunc(x,y, params))
                 epochs.append(epoch)
 
@@ -173,6 +181,7 @@ sign_symmetry_df['test_acc'], sign_symmetry_df['jobid'] = np.repeat(test_acc, 2)
 grad_angles_df['test_acc'], grad_angles_df['jobid'] = np.repeat(test_acc, 2), jobid
 w_norms_df['test_acc'], w_norms_df['jobid'] = test_acc, jobid
 w_var_df['test_acc'], w_var_df['jobid'] = test_acc, jobid
+n_activity_df['test_acc'], n_activity_df['jobid'] = test_acc, jobid
 deltal_df['del-MSE'], deltal_df['epoch'] = deltal, epochs
 deltal_df['test_acc'], deltal_df['jobid'] = test_acc, jobid
 
@@ -212,6 +221,9 @@ if(log_expdata):
 
     if(flags[5]):
         w_var_df.to_csv(path + 'w_vars.csv', mode='a', header=use_header)
+    
+    if(flags[6]):
+        n_activity_df.to_csv(path + 'n_activity.csv', mode='a', header=use_header)
     
     deltal_df.to_csv(path + 'deltal.csv', mode='a', header=use_header)
     train_df.to_csv(path + 'train_df.csv', mode='a', header=use_header)

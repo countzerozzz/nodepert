@@ -70,6 +70,34 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     
     return grad_norms_df
 
+# calculate the norm of the 'noise' in the gradient estimates
+def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
+    col_names = ['gdiff_norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    graddiff_norms_df = pd.DataFrame(columns = col_names)
+    graddiff_norms_df['update_rule'] = ["np", "sgd"]
+    graddiff_norms_df['epoch'] = np.repeat(epoch, 2)
+    
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):         
+        graddiff_norms_df[column] = [jnp.linalg.norm(dwtrue - dwnp), jnp.linalg.norm(dwtrue - dwsgd)]
+        
+    return graddiff_norms_df
+
+# calculate the angle between the gradient estimates and true gradient
+def grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
+    col_names = ['gangle_w' + str(i) for i in np.arange(1,len(layer_sizes))]
+    grad_angles_df = pd.DataFrame(columns = col_names)
+    grad_angles_df['update_rule'] = ["np", "sgd"]
+    grad_angles_df['epoch'] = np.repeat(epoch, 2)
+    
+    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):            
+        dwnp = np.ndarray.flatten(np.asarray(dwnp))
+        dwsgd = np.ndarray.flatten(np.asarray(dwsgd))
+        dwtrue = np.ndarray.flatten(np.asarray(dwtrue))
+        grad_angles_df[column] = [angle_between(dwnp, dwtrue), angle_between(dwsgd, dwtrue)]
+    
+    return grad_angles_df
+
+
 # calculate the norm of the weights during the crash
 def w_norms(params, layer_sizes, epoch):
     col_names = ['norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
@@ -106,29 +134,18 @@ def w_vars(params, layer_sizes, epoch):
     w_var_df['norm_w_all'] = [tmp]
     return w_var_df
 
-# calculate the norm of the 'noise' in the gradient estimates
-def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
-    col_names = ['gdiff_norm_w' + str(i) for i in np.arange(1,len(layer_sizes))]
-    graddiff_norms_df = pd.DataFrame(columns = col_names)
-    graddiff_norms_df['update_rule'] = ["np", "sgd"]
-    graddiff_norms_df['epoch'] = np.repeat(epoch, 2)
-    
-    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):         
-        graddiff_norms_df[column] = [jnp.linalg.norm(dwtrue - dwnp), jnp.linalg.norm(dwtrue - dwsgd)]
-        
-    return graddiff_norms_df
+# get the activations of all layers of the network
+def compute_layer_activity(x, y, params, layer_sizes, epoch):
+    col_names = ['activity_l' + str(i) for i in np.arange(1,len(layer_sizes))]
+    n_activity_df = pd.DataFrame(columns = col_names)
+    n_activity_df['update_rule'] = ["np"]
+    n_activity_df['epoch'] = [epoch]
+    activity_all = []
 
-# calculate the angle between the gradient estimates and true gradient
-def grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
-    col_names = ['gangle_w' + str(i) for i in np.arange(1,len(layer_sizes))]
-    grad_angles_df = pd.DataFrame(columns = col_names)
-    grad_angles_df['update_rule'] = ["np", "sgd"]
-    grad_angles_df['epoch'] = np.repeat(epoch, 2)
+    h,a = fc.batchforward(x, params)
+    # iterate over list, find norm and store into the dataframe
     
-    for column, (dwnp, _), (dwsgd, _), (dwtrue, _) in zip(col_names, npgrad, sgdgrad, truegrad):            
-        dwnp = np.ndarray.flatten(np.asarray(dwnp))
-        dwsgd = np.ndarray.flatten(np.asarray(dwsgd))
-        dwtrue = np.ndarray.flatten(np.asarray(dwtrue))
-        grad_angles_df[column] = [angle_between(dwnp, dwtrue), angle_between(dwsgd, dwtrue)]
+    tmp = float(np.array(jnp.var(jnp.asarray(w_all))))
+    n_activity_df['norm_w_all'] = [tmp]
     
-    return grad_angles_df
+    return n_activity_df
