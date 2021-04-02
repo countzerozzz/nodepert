@@ -33,11 +33,11 @@ import models.metrics as metrics
 # import data_loaders.mnist_loader as data
 # dataset = 'MNIST'
 
-# import data_loaders.fmnist_loader as data
-# dataset = 'f-MNIST'
+import data_loaders.fmnist_loader as data
+dataset = 'f-MNIST'
 
-import data_loaders.cifar10_loader as data
-dataset = 'CIFAR10'
+# import data_loaders.cifar10_loader as data
+# dataset = 'CIFAR10'
 
 import importlib
 importlib.reload(data_loaders)

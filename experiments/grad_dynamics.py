@@ -140,12 +140,10 @@ def compute_layer_activity(x, y, params, layer_sizes, epoch):
     n_activity_df = pd.DataFrame(columns = col_names)
     n_activity_df['update_rule'] = ["np"]
     n_activity_df['epoch'] = [epoch]
-    activity_all = []
 
     h,a = fc.batchforward(x, params)
-    # iterate over list, find norm and store into the dataframe
-    
-    tmp = float(np.array(jnp.var(jnp.asarray(w_all))))
-    n_activity_df['norm_w_all'] = [tmp]
-    
+
+    for i in range(1, len(layer_sizes)):
+        n_activity_df['activity_l' + str(i)] = jnp.linalg.norm(h[i])
+
     return n_activity_df
