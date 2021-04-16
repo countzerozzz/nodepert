@@ -1,0 +1,35 @@
+Running JAX in the gatsby/swc-gpu requires some additional configurational changes. 
+(help from Alex Martin) Below is the step by step guide.
+
+-Installation
+#Load cuda and conda using Environment Modules.
+$module load cuda/10.1
+$module load miniconda/4.5.2
+
+#Create a virtual environment with conda, install tensorflow-dataset and
+pip (I installed tensorflow-gpu too, but that’s probably unnecessary)
+$conda create -n tfjaxenv python=3.7
+$conda install -n tfjaxenv -c anaconda tensorflow-gpu
+$conda install -n tfjaxenv -c anaconda tensorflow-datasets
+$conda install -n tfjaxenv pip
+
+#Install JAX using pip within the virtual environment
+$conda activate tfjaxenv
+$pip install --upgrade
+https://storage.googleapis.com/jax-releases/cuda101/jaxlib-0.1.52-cp37-none-manylinux2010_x86_64.whl
+$pip install --upgrade jax
+
+—Running a code
+#Set up the virtual environment
+$module load cuda/10.1
+$module load miniconda/4.5.2
+$conda activate tfjaxenv
+
+#Set the path to cuda/10.1
+$export
+LD_LIBRARY_PATH=/ceph/apps/ubuntu-16/packages/cuda/cuda_10.1.243_418.87.00/nvvm/libdevice:$LD_LIBRARY_PATH
+$export
+XLA_FLAGS=--xla_gpu_cuda_data_dir=/ceph/apps/ubuntu-16/packages/cuda/cuda_10.1.243_418.87.00/
+
+#execute a program
+$sbatch hoge.sh
