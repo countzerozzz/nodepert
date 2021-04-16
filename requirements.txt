@@ -1,7 +1,6 @@
 # make sure the tensorflow-datasets version is > 3.0
 tensorflow-datasets
 tensorflow
-silence_tensorflow
 jax
 jaxlib
 numpy
