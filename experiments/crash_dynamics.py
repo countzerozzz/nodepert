@@ -66,10 +66,10 @@ test_acc = []
 
 # define metrics for measuring a crash
 high = -1; crash = False
-stored_epoch = -1; interval = 3  # interval of batches to computer grad dynamics over after a crash.
+stored_epoch = -1; interval = 1  # interval of batches to computer grad dynamics over after a crash.
 
 # log parameters at intervals of 5 epochs and when the crash happens, reset training from this checkpoint.
-for epoch in range(1, num_epochs + 1):
+for epoch in range(0, num_epochs):
     start_time = time.time()
     test_acc.append(train.compute_metrics(params, forward, data, split_percent = split_percent)[1])
     print('EPOCH {}\ntest acc: {}%'.format(epoch, round(test_acc[-1], 3)))
@@ -82,7 +82,7 @@ for epoch in range(1, num_epochs + 1):
         break
 
     # every 5 epochs checkpoint the network params
-    if((epoch-1) % 5 == 0):
+    if(epoch % 5 == 0):
         Path(path + "model_params/").mkdir(exist_ok=True)
         pickle.dump(params, open(path + "model_params/" + str(jobid) + ".pkl", "wb"))
         stored_epoch = epoch
@@ -94,11 +94,11 @@ for epoch in range(1, num_epochs + 1):
     epoch_time = time.time() - start_time
     print('epoch training time: {}s\n'.format(round(epoch_time,2)))
 
-params = pickle.load(open(path + "model_params/" + str(jobid) + ".pkl", "rb"))
 train_df = pd.DataFrame()
 train_df['test_acc'] = test_acc
 
 if(crash):
+    params = pickle.load(open(path + "model_params/" + str(jobid) + ".pkl", "rb"))
     test_acc = []
     # dataframe to store the norm of the gradients: (np, sgd and true gradient)
     grad_norms_df = pd.DataFrame(columns = ['gnorm_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
@@ -118,7 +118,6 @@ if(crash):
     # dataframe to store the variance of the neural network weights
     w_var_df = pd.DataFrame(columns = ['var_w'+ str(i) for i in np.arange(1,len(layer_sizes))])
     w_var_df['update_rule'], w_var_df['epoch'] = "", ""
-    
     # dataframe to store the activity of neurons at every layer
     n_activity_df = pd.DataFrame(columns = ['activity_l'+ str(i) for i in np.arange(1,len(layer_sizes))])
     n_activity_df['update_rule'], n_activity_df['epoch'] = "", ""
@@ -128,6 +127,8 @@ if(crash):
     deltal, epochs = [], []
 
     xl, yl = next(data.get_data_batches(batchsize=6000, split=data.trainsplit))
+    
+    # for xl, y in data.get_data_batches(batchsize=batchsize, split='train'+split_percent):
     
     for ii in range(stored_epoch, stored_epoch + 5):
         print('calculating dynamics for epoch {}.'.format(ii))
@@ -192,6 +193,7 @@ print(sign_symmetry_df.head(5))
 print(grad_angles_df.head(5))
 print(w_norms_df.head(5))
 print(w_var_df.head(5))
+print(n_activity_df.head(5))
 
 train_df['epoch'] = np.arange(start=1, stop=train_df['test_acc'].size+1, dtype=int)
 train_df['network'], train_df['update_rule'], train_df['n_hl'], train_df['lr'], train_df['batchsize'], train_df['hl_size'], train_df['total_epochs'], train_df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid

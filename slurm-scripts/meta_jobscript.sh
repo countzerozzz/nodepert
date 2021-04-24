@@ -10,7 +10,7 @@ then
 
 elif [ $1 == 'all-cnn-a' ]
 then
-    sbatch --array=0-4 --export=ALL,exp='all-cnn-a' slurm-scripts/submit_job.sbatch
+    sbatch --array=0-2 --export=ALL,exp='all-cnn-a' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'tf-conv-base' ]
 then
@@ -30,8 +30,11 @@ then
 
 elif [ $1 == 'crash-dynamics' ]
 then
-    # sbatch --array=13 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
     sbatch --array=0-19 --export=ALL,exp='crash-dynamics' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'crash-timing' ]
+then
+    sbatch --array=0-3 --export=ALL,exp='crash-timing' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'weight-decay' ]
 then

@@ -131,7 +131,7 @@ def w_vars(params, layer_sizes, epoch):
         w_all.extend(flat_ww)
     
     tmp = float(np.array(jnp.var(jnp.asarray(w_all))))
-    w_var_df['norm_w_all'] = [tmp]
+    w_var_df['var_w_all'] = [tmp]
     return w_var_df
 
 # get the activations of all layers of the network

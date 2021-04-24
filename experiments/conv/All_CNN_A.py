@@ -23,11 +23,11 @@ path = "explogs/conv/"
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
 # np update: (mse)
-rows = [0.000005, 0.00001, 0.00003, 0.00005]
+# rows = np.arange(1e-5, 1e-4, 1e-5)
+rows = [0.00008, 0.00009, 0.0002]
 
 # sgd update: (mse)
-# rows = [0.01, 0.05, 0.1, 0.25, 0.5]
-# rows = [0.5, 0.45, 0.4, 0.35, 0.3]
+# rows = [0.01, 0.05, 0.1, 0.25, 0.5, 1, 5]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)

@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=0-18:00
+#SBATCH --time=2-12:00
 #SBATCH --nodes=1
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
@@ -18,20 +18,23 @@ then
 
 elif [ $exp == 'all-cnn-a' ]
 then
-    srun -u python experiments/conv/All_CNN_A.py -log_expdata True -num_epochs 350 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python experiments/conv/All_CNN_A.py -log_expdata True -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'tf-conv-base' ]
 then
-    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 350 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'conv-base' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 500 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'conv-base' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'conv-base' ]
 then
-    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 350 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}       
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 500 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}       
 
+elif [ $exp == 'crash-timing' ]
+then
+    srun -u python experiments/crash_timing.py -log_expdata True -n_hl 3 -hl_size 500 -num_epochs 5000 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'crash-dynamics' ]
 then
-    srun -u python experiments/crash_dynamics.py -log_expdata True -n_hl 3 -hl_size 500 -num_epochs 200 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
+    srun -u python experiments/crash_dynamics.py -log_expdata True -n_hl 3 -hl_size 500 -num_epochs 500 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}    
 
 elif [ $exp == 'weight-decay' ]
 then

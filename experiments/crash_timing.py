@@ -23,9 +23,9 @@ randkey = random.PRNGKey(jobid)
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
-# rows = np.logspace(start=-3, stop=-1, num=25, endpoint=True, base=10, dtype=np.float32)
-rows = np.linspace(0.005, 0.025, num=20)
-# rows = [0.009, 0.01, 0.015, 0.02, 0.025]
+# rows = np.logspace(start=-3, stop=-1, num=50, endpoint=True, base=10, dtype=np.float32)
+# rows = np.linspace(0.005, 0.025, num=20)
+rows = [2, 5, 10, 20]
 
 row_id = jobid % len(rows)
 lr = rows[row_id]
@@ -86,14 +86,15 @@ for epoch in range(1, num_epochs + 1):
         break
 
 df = pd.DataFrame()
-df['crash'], df['crash_epoch'], df['is_training'] = [crash], [crash_epoch], [is_training]
+df['crash'], df['crash_epoch'], df['is_training'], df['highest_acc'] = [crash], [crash_epoch], [is_training], [high]
+df['dataset'] = npimports.dataset
 df['network'], df['update_rule'], df['n_hl'], df['lr'], df['batchsize'], df['hl_size'], df['total_epochs'], df['jobid'] = network, update_rule, n_hl, lr, batchsize, hl_size, num_epochs, jobid
 
 if(crash):
     print("crash detected at epoch: {}".format(crash_epoch))
             
 else:
-    print("no crash detected, exiting...")
+    print("no crash detected ...")
 
 pd.set_option('display.max_columns', None)
 print(df.head(5))
