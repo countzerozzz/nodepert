@@ -25,11 +25,6 @@ def init_single_convlayer(kernel_height, kernel_width, input_channels, output_ch
   std = np.sqrt(2.0 / (kernel_height * kernel_width * (input_channels + output_channels)))
   kernel = std * random.normal(w_key, (kernel_height, kernel_width, output_channels, input_channels))
 
-  # uniform sampling of parameters (xavier uniform initialization): http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
-  #! currently, using this gives an error!!
-  # limit = math.sqrt(6 / (kernel_height * kernel_width * (input_channels + output_channels)))
-  # kernel = random.uniform(w_key, (kernel_height, kernel_width, output_channels, input_channels), minval=-1*limit, maxval=limit)
-
   #for conv layers there are typically only 1 bias per channel
   # biases = jnp.zeros((output_channels,))
   biases = std * random.normal(w_key, (output_channels,))
@@ -48,6 +43,7 @@ def init_convlayers(sizes, key):
 nodepert_noisescale = 1e-5
 
 # build the conv forward pass for a single image:
+# !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
 def forward(x, params):
   x = x.reshape(1, npimports.data.height, npimports.data.width, npimports.data.channels).astype(np.float32) # NHWC
   x = jnp.transpose(x, [0,3,1,2])
