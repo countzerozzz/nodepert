@@ -14,16 +14,16 @@ network = 'conv-base'
 config['compute_norms'], config['batchsize'], config['num_epochs'], config['num_classes'] = False, batchsize, num_epochs, data.num_classes
 
 # folder to log experiment results
-path = "explogs/np-weirdness/"
+path = "explogs/conv/"
 
 # num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
 # np update: (mse)
-# rows = [0.000005, 0.00001, 0.00005, 0.0001]
+rows = [0.00005, 0.0001, 0.0002, 0.0003, 0.0005, 0.0007, 0.001]
 
 # sgd update: (mse)
-rows = [0.01, 0.05, 0.1, 0.25, 0.5]
+# rows = [0.01, 0.05, 0.1, 0.25, 0.5]
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)
@@ -49,7 +49,10 @@ params = convparams
 params.append(fcparams)
 
 num_params = utils.get_params_count(params)
-# print('total params: {}'.format(num_params))
+
+print(xla_bridge.get_backend().platform) # are we running on CPU or GPU?
+print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
+print('model params: ', utils.get_params_count(params))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward

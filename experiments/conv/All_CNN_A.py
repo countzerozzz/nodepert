@@ -60,8 +60,7 @@ params.append(fcparams)
 
 print(xla_bridge.get_backend().platform) # are we running on CPU or GPU?
 print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
-print(utils.get_params_count(convparams))
-print(utils.get_params_count([fcparams]))
+print('model params: ', utils.get_params_count(params))
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
