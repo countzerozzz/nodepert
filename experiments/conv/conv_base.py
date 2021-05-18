@@ -48,11 +48,12 @@ fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
 params = convparams
 params.append(fcparams)
 
-num_params = utils.get_params_count(params)
+# num_params = utils.get_params_count(params)
+num_conv_layers = len(convlayer_sizes)
 
 print(xla_bridge.get_backend().platform) # are we running on CPU or GPU?
 print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
-print('model params: ', utils.get_params_count(params))
+# print('model params: ', num_params)
 
 # get forward pass, optimizer, and optimizer state + params
 forward = conv.batchforward
@@ -79,7 +80,7 @@ params, optimstate, expdata = train.train(  params,
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset
 pd.set_option('display.max_columns', None)
-df['network'], df['update_rule'], df['lr'], df['batchsize'], df['total_epochs'], df['num_params'], df['jobid'] = network, update_rule, lr, batchsize, num_epochs, num_params, jobid
+df['network'], df['update_rule'], df['lr'], df['batchsize'], df['total_epochs'], df['num_conv_layers'], df['jobid'] = network, update_rule, lr, batchsize, num_epochs, num_conv_layers, jobid
 print(df.head(5))
 
 # save the results of our experiment

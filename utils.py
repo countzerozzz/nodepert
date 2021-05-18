@@ -79,8 +79,16 @@ def get_elapsed_time(sec):
     else:
         return str(d.minute)+"min "+ str(d.second)+"sec"
 
+# this function needs to be updated!
 def get_params_count(params):
+    ''' Get number of elements in a nested list'''
     count = 0
-    for (ww, bb) in params:
-        count += np.asarray(ww).size + np.asarray(bb).size
-    return count 
+    # Iterate over the list
+    for elem in params:
+        # Check if type of element is list
+        if type(elem) == list:  
+            # Again call this function to get the size of this element
+            count += get_params_count(elem)
+        else:
+            count += np.asarray(elem).size
+    return count
