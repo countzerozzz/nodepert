@@ -1,11 +1,15 @@
 #!/bin/bash
 #SBATCH --job-name=nodepert
 #SBATCH --output=logs/ym_%A.out
-#SBATCH --time=2-12:00
+#SBATCH --time=1-12:00
 #SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
 #SBATCH --mem=7G
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
+
+nvidia-smi
+export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
 if [ $exp == 'trial' ]
 then
@@ -14,7 +18,7 @@ then
 
 elif [ $exp == 'tf-all-cnn-a' ]
 then
-    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 350 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'All-CNN-A' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
+    srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 500 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'All-CNN-A' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'all-cnn-a' ]
 then
@@ -25,8 +29,8 @@ then
     srun -u python tmp_tf/conv_TF.py -log_expdata True -num_epochs 500 -optimizer 'sgd' -final_actfunc 'sigmoid' -loss_func 'mse' -network 'conv-base' -dropout False -jobid ${SLURM_ARRAY_TASK_ID}
 
 elif [ $exp == 'conv-base' ]
-then
-    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 500 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}       
+then  
+    srun -u python experiments/conv/conv_base.py -log_expdata True -num_epochs 5000 -update_rule np -jobid ${SLURM_ARRAY_TASK_ID}       
 
 elif [ $exp == 'crash-timing' ]
 then
@@ -122,3 +126,6 @@ then
     srun -u python experiments/scaling/depth.py -log_expdata True -n_hl 10 -hl_size 500 -num_epochs 200 -update_rule sgd -jobid ${SLURM_ARRAY_TASK_ID}    
 
 fi
+
+echo "Job finished."
+exit

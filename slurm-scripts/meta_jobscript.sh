@@ -18,7 +18,7 @@ then
 
 elif [ $1 == 'conv-base' ]
 then
-    sbatch --array=0-4 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
+    sbatch --array=3-6 --export=ALL,exp='conv-base' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'scale-dataset' ]
 then
