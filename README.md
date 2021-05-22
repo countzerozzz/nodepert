@@ -50,9 +50,7 @@ Check out the _utils.py_ file for the different arguments which may be passed al
 
 #### Running on the SLURM cluster
 
-The slurm_scripts folder contains the scripts to run experiments on a multinode setup with the SLURM resource manager. The default job_id is 0, which runs the code with the parameter specified in the 0 <sup>th</sup> index of the list named _rows_ in the code. 
-
->Make use of the slurm scripts, run:
+The slurm_scripts folder contains the scripts to run experiments on a multinode setup with the SLURM resource manager. The default job_id is 0, which runs the code with the parameter specified in the 0 <sup>th</sup> index of the list named _rows_ in the code. Make use of the slurm scripts, run:
 
 ```bash
 bash slurm-scripts/meta_jobscript.sh trial
