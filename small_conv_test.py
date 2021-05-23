@@ -12,7 +12,7 @@ path = 'explogs/'
 
 # parse conv network arguments
 update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
-
+network = 'conv'
 # define training configs
 config = {}
 config['num_epochs'] = num_epochs = 10
@@ -28,6 +28,7 @@ convlayer_sizes = [(3, 3, data.channels, convout_channels[0]),
                    (3, 3, convout_channels[0], convout_channels[1]),
                    (3, 3, convout_channels[1], convout_channels[2])]
 
+num_conv_layers = len(convlayer_sizes)
 fclayer_sizes = [data.height * data.width * convlayer_sizes[-1][-1], data.num_classes]
 
 randkey, _ = random.split(randkey)

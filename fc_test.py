@@ -47,7 +47,7 @@ params, optimstate, expdata = train.train(  params,
                                             optimizer,
                                             optimstate,
                                             randkey,
-                                            verbose = False)
+                                            verbose = True)
 
 df = pd.DataFrame.from_dict(expdata)
 df['dataset'] = npimports.dataset
