@@ -1,9 +1,7 @@
-# make sure the tensorflow-datasets version is > 3.0
-tensorflow-datasets
-tensorflow
-jax
-jaxlib
+tensorflow-datasets # version needs to be > 3.0
+jax 
+# jaxlib #change to this to install cpu-only jax
+jaxlib==0.1.67+cuda111
+--find-links https://storage.googleapis.com/jax-releases/jax_releases.html
 numpy
 pandas
-matplotlib
-seaborn
