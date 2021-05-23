@@ -4,6 +4,12 @@ What algorithms drive goal directed learning in networks in the brain? In machin
 
 The code was written using the [JAX Library](https://github.com/google/jax).
 
+<pre>
+<p align="center">
+<img src="figs/learning-curves-fc.png " width="362" >  <img src="figs/linesearch.png" width="290" >  <img src="figs/crash-timing-var.png" width="240" >    
+</p>
+</pre>
+
 ## Installation
 
 Pull the repository from git via:
@@ -28,6 +34,7 @@ interpreter and issue:
 import nptest
 ```
 
+#### Running Experiments from the Paper: [check here](figs/running-paper-exps.md)
 #### Running on a single GPU/CPU setup
 To train a basic network with node perturbation, run:
 >Fully Connected Network (2 hidden layers, 500 neurons in each layer)
