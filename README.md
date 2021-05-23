@@ -60,12 +60,12 @@ bash slurm-scripts/meta_jobscript.sh fc-test
 #### Running Experiments from the Paper: [check here](figs/running-paper-exps.md)
 
 ## Code Structure
-The entire code runs on MNIST by default, unless the data_loader is explicitly changed in the _npimports.py_ file. The experiments folder contains the code for all the experiments for the paper 'On the Limitations of Perturbation Based Methods for Training Deep Networks'. On your local machine (with GPU or CPU, and the default setup is a fully connected network), run:
+The entire code runs on MNIST by default, unless the data_loader is explicitly changed in the ```npimports.py``` file. The experiments folder contains the code for all the experiments for the paper 'On the Limitations of Perturbation Based Methods for Training Deep Networks'. On your local machine (with GPU or CPU, and the default setup is a fully connected network), run:
 
 ```python
 python experiments/vary_lr.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 100 -update_rule np
 ```
-
+For creating a neural network, all files call the same ```models/conv.py``` or ```models/fc.py```. The function for the exact nodepert update can be found in ```models/optim.py```.
 
 ## License
 The source code for this project is licensed under the [MIT license](LICENSE.md).
