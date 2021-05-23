@@ -2,8 +2,8 @@
 explogs/*
 __pycache__/*
 *.pyc
-tmp_tf/*
 .vscode*
-logs/*
-data/*
-figcode/
+logs*
+data*
+figcode*
+tmp_tf*
