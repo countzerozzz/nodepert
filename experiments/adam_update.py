@@ -19,10 +19,10 @@ randkey = random.PRNGKey(jobid)
 # the config used will be the first value of 'ro list. Here 'rows' will hold the values for different configs.
 num = 25
 
-rows = np.logspace(start=-5, stop=-1, num, endpoint=True, base=10, dtype=np.float32)
+rows = np.logspace(start=-5, stop=-1, num=num, endpoint=True, base=10, dtype=np.float32)
 # adam usually requires a smaller learning rate
 if(re.search('adam', update_rule)):
-    rows = np.logspace(start=-6, stop=-2, num, endpoint=True, base=10, dtype=np.float32)
+    rows = np.logspace(start=-6, stop=-2, num=num, endpoint=True, base=10, dtype=np.float32)
 
 ROW_DATA = 'learning_rate'
 row_id = jobid % len(rows)

@@ -3,7 +3,7 @@ explogs/*
 __pycache__/*
 *.pyc
 tmp_tf/*
-.vscode/*
+.vscode*
 logs/*
 data/*
 figcode/
