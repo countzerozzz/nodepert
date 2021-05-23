@@ -9,9 +9,6 @@ from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 from jax.nn import softmax
 from jax.lib import xla_bridge
-import matplotlib.pyplot as pp
-import matplotlib
-import seaborn as sns
 import pandas as pd
 import time, copy, re
 import pickle
