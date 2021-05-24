@@ -1,4 +1,4 @@
-# NodePert: A Perturbation Based Method for Training Deep Neural Networks
+# NodePert: A Perturbation-Based Method for Training Neural Networks
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-360/)
