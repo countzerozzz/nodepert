@@ -23,9 +23,10 @@ randkey = random.PRNGKey(jobid)
 # the config used will be the first value of 'rows' list. Here 'rows' will hold the values for different learning rates.
 
 ROW_DATA = 'learning_rate' 
+# for NP
 # rows = np.logspace(start=-3, stop=-1, num=50, endpoint=True, base=10, dtype=np.float32)
-# rows = np.linspace(0.005, 0.025, num=20)
-rows = [2, 5, 10, 20]
+# for SGD
+rows = np.logspace(start=0, stop=2, num=20, endpoint=True, base=10, dtype=np.float32)
 
 row_id = jobid % len(rows)
 lr = rows[row_id]
