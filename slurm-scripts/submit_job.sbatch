@@ -11,10 +11,13 @@
 nvidia-smi
 export CUDA_DEVICE_ORDER=PCI_BUS_ID
 
-if [ $exp == 'trial' ]
+if [ $exp == 'fc-test' ]
 then
-    srun -u python nptest.py
-    # srun -u python npconvtest.py
+    srun -u python fc_test.py
+
+elif [ $exp == 'conv-test' ]
+then
+    srun -u python small_conv_test.py
 
 elif [ $exp == 'tf-all-cnn-a' ]
 then

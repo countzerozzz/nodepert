@@ -1,8 +1,12 @@
 #!/bin/sh
 
-if [ $1 == 'trial' ]
+if [ $1 == 'fc-test' ]
 then
-    sbatch --array=0 --export=ALL,exp='trial' slurm-scripts/submit_job.sbatch
+    sbatch --array=0 --export=ALL,exp='fc-test' slurm-scripts/submit_job.sbatch
+
+elif [ $1 == 'conv-test' ]
+then
+    sbatch --array=0 --export=ALL,exp='conv-test' slurm-scripts/submit_job.sbatch
 
 elif [ $1 == 'tf-all-cnn-a' ]
 then
