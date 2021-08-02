@@ -1,7 +1,8 @@
 # NodePert: A Perturbation-Based Method for Training Neural Networks
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/downloads/release/python-360/)
+[![JAX](https://img.shields.io/badge/Framework-JAX-important?style=for-the-badge&logo=Apache-Kafka)](https://github.com/google/jax)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge&logo=open-source-initiative)](https://opensource.org/licenses/MIT)
 
 [**Setup**](#setup)
 | [**Running NodePert**](#running-nodepert)
