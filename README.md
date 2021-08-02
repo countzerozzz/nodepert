@@ -6,6 +6,7 @@
 [**Setup**](#setup)
 | [**Running NodePert**](#running-nodepert)
 | [**Paper Experiments**](figs/running-paper-exps.md)
+| [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations)
 
 ## Introduction
 What algorithms drive goal directed learning in networks in the brain? In machine learning, networks are almost exclusively trained using stochastic gradient descent, which delivers errors tailored to each neuron in a network. However, computing such tailored errors requires complicated machinery that is unlikely to exist in the brain, at least not in all areas. An alternative is to apply random perturbations to parameters, see whether that increases or decreases a global error, and then adjust parameters accordingly. The fact that this approach does not require complicated machinery, along with evidence that the brain utilizes global signals for learning, has prompted neuroscientists to speculate that the brain may use perturbation algorithms. However, little is known about the efficacy of these algorithms for training large networks to perform complex tasks. This repository contains the code for performing a thorough empirical investigation of a fast perturbation method called node perturbation. Our results provide insights into the diverse credit assignment algorithms employed by the brain.
