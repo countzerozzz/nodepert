@@ -3,7 +3,7 @@ import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
 
-data_dir = 'data/tfds'
+data_dir = "data/tfds"
 # data_dir = '/tmp/tfds'
 
 # fetch full dataset and info for evaluation
@@ -11,22 +11,34 @@ data_dir = 'data/tfds'
 # you can convert them to NumPy arrays (or iterables of NumPy arrays) with tfds.dataset_as_numpy
 
 # get the dataset information first:
-_, dataset_info = tfds.load(name="fashion_mnist", split='train[:1%]', batch_size=-1, data_dir=data_dir, with_info=True)
+_, dataset_info = tfds.load(
+    name="fashion_mnist",
+    split="train[:1%]",
+    batch_size=-1,
+    data_dir=data_dir,
+    with_info=True,
+)
 
 # compute dimensions using the dataset information
-num_classes = dataset_info.features['label'].num_classes
-height, width, channels = dataset_info.features['image'].shape
+num_classes = dataset_info.features["label"].num_classes
+height, width, channels = dataset_info.features["image"].shape
 num_pixels = height * width * channels
 
 # select which split of the data to use:
-trainsplit = 'train[:100%]'
-testsplit = 'test[:100%]'
+trainsplit = "train[:100%]"
+testsplit = "test[:100%]"
 
-train_data = tfds.load(name="fashion_mnist", split=trainsplit, batch_size=-1, data_dir=data_dir, with_info=False)
+train_data = tfds.load(
+    name="fashion_mnist",
+    split=trainsplit,
+    batch_size=-1,
+    data_dir=data_dir,
+    with_info=False,
+)
 train_data = tfds.as_numpy(train_data)
 
 # full train set:
-train_images = train_data['image']
+train_images = train_data["image"]
 num_train = len(train_images)
 
 # compute essential statistics for the dataset on the full trainset:
@@ -37,11 +49,13 @@ data_stddev = train_images.std()
 
 # create a one-hot encoding of x of size k:
 def one_hot(x, k, dtype=np.float32):
-  return jnp.array(x[:, None] == jnp.arange(k), dtype)
+    return jnp.array(x[:, None] == jnp.arange(k), dtype)
 
-#standadize data to have 0 mean and unit standard deviation
+
+# standadize data to have 0 mean and unit standard deviation
 def standardize_data(x, data_mean, data_stddev):
-  return (x - data_mean)/data_stddev
+    return (x - data_mean) / data_stddev
+
 
 def prepare_data(x, y):
     x = standardize_data(x, data_mean, data_stddev)
@@ -50,18 +64,22 @@ def prepare_data(x, y):
     y = one_hot(y, num_classes)
     return x, y
 
-def get_rawdata_batches(batchsize=100, split='train[:100%]'):
-  # as_supervised=True gives us the (image, label) as a tuple instead of a dict
-  ds = tfds.load(name='fashion_mnist', split=split, as_supervised=True, data_dir=data_dir)
 
-  # you can build up an arbitrary tf.data input pipeline
-  ds = ds.batch(batchsize).prefetch(1)
+def get_rawdata_batches(batchsize=100, split="train[:100%]"):
+    # as_supervised=True gives us the (image, label) as a tuple instead of a dict
+    ds = tfds.load(
+        name="fashion_mnist", split=split, as_supervised=True, data_dir=data_dir
+    )
 
-  # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
-  return tfds.as_numpy(ds)
+    # you can build up an arbitrary tf.data input pipeline
+    ds = ds.batch(batchsize).prefetch(1)
+
+    # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
+    return tfds.as_numpy(ds)
+
 
 # create a generator that normalizes the data and makes it into JAX arrays
-def get_data_batches(batchsize=100, split='train[:100%]'):
+def get_data_batches(batchsize=100, split="train[:100%]"):
     ds = get_rawdata_batches(batchsize, split)
 
     # at the end of the dataset a 'StopIteration' exception is raised

@@ -8,6 +8,7 @@ from jax import jit
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 import models.fc as fc
+
 # import models.conv as conv
 import models.losses as losses
 
@@ -20,6 +21,7 @@ noisyforward = fc.batchnoisyforward
 # this is terrible! we should factor out the loss in this file or something
 # changing the loss to ce - we also need to make the last layer as logsoftmax!
 
+
 @jit
 def loss(x, y, params):
     h, a = forward(x, params)
@@ -27,73 +29,95 @@ def loss(x, y, params):
     # loss = celoss(h[-1], y).mean()
     return loss
 
+
 @jit
 def sgdupdate(x, y, params, randkey, optimstate):
-    print('building sgd update')
-    lr = optimstate['lr']
-    
+    print("building sgd update")
+    lr = optimstate["lr"]
+
     # this is a hack for quickly including a linear FC networks: should be changed later !!
-    if('linear' in optimstate):
+    if "linear" in optimstate:
         global forward
         forward = fc.batchlinforward
 
-    grads = grad(loss, argnums = (2))(x, y, params)
-    return [(w - lr*dw, b - lr*db)
-            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+    grads = grad(loss, argnums=(2))(x, y, params)
+    return (
+        [(w - lr * dw, b - lr * db) for (w, b), (dw, db) in zip(params, grads)],
+        grads,
+        optimstate,
+    )
 
 
 @jit
 def nploss(x, y, params, randkey):
-#   sigma = fc.nodepert_noisescale
-  randkey, _ = random.split(randkey)
+    #   sigma = fc.nodepert_noisescale
+    randkey, _ = random.split(randkey)
 
-  # forward pass with noise
-  h, a, xi, aux = noisyforward(x, params, randkey)
-  noisypred = h[-1]
+    # forward pass with noise
+    h, a, xi, aux = noisyforward(x, params, randkey)
+    noisypred = h[-1]
 
-  # forward pass with no noise
-  h, a = forward(x, params)
-  pred = h[-1]
+    # forward pass with no noise
+    h, a = forward(x, params)
+    pred = h[-1]
 
-  loss = mseloss(pred, y)
-  noisyloss = mseloss(noisypred, y)
-  lossdiff = (noisyloss - loss)
+    loss = mseloss(pred, y)
+    noisyloss = mseloss(noisypred, y)
+    lossdiff = noisyloss - loss
 
-  lossdiff = jax.lax.stop_gradient(lossdiff)
-  loss = jnp.mean(lossdiff * jnp.sum(jnp.asarray(aux),0))
-  return loss
+    lossdiff = jax.lax.stop_gradient(lossdiff)
+    loss = jnp.mean(lossdiff * jnp.sum(jnp.asarray(aux), 0))
+    return loss
+
 
 @jit
 def npupdate(x, y, params, randkey, optimstate):
-    lr = optimstate['lr']
+    lr = optimstate["lr"]
 
-    if('linear' in optimstate):
+    if "linear" in optimstate:
         global forward
         global noisyforward
         forward = fc.batchlinforward
         noisyforward = fc.batchnoisylinforward
 
-    grads = grad(nploss, argnums = (2))(x, y, params, randkey)
-    return [(w - lr * dw, b - lr * db)
-            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+    grads = grad(nploss, argnums=(2))(x, y, params, randkey)
+    return (
+        [(w - lr * dw, b - lr * db) for (w, b), (dw, db) in zip(params, grads)],
+        grads,
+        optimstate,
+    )
+
 
 @jit
 def npwdupdate(x, y, params, randkey, optimstate):
-    print('building np update')
-    lr = optimstate['lr']
-    wd = optimstate['wd']
-    grads = grad(nploss, argnums = (2))(x, y, params, randkey)
-    return [(w - lr*dw - wd*w, b - lr*db - wd*b)
-            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+    print("building np update")
+    lr = optimstate["lr"]
+    wd = optimstate["wd"]
+    grads = grad(nploss, argnums=(2))(x, y, params, randkey)
+    return (
+        [
+            (w - lr * dw - wd * w, b - lr * db - wd * b)
+            for (w, b), (dw, db) in zip(params, grads)
+        ],
+        grads,
+        optimstate,
+    )
+
 
 @jit
 def sgdwdupdate(x, y, params, randkey, optimstate):
-    print('building sgd update')
-    lr = optimstate['lr']
-    wd = optimstate['wd']
-    grads = grad(loss, argnums = (2))(x, y, params)
-    return [(w - lr*dw - wd*w, b - lr*db - wd*b)
-            for (w, b), (dw, db) in zip(params, grads)], grads, optimstate
+    print("building sgd update")
+    lr = optimstate["lr"]
+    wd = optimstate["wd"]
+    grads = grad(loss, argnums=(2))(x, y, params)
+    return (
+        [
+            (w - lr * dw - wd * w, b - lr * db - wd * b)
+            for (w, b), (dw, db) in zip(params, grads)
+        ],
+        grads,
+        optimstate,
+    )
 
 
 # This is the old, by hand way we used to compute the np updates:
