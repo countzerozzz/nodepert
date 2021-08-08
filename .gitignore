@@ -4,6 +4,6 @@ __pycache__/*
 *.pyc
 .vscode*
 logs*
-data*
+data/*
 figcode*
 tmp_tf*
