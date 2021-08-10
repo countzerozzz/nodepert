@@ -6,7 +6,6 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tiny_imagenet import TinyImagenetDataset
 
-data_dir = '/nfs/ghome/live/yashm/tensorflow_datasets/tiny_imagenet_dataset/0.1.0'
 tiny_imagenet_builder = TinyImagenetDataset()
 
 tiny_imagenet_builder.download_and_prepare()
