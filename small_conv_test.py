@@ -56,7 +56,7 @@ optimstate = {"lr": lr}
 
 # now train
 params, optimstate, expdata = train.train(
-    params, forward, data, config, optimizer, optimstate, randkey, verbose=True
+    params, forward, data, config, optimizer, optimstate, randkey, verbose=False
 )
 
 df = pd.DataFrame.from_dict(expdata)

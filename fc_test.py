@@ -26,8 +26,8 @@ path = "explogs/"
 
 # define training configs
 config = {}
-config["num_epochs"] = num_epochs = 10
-config["batchsize"] = batchsize = 100
+# config["num_epochs"] = num_epochs
+# config["batchsize"] = batchsize
 config["compute_norms"] = False
 
 # build our network
@@ -52,7 +52,7 @@ optimstate = {"lr": lr}
 
 # now train
 params, optimstate, expdata = train.train(
-    params, forward, data, config, optimizer, optimstate, randkey, verbose=True
+    params, forward, data, config, optimizer, optimstate, randkey, verbose=False
 )
 
 df = pd.DataFrame.from_dict(expdata)

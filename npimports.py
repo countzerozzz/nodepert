@@ -27,8 +27,8 @@ import models.losses as losses
 import models.metrics as metrics
 
 # change here directly when we want to perform experiments with different datasets.
-# import data_loaders.mnist_loader as data
-# dataset = "MNIST"
+import data_loaders.mnist_loader as data
+dataset = "MNIST"
 
 # import data_loaders.fmnist_loader as data
 # dataset = 'f-MNIST'
@@ -36,8 +36,8 @@ import models.metrics as metrics
 # import data_loaders.cifar10_loader as data
 # dataset = 'CIFAR10'
 
-import data_loaders.tiny_imgnet_loader as data
-dataset = "Tiny-ImageNet"
+# import data_loaders.tiny_imgnet_loader as data
+# dataset = "Tiny-ImageNet"
 
 import importlib
 

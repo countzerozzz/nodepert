@@ -10,14 +10,16 @@ import pdb
 def compute_metrics(params, forward, data, split_percent="[:100%]"):
     # run through the training set and compute the metrics:
     train_acc = []
-    for x, y in data.get_data_batches(batchsize=100, split="train" + split_percent):
+    for x, y in data.get_rawdata_batches(batchsize=100, split="train" + split_percent):
+        x,y = data.prepare_data(x, y)
         h, a = forward(x, params)
         train_acc.append(accuracy(h[-1], y))
     train_acc = 100 * np.mean(train_acc)
 
     # run through the test set and compute the metrics:
     test_acc = []
-    for x, y in data.get_data_batches(batchsize=100, split="test" + split_percent):
+    for x, y in data.get_rawdata_batches(batchsize=100, split="test" + split_percent):
+        x,y = data.prepare_data(x, y)
         h, a = forward(x, params)
         test_acc.append(accuracy(h[-1], y))
     test_acc = 100 * np.mean(test_acc)
@@ -60,7 +62,8 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         start_time = time.time()
 
         # run through the data and train!
-        for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
+        for x, y in data.get_rawdata_batches(batchsize=batchsize, split=data.trainsplit):
+            x,y = data.prepare_data(x, y)
             randkey, _ = random.split(randkey)
             params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
 
@@ -82,10 +85,6 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
             expdata["grad_norms"].append(grad_norms)
 
         if verbose:
-            # get data to test whether we're saturating our nonlinearites;
-            tmpdata = data.get_data_batches(batchsize=100, split=data.trainsplit)
-            x, y = next(tmpdata)
-            h, a = forward(x, params)
 
             print("\nEpoch {} in {:0.2f} sec".format(epoch, epoch_time))
             print("Training set accuracy {}".format(train_acc))
@@ -94,9 +93,8 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
             if config["compute_norms"]:
                 print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
                 print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
-                print(
-                    "Norm of penultimate layer {}".format(jnp.linalg.norm(h[-2][0, :]))
-                )
+
+            # get data to test whether we're saturating our nonlinearites; TODO: would need to make an additional forward pass for getting norm of layer activations
             # print("Sample penultimate layer {}".format(h[-2][0,0:5]))
             # print("Sample final layer {}".format(h[-1][0,0:5]))
         else:
