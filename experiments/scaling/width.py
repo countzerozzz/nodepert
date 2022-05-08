@@ -86,8 +86,7 @@ print(df.head(5))
 # save the results of our experiment
 if log_expdata:
     Path(path).mkdir(parents=True, exist_ok=True)
-    if(not os.path.exists(path + 'width' + str(n_hl) + 'hl.csv')):
-        df.to_csv(path + 'width' + n_hl + 'hl.csv', mode='a', header=True)
+    if not os.path.exists(path + "width" + str(n_hl) + "hl.csv"):
+        df.to_csv(path + "width" + n_hl + "hl.csv", mode="a", header=True)
     else:
-        df.to_csv(path + 'width' + n_hl + 'hl.csv', mode='a', header=False)
-    
+        df.to_csv(path + "width" + n_hl + "hl.csv", mode="a", header=False)

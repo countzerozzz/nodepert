@@ -13,8 +13,8 @@ tiny_imagenet_builder.download_and_prepare()
 train_dataset = tiny_imagenet_builder.as_dataset(split="train")
 validation_dataset = tiny_imagenet_builder.as_dataset(split="validation")
 
-assert(isinstance(train_dataset, tf.data.Dataset))
-assert(isinstance(validation_dataset, tf.data.Dataset))
+assert isinstance(train_dataset, tf.data.Dataset)
+assert isinstance(validation_dataset, tf.data.Dataset)
 
 num_classes = 200
 height = width = 64
@@ -48,14 +48,14 @@ def prepare_data(x, y):
 def get_rawdata_batches(batchsize=100, split=trainsplit):
 
     # you can build up an arbitrary tf.data input pipeline
-    if("train" in split):
+    if "train" in split:
         ds = train_dataset.batch(batchsize).prefetch(1)
 
-    elif("test" in split):
+    elif "test" in split:
         ds = validation_dataset.batch(batchsize).prefetch(1)
 
     else:
-        print('wrong split specified')
+        print("wrong split specified")
         exit()
 
     # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
@@ -70,16 +70,17 @@ def get_data_batches(batchsize=100, split="train"):
     # x, y = tmp['image'], tmp['label']
     # x, y = prepare_data(x, y)
     # print(x.shape, y.shape)
-    
+
     try:
         # keep getting batches until you get to the end.
         while True:
             tmp = next(ds)
-            x, y = tmp['image'], tmp['label']
+            x, y = tmp["image"], tmp["label"]
             x, y = prepare_data(x, y)
             yield (x, y)
     except:
         pass
+
 
 # if __name__ == "__main__":
 #     # get_data_batches()

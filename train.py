@@ -11,7 +11,7 @@ def compute_metrics(params, forward, data, split_percent="[:100%]"):
     # run through the training set and compute the metrics:
     train_acc = []
     for x, y in data.get_rawdata_batches(batchsize=100, split="train" + split_percent):
-        x,y = data.prepare_data(x, y)
+        x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
         train_acc.append(accuracy(h[-1], y))
     train_acc = 100 * np.mean(train_acc)
@@ -19,7 +19,7 @@ def compute_metrics(params, forward, data, split_percent="[:100%]"):
     # run through the test set and compute the metrics:
     test_acc = []
     for x, y in data.get_rawdata_batches(batchsize=100, split="test" + split_percent):
-        x,y = data.prepare_data(x, y)
+        x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
         test_acc.append(accuracy(h[-1], y))
     test_acc = 100 * np.mean(test_acc)
@@ -62,8 +62,10 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         start_time = time.time()
 
         # run through the data and train!
-        for x, y in data.get_rawdata_batches(batchsize=batchsize, split=data.trainsplit):
-            x,y = data.prepare_data(x, y)
+        for x, y in data.get_rawdata_batches(
+            batchsize=batchsize, split=data.trainsplit
+        ):
+            x, y = data.prepare_data(x, y)
             randkey, _ = random.split(randkey)
             params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
 

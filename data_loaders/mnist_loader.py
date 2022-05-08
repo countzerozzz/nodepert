@@ -70,6 +70,7 @@ def get_rawdata_batches(batchsize=100, split="train[:100%]"):
     # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
     return tfds.as_numpy(ds)
 
+
 # NOTE: from TFDS 4.0.0, tfds.as_numpy returns a reusable iterator instead of an iterable; see: https://github.com/tensorflow/datasets/issues/2270
 #  previous function; incompatible with TFDS 4.0.0:
 # def get_data_batches(batchsize=100, split="train[:100%]"):
@@ -83,7 +84,7 @@ def get_rawdata_batches(batchsize=100, split="train[:100%]"):
 #             x, y = next(iter(ds))
 #             x, y = prepare_data(x, y)
 #             yield (x, y)
-    
+
 #     except:
 #         print("End of dataset")
 #         pass
