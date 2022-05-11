@@ -26,12 +26,12 @@ path = "explogs/"
 
 # define training configs
 config = {}
-# config["num_epochs"] = num_epochs
-# config["batchsize"] = batchsize
+config["num_epochs"] = num_epochs
+config["batchsize"] = batchsize
 config["compute_norms"] = False
 
 # build our network
-layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
+layer_sizes = [data.num_pixels, 500, 500, 500, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))

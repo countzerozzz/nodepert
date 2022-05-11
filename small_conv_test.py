@@ -3,12 +3,12 @@ import importlib
 
 importlib.reload(npimports)
 from npimports import *
+import silence_tensorflow.auto
 
 # set the 'seed' for our experiment
 # randkey = random.PRNGKey(int(time.time()))
 randkey = random.PRNGKey(0)
 
-log_expdata = False
 path = "explogs/"
 
 # parse conv network arguments
@@ -16,8 +16,8 @@ update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_ar
 network = "conv"
 # define training configs
 config = {}
-config["num_epochs"] = num_epochs = 10
-config["batchsize"] = batchsize = 100
+config["num_epochs"] = num_epochs 
+config["batchsize"] = batchsize
 config["num_classes"] = data.num_classes
 config["compute_norms"] = False
 
@@ -32,7 +32,15 @@ convlayer_sizes = [
 ]
 
 num_conv_layers = len(convlayer_sizes)
-fclayer_sizes = [data.height * data.width * convlayer_sizes[-1][-1], data.num_classes]
+down_factor = 2
+fclayer_sizes = [
+    int(
+        (data.height / down_factor)
+        * (data.width / down_factor)
+        * convlayer_sizes[-1][-1]
+    ),
+    data.num_classes,
+]
 
 randkey, _ = random.split(randkey)
 convparams = conv.init_convlayers(convlayer_sizes, randkey)
@@ -56,7 +64,7 @@ optimstate = {"lr": lr}
 
 # now train
 params, optimstate, expdata = train.train(
-    params, forward, data, config, optimizer, optimstate, randkey, verbose=False
+    params, forward, data, config, optimizer, optimstate, randkey, verbose=True
 )
 
 df = pd.DataFrame.from_dict(expdata)
