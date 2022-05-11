@@ -3,8 +3,8 @@ import numpy as np
 import jax as jax
 import jax.numpy as jnp
 from jax import grad, jit, vmap, random, lax
-from jax.experimental import optimizers
-from jax.ops import index, index_add, index_update
+from jax.example_libraries import optimizers
+# from jax.ops import index, index_add, index_update # deprecated; use jnp.index_exp instead
 from jax.scipy.special import logsumexp
 from jax.nn import sigmoid
 from jax.nn import softmax
@@ -28,7 +28,6 @@ import models.metrics as metrics
 
 # change here directly when we want to perform experiments with different datasets.
 import data_loaders.mnist_loader as data
-
 dataset = "MNIST"
 
 # import data_loaders.fmnist_loader as data
