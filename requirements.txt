@@ -1,13 +1,11 @@
-# to run nodepert on a GPU machine, make the following changes:
-# 1. change tensorflow-cpu to tensorflow
-# 2. change jaxlib to jaxlib=0.1.67+cuda111 (depending on your CUDA version) : uncomment line [10 & 11]
-
-tensorflow-cpu
-#tensorflow
+tensorflow
 tensorflow-datasets
 jax 
 jaxlib
-# jaxlib==0.1.67+cuda111 # note: depending on your instance CUDA version, replace cuda111 with: cuda101(for CUDA10.1), cuda102(for CUDA10.2), cuda110(for CUDA11.0)
-# --find-links https://storage.googleapis.com/jax-releases/jax_releases.html
+silence_tensorflow
 numpy
 pandas
+# for installing GPU compatible JAX:
+# conda create -n jax_gpu python cudatoolkit=11.3 cudatoolkit-dev=11.3 -c conda-forge
+# conda activate jax_gpu
+# pip install 'jax[cuda11_cudnn82]' 'jaxlib[cuda11_cudnn82]' -f https://storage.googleapis.com/jax-releases/jax_releases.html
