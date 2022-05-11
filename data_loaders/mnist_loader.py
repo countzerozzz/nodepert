@@ -1,18 +1,14 @@
-# disable long and useless tensorflow warnings!
-# import silence_tensorflow.auto
-
 import numpy as np
 import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
 
 data_dir = "data/tfds"
-# data_dir = '/tmp/tfds'
 
 # fetch full dataset and info for evaluation
 # tfds.load returns tf.Tensors (or tf.data.Datasets if batch_size != -1)
 # you can convert them to NumPy arrays (or iterables of NumPy arrays) with tfds.dataset_as_numpy
-
+    
 # get the dataset information first:
 _, dataset_info = tfds.load(
     name="mnist", split="train[:1%]", batch_size=-1, data_dir=data_dir, with_info=True

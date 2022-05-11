@@ -4,7 +4,6 @@ import jax.numpy as jnp
 import tensorflow_datasets as tfds
 
 data_dir = "data/tfds"
-# data_dir = '/tmp/tfds'
 
 # fetch full dataset and info for evaluation
 # tfds.load returns tf.Tensors (or tf.data.Datasets if batch_size != -1)
@@ -72,7 +71,7 @@ def zca_whiten_images(x):
     return x_zca
 
 
-def prepare_data(x, y, preprocess):
+def prepare_data(x, y, preprocess="standardize"):
 
     if preprocess.lower() == "zca":
         x = zca_whiten_images(x)
@@ -101,16 +100,20 @@ def get_rawdata_batches(batchsize=100, split="train[:100%]"):
     return tfds.as_numpy(ds)
 
 
-# create a generator that normalizes the data and makes it into JAX arrays
-def get_data_batches(batchsize=100, split="train[:100%]", preprocess="standardize"):
-    ds = get_rawdata_batches(batchsize, split)
+# NOTE: from TFDS 4.0.0, tfds.as_numpy returns a reusable iterator instead of an iterable; see: https://github.com/tensorflow/datasets/issues/2270
+#  previous function; incompatible with TFDS 4.0.0:
+# def get_data_batches(batchsize=100, split="train[:100%]"):
+#     ds = get_rawdata_batches(batchsize, split)
 
-    # at the end of the dataset a 'StopIteration' exception is raised
-    try:
-        # keep getting batches until you get to the end.
-        while True:
-            x, y = next(ds)
-            x, y = prepare_data(x, y, preprocess)
-            yield (x, y)
-    except:
-        pass
+#     # at the end of the dataset a 'StopIteration' exception is raised
+#     try:
+#         # keep getting batches until you get to the end.
+
+#         while True:
+#             x, y = next(iter(ds))
+#             x, y = prepare_data(x, y)
+#             yield (x, y)
+
+#     except:
+#         print("End of dataset")
+#         pass
