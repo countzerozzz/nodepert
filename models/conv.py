@@ -82,10 +82,10 @@ def forward(x, params):
                 [2, 3, 0, 1]
             ),  # rhs = IOHW conv kernel tensor [according to JAX page]
             (stride, stride),  # window strides
-            "SAME",
-        )  # padding mode
+            "SAME", # padding mode
+        ) 
 
-        act = act + jnp.repeat(biases, [curr_height * curr_width]).reshape(
+        act = act + jnp.repeat(biases, curr_height * curr_width).reshape(
             1, convout_channels, curr_height, curr_width
         )
 
@@ -149,7 +149,7 @@ def noisyforward(x, params, randkey):
             "SAME",
         )  # padding mode
 
-        act = act + jnp.repeat(biases, [curr_height * curr_width]).reshape(
+        act = act + jnp.repeat(biases, curr_height * curr_width).reshape(
             1, convout_channels, curr_height, curr_width
         )
 
