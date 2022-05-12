@@ -129,17 +129,19 @@ def get_elapsed_time(sec):
     else:
         return str(d.minute) + "min " + str(d.second) + "sec"
 
-
-# this function needs to be updated!
+# get total number of parameters in the network
 def get_params_count(params):
-    """Get number of elements in a nested list"""
     count = 0
     # Iterate over the list
     for elem in params:
         # Check if type of element is list
-        if type(elem) == list:
+        if type(elem) == list or type(elem) == tuple:
             # Again call this function to get the size of this element
             count += get_params_count(elem)
+
         else:
-            count += np.asarray(elem).size
+            num=1
+            for ii in range(len(elem.shape)):
+                num *= int(np.asarray(elem).shape[ii])
+            count += num
     return count
