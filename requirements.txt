@@ -5,6 +5,10 @@ jaxlib
 silence_tensorflow
 numpy
 pandas
+
+# install tiny-imagenet-200
+# pip install git+https://github.com/ksachdeva/tiny-imagenet-tfds.git
+
 # for installing GPU compatible JAX:
 # conda create -n jax_gpu python cudatoolkit=11.3 cudatoolkit-dev=11.3 -c conda-forge
 # conda activate jax_gpu
