@@ -3,7 +3,7 @@ import importlib
 
 importlib.reload(npimports)
 from npimports import *
-import silence_tensorflow.auto
+# import silence_tensorflow.auto
 
 # set the 'seed' for our experiment
 # randkey = random.PRNGKey(int(time.time()))

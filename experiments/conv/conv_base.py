@@ -82,6 +82,8 @@ elif update_rule == "sgd":
 
 optimstate = {"lr": lr, "t": 0}
 
+print("total parameters:", utils.get_params_count(params))
+
 # now train
 params, optimstate, expdata = train.train(
     params, forward, data, config, optimizer, optimstate, randkey, verbose=False
