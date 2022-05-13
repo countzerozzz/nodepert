@@ -3,6 +3,8 @@ import jax.numpy as jnp
 import tensorflow as tf
 
 import tensorflow_datasets as tfds
+
+# see original git repo for code here: https://github.com/ksachdeva/tiny-imagenet-tfds
 from tiny_imagenet import TinyImagenetDataset
 
 tiny_imagenet_builder = TinyImagenetDataset()
