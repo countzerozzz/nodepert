@@ -78,6 +78,7 @@ def parse_conv_args():
     ap.add_argument(
         "-log_expdata", type=str_to_bool, nargs="?", const=True, default=False
     )
+    ap.add_argument("-wd", default=0.0)
     ap.add_argument("-jobid", type=int, default=0)
     args = ap.parse_args()
 
@@ -87,6 +88,7 @@ def parse_conv_args():
         args.batchsize,
         args.num_epochs,
         args.log_expdata,
+        args.wd,
         args.jobid,
     )
 
