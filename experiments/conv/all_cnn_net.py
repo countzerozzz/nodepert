@@ -13,7 +13,8 @@ from npimports import *
 # tf.config.experimental.set_visible_devices([], "GPU")
 config = {}
 # parse arguments:
-update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
+update_rule, lr, batchsize, num_epochs, log_expdata, wd, jobid = utils.parse_conv_args()
+wd=float(wd)
 network = "All-CNN-A"
 (
     config["compute_norms"],
@@ -23,17 +24,20 @@ network = "All-CNN-A"
 ) = (False, batchsize, num_epochs, data.num_classes)
 
 # folder to log experiment results
-path = "explogs/conv/"
+path = "explogs/conv/wd/"
 
 # num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
-# np update: (mse)
-# rows = np.arange(1e-5, 1e-4, 1e-5)
-rows = [0.00008, 0.00009, 0.0002]
+if update_rule == "sgd":
+    # rows = np.concatenate(([0.05, 0.07], np.arange(1e-1, 1, 2e-1)))
+    rows = np.array([0.005, 0.01, 0.05, 0.1, 0.5])
 
-# sgd update: (mse)
-# rows = [0.01, 0.05, 0.1, 0.25, 0.5, 1, 5]
+elif update_rule == "np":
+    rows = np.array([4e-5, 7e-5])
+    # rows = np.linspace(0.01, 0.5, num)
+else:
+    raise ValueError("Unknown update rule")
 
 ROW_DATA = "learning_rate"
 row_id = jobid % len(rows)
@@ -82,11 +86,11 @@ optim.forward = conv.batchforward
 optim.noisyforward = conv.batchnoisyforward
 
 if update_rule == "np":
-    optimizer = optim.npupdate
+    optimizer = optim.npwdupdate
 elif update_rule == "sgd":
-    optimizer = optim.sgdupdate
+    optimizer = optim.sgdwdupdate
 
-optimstate = {"lr": lr, "t": 0}
+optimstate = {"lr": lr, "wd": wd}
 
 # now train
 params, optimstate, expdata = train.train(
@@ -102,15 +106,16 @@ pd.set_option("display.max_columns", None)
     df["lr"],
     df["batchsize"],
     df["total_epochs"],
+    df["wd"],
     df["jobid"],
-) = (network, update_rule, lr, batchsize, num_epochs, jobid)
+) = (network, update_rule, lr, batchsize, num_epochs, wd, jobid)
 print(df.head(5))
 
 # save the results of our experiment
 if log_expdata:
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if not os.path.exists(path + "all-cnn-a-JAX.csv"):
+    if not os.path.exists(path + "all-cnn-a.csv"):
         use_header = True
 
-    df.to_csv(path + "all-cnn-a-JAX.csv", mode="a", header=use_header)
+    df.to_csv(path + "all-cnn-a.csv", mode="a", header=use_header)
