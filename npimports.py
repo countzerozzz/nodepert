@@ -18,8 +18,8 @@ import os
 from pathlib import Path
 
 import data_loaders
-# import train
-import imgnet_train as train
+import train
+# import imgnet_train as train
 import utils
 import models.fc as fc
 import models.conv as conv
@@ -28,8 +28,8 @@ import models.losses as losses
 import models.metrics as metrics
 
 # change here directly when we want to perform experiments with different datasets.
-# import data_loaders.mnist_loader as data
-# dataset = "MNIST"
+import data_loaders.mnist_loader as data
+dataset = "MNIST"
 
 # import data_loaders.fmnist_loader as data
 # dataset = 'f-MNIST'
@@ -41,8 +41,8 @@ import models.metrics as metrics
 # dataset = "CIFAR100"
 
 # for imagenet dataloader, we also need to uncomment the corresponding 'train' import statement
-import data_loaders.tiny_imgnet_loader as data
-dataset = "Tiny-ImageNet"
+# import data_loaders.tiny_imgnet_loader as data
+# dataset = "Tiny-ImageNet"
 
 import importlib
 
