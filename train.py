@@ -3,6 +3,7 @@ import jax.numpy as jnp
 from jax import random
 from models.metrics import accuracy
 from models.fc import compute_norms
+import utils
 import time
 import pdb
 
@@ -55,6 +56,10 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         expdata["param_norms"].append(param_norms)
         expdata["grad_norms"].append(grad_norms)
 
+    if config["save_trajectory"]:
+        expdata["trajectory"] = []
+        expdata["trajectory"].append(utils.params_to_npvec(params))
+
     print("start training...\n")
 
     for epoch in range(1, num_epochs + 1):
@@ -85,6 +90,9 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
             grad_norms = compute_norms(grads)
             expdata["param_norms"].append(param_norms)
             expdata["grad_norms"].append(grad_norms)
+
+        if config["save_trajectory"]:
+            expdata["trajectory"].append(utils.params_to_npvec(params))
 
         if verbose:
 
