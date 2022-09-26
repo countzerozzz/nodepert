@@ -1,5 +1,6 @@
 import csv
 import numpy as np
+import jax.numpy as jnp
 import pandas as pd
 import pickle
 import argparse
@@ -49,7 +50,7 @@ def parse_args():
     ap.add_argument("-lr", type=float, default=1e-2)
     ap.add_argument("-batchsize", type=int, default=100)
     ap.add_argument("-hl_size", type=int, default=500)
-    ap.add_argument("-num_epochs", type=int, default=10)
+    ap.add_argument("-num_epochs", type=int, default=4)
     ap.add_argument(
         "-log_expdata", type=str_to_bool, nargs="?", const=True, default=False
     )
@@ -147,3 +148,21 @@ def get_params_count(params):
                 num *= int(np.asarray(elem).shape[ii])
             count += num
     return count
+
+def npvec_to_params(npvec, layer_sizes):
+    start=0
+    params = []
+    for m,n in zip(layer_sizes[0:-1], layer_sizes[1:]):
+        w = jnp.reshape(npvec[start:start+(m*n)], (n,m))
+        start+=m*n
+        b = jnp.array(npvec[start:start+n])
+        start+=n
+        params.append((w,b))
+    return params
+
+def params_to_npvec(params):
+    params_list = []
+    for w, b in params:
+        params_list.append(list(w.flatten()) + list(b.flatten()))
+
+    return np.hstack(params_list)
