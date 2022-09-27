@@ -12,7 +12,7 @@ import matplotlib as mpl
 
 def calculate_loss(params):
     loss = 0
-    for x, y in data.get_rawdata_batches(batchsize=100, split="train[:20%]"):
+    for x, y in data.get_rawdata_batches(batchsize=100, split="train[:10%]"):
         x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
         loss += losses.batchmseloss(h[-1], y).mean()
@@ -74,24 +74,38 @@ elif update_rule == "sgd":
 
 optimstate = {"lr": lr}
 
+start = time.time()
 # now train
 params, optimstate, expdata = train.train(
     params, forward, data, config, optimizer, optimstate, randkey, verbose=False,
 )
+mins, secs = divmod(time.time() - start, 60)
+print("Finished training in {}m {}s".format(round(mins), round(secs)))
+
 trajectory = expdata.pop("trajectory", None)
 # need to get the weights as colums
 trajectory = np.swapaxes(trajectory, 0, 1)
 p_origin = npvec_to_params(trajectory[:, -1], layer_sizes)
 
+start = time.time()
 pca = PCA(n_components=2, whiten=True)
 components = pca.fit_transform(trajectory)
+print("calculated PCA in {}s".format(round(time.time() - start, 2)))
+# the pseudoinverse
+components_i = np.linalg.pinv(components)
+# center the weights on the training path and project onto components
+coord_path = np.array(
+    [components_i @ (weights - trajectory[:, -1]) for weights in trajectory.T]
+)
+print("calculated path coordinates")
+start = time.time()
 p_0 = normalize_params(npvec_to_params(components[:, 0], layer_sizes), p_origin)
 p_1 = normalize_params(npvec_to_params(components[:, 1], layer_sizes), p_origin)
 
-range = 0.2
-points = 30
-a_grid = np.linspace(-1, 1, num=points) ** 3 * range
-b_grid = np.linspace(-1, 1, num=points) ** 3 * range
+fig_range = 0.05
+points = 5
+a_grid = np.linspace(-1, 1, num=points) ** 3 * fig_range
+b_grid = np.linspace(-1, 1, num=points) ** 3 * fig_range
 loss_grid = np.zeros((points, points))
 
 for i, a in enumerate(a_grid):
@@ -103,6 +117,8 @@ for i, a in enumerate(a_grid):
             params.append((weights, bias))
         loss_grid[i][j] = calculate_loss(params)
 
+mins, secs = divmod(time.time() - start, 60)
+print("calculated loss grid {}m {}s".format(round(mins), round(secs)))
 
 def plot(levels=15, ax=None, **kwargs):
     xs = a_grid
@@ -128,12 +144,27 @@ def plot(levels=15, ax=None, **kwargs):
         linewidths=0.75,
         norm=mpl.colors.LogNorm(vmin=min_loss, vmax=max_loss * 2.0),
     )
-    ax.clabel(CS, inline=True, fontsize=8, fmt="%1.2f")
+    ax.clabel(
+        CS, inline=True, inline_spacing=10, fontsize=8, fmt="%1.1f", rightside_up=False
+    )
     return ax
 
 
-ax = plot(dpi=500)
-ax.figure.savefig("experiments/loss-landscape.png")
+def plot_training_path(path, ax=None, end=None, **kwargs):
+    if ax is None:
+        fig, ax = plt.subplots(**kwargs)
+    colors = range(path.shape[0])
+    end = path.shape[0] if end is None else end
+    norm = plt.Normalize(0, end)
+    ax.scatter(
+        path[:, 0], path[:, 1], s=4, c=colors, cmap="cividis", norm=norm,
+    )
+    return ax
+
+print("plotting...")
+ax = plot(dpi=200)
+ax = plot_training_path(coord_path, ax)
+ax.figure.savefig("experiments/loss-landscape-{}.png".format(update_rule))
 
 df = pd.DataFrame.from_dict(expdata)
 df["dataset"] = npimports.dataset
@@ -159,3 +190,4 @@ if log_expdata:
         use_header = True
 
     df.to_csv(path + "fc-test.csv", mode="a", header=use_header)
+    print("wrote training logs to disk")
