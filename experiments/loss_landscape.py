@@ -1,7 +1,7 @@
 import npimports
 import importlib
 
-from utils import npvec_to_params
+from utils import npvec_to_params, params_to_npvec
 
 importlib.reload(npimports)
 from npimports import *
@@ -12,11 +12,11 @@ import matplotlib as mpl
 
 def calculate_loss(params):
     loss = 0
-    for x, y in data.get_rawdata_batches(batchsize=100, split="train[:10%]"):
+    for x, y in data.get_rawdata_batches(batchsize=100, split="train[:20%]"):
         x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
-        loss += losses.batchmseloss(h[-1], y).mean()
-    return loss
+        loss += losses.batchmseloss(h[-1], y).sum()
+    return loss / 100
 
 
 def normalize_params(params, p_origin):
@@ -29,7 +29,7 @@ def normalize_params(params, p_origin):
 
 
 # randkey = random.PRNGKey(int(time.time()))
-randkey = random.PRNGKey(0)
+randkey = random.PRNGKey(1)
 
 log_expdata = False
 path = "explogs/fc/"
@@ -91,19 +91,12 @@ start = time.time()
 pca = PCA(n_components=2, whiten=True)
 components = pca.fit_transform(trajectory)
 print("calculated PCA in {}s".format(round(time.time() - start, 2)))
-# the pseudoinverse
-components_i = np.linalg.pinv(components)
-# center the weights on the training path and project onto components
-coord_path = np.array(
-    [components_i @ (weights - trajectory[:, -1]) for weights in trajectory.T]
-)
-print("calculated path coordinates")
 start = time.time()
 p_0 = normalize_params(npvec_to_params(components[:, 0], layer_sizes), p_origin)
 p_1 = normalize_params(npvec_to_params(components[:, 1], layer_sizes), p_origin)
 
-fig_range = 0.05
-points = 5
+fig_range = 0.5 
+points = 30
 a_grid = np.linspace(-1, 1, num=points) ** 3 * fig_range
 b_grid = np.linspace(-1, 1, num=points) ** 3 * fig_range
 loss_grid = np.zeros((points, points))
@@ -119,6 +112,17 @@ for i, a in enumerate(a_grid):
 
 mins, secs = divmod(time.time() - start, 60)
 print("calculated loss grid {}m {}s".format(round(mins), round(secs)))
+# the pseudoinverse
+components_i = np.linalg.pinv(
+    np.column_stack((params_to_npvec(p_0), params_to_npvec(p_1)))
+)
+
+# center the weights on the training path and project onto components
+coord_path = np.array(
+    [components_i @ (weights - trajectory[:, -1]) for weights in trajectory.T]
+)
+print("calculated path coordinates")
+
 
 def plot(levels=15, ax=None, **kwargs):
     xs = a_grid
@@ -160,6 +164,7 @@ def plot_training_path(path, ax=None, end=None, **kwargs):
         path[:, 0], path[:, 1], s=4, c=colors, cmap="cividis", norm=norm,
     )
     return ax
+
 
 print("plotting...")
 ax = plot(dpi=200)
