@@ -9,7 +9,7 @@ from npimports import *
 randkey = random.PRNGKey(0)
 
 log_expdata = False
-path = "explogs/"
+path = "explogs/fc/"
 
 # parse FC network arguments
 (
@@ -25,13 +25,10 @@ path = "explogs/"
 ) = utils.parse_args()
 
 # define training configs
-config = {}
-config["num_epochs"] = num_epochs
-config["batchsize"] = batchsize
-config["compute_norms"] = False
+config = {'num_epochs': num_epochs, 'batchsize': batchsize, 'compute_norms': False, 'save_trajectory':False}
 
 # build our network
-layer_sizes = [data.num_pixels, 500, 500, 500, data.num_classes]
+layer_sizes = [data.num_pixels, 500, 500, data.num_classes]
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))

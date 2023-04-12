@@ -72,7 +72,7 @@ def parse_args():
 
 def parse_conv_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-update_rule", type=str, default="sgd")
+    ap.add_argument("-update_rule", type=str, default="np")
     ap.add_argument("-lr", type=float, default=1e-2)
     ap.add_argument("-batchsize", type=int, default=100)
     ap.add_argument("-num_epochs", type=int, default=5)
@@ -96,7 +96,7 @@ def parse_conv_args():
 
 def parse_conv_args_tf():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-optimizer", type=str, default="sgd")
+    ap.add_argument("-optimizer", type=str, default="np")
     ap.add_argument("-lr", type=float, default=5e-2)
     ap.add_argument("-batchsize", type=int, default=100)
     ap.add_argument("-num_epochs", type=int, default=5)

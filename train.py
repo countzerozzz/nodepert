@@ -5,9 +5,7 @@ from models.metrics import accuracy
 from models.fc import compute_norms
 import utils
 import time
-import pdb
 
-# compute the train and test accuracy:
 def compute_metrics(params, forward, data, split_percent="[:100%]"):
     # run through the training set and compute the metrics:
     train_acc = []
@@ -32,35 +30,28 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
     num_epochs = config["num_epochs"]
     batchsize = config["batchsize"]
 
-    # dict to store experiment data:
-    expdata = {}
-    expdata["epoch"] = []
-    expdata["epoch_time"] = []
-    expdata["train_acc"] = []
-    expdata["test_acc"] = []
-
-    # compute metrics and norms before we start training:
     train_acc, test_acc = compute_metrics(params, forward, data)
-    param_norms = compute_norms(params)
-    grad_norms = None
+    param_norms, grad_norms = compute_norms(params), None
 
-    # log experiment data:
-    expdata["epoch"].append(0)
-    expdata["epoch_time"].append(0.0)
-    expdata["train_acc"].append(train_acc)
-    expdata["test_acc"].append(test_acc)
+    # Initialize experiment data dictionary
+    expdata = {
+        "epoch": [0],
+        "epoch_time": [0.0],
+        "train_acc": [train_acc],
+        "test_acc": [test_acc]
+    }
 
-    if config["compute_norms"]:
-        expdata["param_norms"] = []
-        expdata["grad_norms"] = []
-        expdata["param_norms"].append(param_norms)
-        expdata["grad_norms"].append(grad_norms)
+    if config.get("compute_norms"):
+        expdata.update({
+            "param_norms": [param_norms],
+            "grad_norms": [grad_norms],
+        })
 
-    if config["save_trajectory"]:
-        expdata["trajectory"] = []
-        expdata["trajectory"].append(utils.params_to_npvec(params))
+    if config.get("save_trajectory"):
+        expdata["trajectory"] = [utils.params_to_npvec(params)]
 
     print("start training...\n")
+
 
     for epoch in range(1, num_epochs + 1):
 
@@ -85,13 +76,13 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         expdata["train_acc"].append(train_acc)
         expdata["test_acc"].append(test_acc)
 
-        if config["compute_norms"]:
+        if config.get("compute_norms"):
             param_norms = compute_norms(params)
             grad_norms = compute_norms(grads)
             expdata["param_norms"].append(param_norms)
             expdata["grad_norms"].append(grad_norms)
 
-        if config["save_trajectory"]:
+        if config.get("save_trajectory"): 
             expdata["trajectory"].append(utils.params_to_npvec(params))
 
         if verbose:
@@ -104,9 +95,6 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
                 print("Norm of all params {}".format(jnp.asarray(param_norms).sum()))
                 print("Norm of all grads {}".format(jnp.asarray(grad_norms).sum()))
 
-            # get data to test whether we're saturating our nonlinearites; TODO: would need to make an additional forward pass for getting norm of layer activations
-            # print("Sample penultimate layer {}".format(h[-2][0,0:5]))
-            # print("Sample final layer {}".format(h[-1][0,0:5]))
         else:
             print(".", end="")
 

@@ -12,14 +12,10 @@ randkey = random.PRNGKey(0)
 path = "explogs/"
 
 # parse conv network arguments
-update_rule, lr, batchsize, num_epochs, log_expdata, jobid = utils.parse_conv_args()
+update_rule, lr, batchsize, num_epochs, log_expdata, wd, jobid = utils.parse_conv_args()
 network = "conv"
 # define training configs
-config = {}
-config["num_epochs"] = num_epochs 
-config["batchsize"] = batchsize
-config["num_classes"] = data.num_classes
-config["compute_norms"] = False
+config = {'num_epochs': num_epochs, 'batchsize': batchsize, 'compute_norms': False, 'save_trajectory':False, 'num_classes': data.num_classes}
 
 # length of convout_channels has to be same as convlayer_sizes!
 convout_channels = [32, 32, 32]
@@ -42,6 +38,9 @@ fclayer_sizes = [
     data.num_classes,
 ]
 
+print(xla_bridge.get_backend().platform)  # are we running on CPU or GPU?
+print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes))
+
 randkey, _ = random.split(randkey)
 convparams = conv.init_convlayers(convlayer_sizes, randkey)
 randkey, _ = random.split(randkey)
@@ -56,11 +55,11 @@ optim.forward = conv.batchforward
 optim.noisyforward = conv.batchnoisyforward
 
 if update_rule == "np":
-    optimizer = optim.npupdate
+    optimizer = optim.npwdupdate
 elif update_rule == "sgd":
-    optimizer = optim.sgdupdate
-
-optimstate = {"lr": lr}
+    optimizer = optim.sgdwdupdate
+        
+optimstate = {"lr": lr, "wd": wd}
 
 # now train
 params, optimstate, expdata = train.train(

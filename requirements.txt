@@ -5,6 +5,7 @@ jaxlib
 silence_tensorflow
 numpy
 pandas
+protobuf==3.20.*
 
 # install tiny-imagenet-200
 # pip install git+https://github.com/ksachdeva/tiny-imagenet-tfds.git
