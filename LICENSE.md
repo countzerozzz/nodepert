@@ -1,8 +1,8 @@
 MIT License
 
-Copyright (c) 2020 - 2022 
+Copyright (c) 2020 - 2023
 
-**Yash Mehta** (Gatsby Computational Neuroscience Unit, UCL) and **Timothy Lillicrap** (DeepMind)
+**Yash Mehta** (HHMI Janelia Research Campus; Gatsby) and **Timothy Lillicrap** (DeepMind)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
