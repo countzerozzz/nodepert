@@ -10,7 +10,7 @@
 <!-- | [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations) -->
 
 ## Overview
-Looking for the algorithms that drive goal-directed learning in the ol' noggin? Well, you're in the right place. We're putting the ever-elusive node perturbation algorithm and the ever-popular backpropagation head-to-head, aiming to understand the brain's credit assignment shenanigans. This repository is packed with a slick implementation of node perturbation and backpropagation, all dressed up in fully connected and convolutional attire.
+Looking for the algorithms that drive goal-directed learning in the brain? Well, you're in the right place. We're putting the ever-elusive node perturbation algorithm and the ever-popular backpropagation head-to-head, aiming to understand how the brain may implement credit assignment. This repository is packed with a slick implementation of node perturbation and backpropagation, all dressed up in fully connected and convolutional attire.
 
 We've whipped up this code using [JAX](https://github.com/google/jax), and TFDS (Tensorflow Datasets) lends a hand for those pesky dataloaders. So, buckle up and dive in, if you think you can handle it.
 
