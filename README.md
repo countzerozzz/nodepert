@@ -1,6 +1,6 @@
 # NodePert: A Perturbation-Based Method for Training Neural Networks
 
-[![Python 3.7](https://img.shields.io/badge/python-3.7-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/downloads/release/python-360/)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg?style=for-the-badge&logo=python)](https://docs.python.org/3/whatsnew/3.11.html)
 [![JAX](https://img.shields.io/badge/Framework-JAX-important?style=for-the-badge&logo=Apache-Kafka)](https://github.com/google/jax)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge&logo=open-source-initiative)](https://opensource.org/licenses/MIT)
 
@@ -9,65 +9,70 @@
 | [**Paper Experiments**](figs/running-paper-exps.md)
 <!-- | [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations) -->
 
-## Introduction
-What algorithms drive goal directed learning in networks in the brain? In machine learning, networks are almost exclusively trained using stochastic gradient descent, which delivers errors tailored to each neuron in a network. However, computing such tailored errors requires complicated machinery that is unlikely to exist in the brain, at least not in all areas. An alternative is to apply random perturbations to parameters, see whether that increases or decreases a global error, and then adjust parameters accordingly. The fact that this approach does not require complicated machinery, along with evidence that the brain utilizes global signals for learning, has prompted neuroscientists to speculate that the brain may use perturbation algorithms. However, little is known about the efficacy of these algorithms for training large networks to perform complex tasks. This repository contains the code for performing a thorough empirical investigation of a fast perturbation method called node perturbation. Our results provide insights into the diverse credit assignment algorithms employed by the brain.
+## Overview
+Looking for the algorithms that drive goal-directed learning in the ol' noggin? Well, you're in the right place. We're putting the ever-elusive node perturbation algorithm and the ever-popular backpropagation head-to-head, aiming to understand the brain's credit assignment shenanigans. This repository is packed with a slick implementation of node perturbation and backpropagation, all dressed up in fully connected and convolutional attire.
 
-The code was written using [JAX](https://github.com/google/jax) and TFDS (Tensorflow Datasets) was used for the dataloaders.
+We've whipped up this code using [JAX](https://github.com/google/jax), and TFDS (Tensorflow Datasets) lends a hand for those pesky dataloaders. So, buckle up and dive in, if you think you can handle it.
 
 ## Setup
 
-Pull the repository from git via:
+Can't wait to get your hands on our repository? Follow these simple steps, and you'll be up and running in no time (we hope):
 
+1. Clone the repository like the git wizard you know you are:
 ```bash
 git clone https://github.com/silverpaths/nodepert.git
 ```
 
-See requirements.txt file for the project dependencies, which can be installed via pip. Note, by default, this installs JAX with only CPU support. For installing JAX with GPU support, uncomment the line in requirements.txt.
-
+2. Feast your eyes on the requirements.txt file for the project's dependencies. Install them with pip, but be warned—this installs JAX with CPU support only. Want to flex your GPU muscles? Uncomment the line in requirements.txt, if you dare.
 ```bash
 pip install -r requirements.txt
 ```
-To run a basic test to check that the JAX setup is alright, change into the cloned directory, open a Python
-interpreter and issue:
 
+3. To ensure JAX isn't just twiddling its virtual thumbs, change into the cloned directory, open a Python interpreter (as if you haven't done this a million times), and type:
 ```python
 export PYTHONPATH <path/to/nodepert>
 import fc_test
 ```
-Check out the their official [install guide](https://github.com/google/jax#installation), for any JAX installation related issues.
+
+Run into any JAX installation snafus? Don't come crying to us—check out their official install guide for a helping hand. 
+
+Best of luck, champ!
 
 ## Running NodePert
 
-#### Running on a single GPU/CPU setup
-To train a basic network with node perturbation on MNIST, run:
->Fully Connected Network (FC network architecture parameterized by the arguments passed, i.e. runs network with 2 hidden layers, 500 neurons in each layer)
+#### Going Solo: Running on a Single GPU/CPU Setup
+
+Think you can handle NodePert? Let's find out. To train a basic network with node perturbation on MNIST, follow these oh-so-simple steps:
+
+>For a Fully Connected Network (FC network architecture with 2 hidden layers and 500 neurons each):
 >```python
->export PYTHONPATH <path/to/nodepert>
+>export PYTHONPATH=<path/to/nodepert>
 >python fc_test.py -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
 >```
->Small Convolution Network (Architecture fixed at 4 conv layers, 32 channels in each layer)
+>For a Small Convolution Network (4 conv layers, 32 channels each, because why not?):
 >```python
->export PYTHONPATH <path/to/nodepert>
+>export PYTHONPATH=<path/to/nodepert>
 >python small_conv_test.py -log_expdata True -batchsize 100 -num_epochs 10 -update_rule sgd
 >```
-Check out the _utils.py_ file for the different arguments which may be passed along with their default values. The argument ```job_id``` is for running the same code with different parameters in parallel on a cluster.
+Don't forget to peek into the `utils.py` file for various arguments and default values. Use the `job_id` argument for parallel runs on a cluster, because who doesn't love multitasking?
 
-#### Running on a compute cluster with SLURM
+#### Playing with the Big Boys: Running on a Compute Cluster with SLURM
 
-The slurm_scripts folder contains the scripts to run experiments on a multinode setup with the SLURM resource manager. The default ```job_id``` is 0, which runs the code with the parameter specified in the 0 <sup>th</sup> index of the list named _rows_ in the code. Make use of the slurm scripts, run:
-
+Feeling adventurous? The slurm_scripts folder has you covered. Run experiments on a multinode setup with the SLURM resource manager. Use this handy-dandy command:
 ```bash
 bash slurm-scripts/meta_jobscript.sh fc-test
 ```
-#### Running Experiments from the Paper: [check here](figs/running-paper-exps.md)
+#### Reliving the Glory: Running Experiments from the Paper
+[check here](figs/running-paper-exps.md) for a trip down memory lane.
 
-## Code Structure
-The entire code runs on MNIST by default, unless the data_loader is explicitly changed in the ```npimports.py``` file. The experiments folder contains the code for all the experiments for the paper 'On the Limitations of Perturbation Based Methods for Training Deep Networks'. On your local machine (with GPU or CPU, and the default setup is a fully connected network), run:
+## Code Structure: The Nitty-Gritty
+By default, we're all about MNIST, unless you change the data_loader in the `npimports.py` file (CIFAR10/100, f-MNIST). The experiments folder houses the code for all the experiments in the paper 'On the Limitations of Perturbation Based Methods for Training Deep Networks'. To run on your local machine (with a GPU or CPU, and a fully connected network), give this command a spin:
 
 ```python
 python experiments/vary_lr.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 100 -update_rule np
 ```
-For creating a neural network, all files call the same ```models/conv.py``` or ```models/fc.py```. The function for the exact nodepert update can be found in ```models/optim.py```.
 
-## License
-The source code for this project is licensed under the [MIT license](LICENSE.md).
+And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found lurking in ```models/optim.py```. 
+
+Happy hunting!
+
