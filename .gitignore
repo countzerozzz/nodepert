@@ -13,3 +13,4 @@ playground.ipynb
 gpu_test.py
 tiny-imagenet-tfds-master.zip
 .ipynb_checkpoints
+*.egg-info
