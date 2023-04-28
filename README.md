@@ -1,4 +1,4 @@
-# NodePert: A Perturbation-Based Method for Training Neural Networks 🧠
+# 🧠 NodePert: Perturbation-Based Algorithms for Training Deep Neural Networks
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg?style=for-the-badge&logo=python)](https://docs.python.org/3/whatsnew/3.11.html)
 [![JAX](https://img.shields.io/badge/Framework-JAX-important?style=for-the-badge&logo=Apache-Kafka)](https://github.com/google/jax)
@@ -10,7 +10,9 @@
 <!-- | [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations) -->
 
 ## Overview
-Are you interested in learning more about the algorithms that drive goal-directed learning in the brain? Then you've come to the right place! This project explores how the brain may implement credit assignment by putting the ever-popular backpropagation and the ever-elusive node perturbation algorithms head-to-head. In our repository, you'll find an efficient, scalable implementation of both node perturbation and backpropagation, on fully connected and convolutional networks. We've developed this code using JAX with Tensorflow Datasets (TFDS) to help with the data loading. So, why not take a deep dive into our repository and see what you can discover? We look forward to hearing your feedback!
+What algorithms underlie goal directed learning in the brain? Backpropagation is the traditional **credit assignment algorithm** used in machine learning research, but it's considered biologically implausible. Recently, **biologically plausible** alternatives, such as feedback alignment, target propagation, and perturbation-based algorithms, have been proposed. Node perturbation is a fast perturbation-based algorithm that applies random perturbations to neurons or synapses and adjusts weights accordingly. This approach is simple and may be utilized by the brain, which is thought to use global signals for learning. 
+
+This repository contains the accompanying code for the paper, *On the Limitations of Perturbation Based Methods for Training Deep Networks*. It offers a *efficient* and *scalable* implementation of perturbation-based credit assignment algorithms, allowing for large-scale experiments with node perturbation on **modern convolutional architectures on a GPU cluster**. Our results provide insights into the diverse credit assignment algorithms used by the brain. The code was written using [**`JAX`**](https://github.com/google/jax) in conjunction with `Tensorflow Datasets` for data loading.
 
 ## Setup
 
@@ -64,11 +66,14 @@ You can pass different arguments pertaining to the experiment, such as the numbe
 >```
 
 #### Detailed experiments
-The experiments folder houses the code for all the experiments in the paper 'On the Limitations of Perturbation Based Methods for Training Deep Networks'. To run on your local machine (with a GPU or CPU, and a fully connected network), give this command a spin:
 
-```python
-python experiments/vary_lr.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs 100 -update_rule np
-```
+Inside the experiments folder, you'll find code and in-depth analysis of various experiments utilizing node perturbation. These experiments can be classified into the following types:
+
+1. **Scaling**. See `dataset.py`, `depth.py`, `width.py`, `batchsize.py`, `learning_rate.py`
+2. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `width.py`, `batchsize.py`, `grad_dynamics.py`
+3. **Relative change in the loss with different learning rates**. See `linesearch.py`, `linesearch_utils.py`
+4. **Adam-like update for NP gradients**. See `adam_update.py`
+5. **Visualizing the loss landscape**. See `loss_landscape.py`
 
 And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found lurking in ```models/optim.py```.
 
