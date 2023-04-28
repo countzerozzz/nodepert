@@ -12,11 +12,9 @@
 ## Overview
 What algorithms underlie goal directed learning in the brain? Backpropagation is the traditional **credit assignment algorithm** used in machine learning research, but it's considered biologically implausible. Recently, **biologically plausible** alternatives, such as feedback alignment, target propagation, and perturbation-based algorithms, have been proposed. Node perturbation is a fast perturbation-based algorithm that applies random perturbations to neurons or synapses and adjusts weights accordingly. This approach is simple and may be utilized by the brain, which is thought to use global signals for learning. 
 
-This repository contains the accompanying code for the paper, *On the Limitations of Perturbation Based Methods for Training Deep Networks*. It offers a *efficient* and *scalable* implementation of perturbation-based credit assignment algorithms, allowing for large-scale experiments with node perturbation on **modern convolutional architectures on a GPU cluster**. Our results provide insights into the diverse credit assignment algorithms used by the brain. The code was written using [**`JAX`**](https://github.com/google/jax) in conjunction with `Tensorflow Datasets` for data loading.
+This repository contains the accompanying code for the paper, *On the Limitations of Perturbation Based Methods for Training Deep Networks*. It offers a *efficient* and *scalable* implementation of perturbation-based credit assignment algorithms, allowing for large-scale experiments with node perturbation on **modern convolutional architectures on a GPU cluster**. Our results provide insights into the diverse credit assignment algorithms used by the brain. The code was written by [Yash Mehta](https://yashsmehta.github.io/) and [Tim Lillicrap](https://contrastiveconvergence.net/~timothylillicrap/index.php) using [**`JAX`**](https://github.com/google/jax) in conjunction with `Tensorflow Datasets` for data loading. Please feel free to reach out to yashsmehta95@gmail.com regarding any queries or feedback!
 
 ## Setup
-
-Can't wait to get your hands on node perturbation? Follow these simple steps, and you'll be up and running in no time (we hope):
 
 1. Create a new conda environment and clone the repository like the git wizard you know you are:
 ```bash
@@ -25,18 +23,18 @@ conda activate nodepert
 git clone https://github.com/silverpaths/nodepert.git
 ```
 
-2. Install JAX and required libraries:
+2. Install JAX and the nodepert package:
 
     a. **CPU only**
     ```bash
     pip install --upgrade "jax[cpu]"
-    pip install -r requirements.txt
+    pip install -e .
     ```
     b. **GPU**
     ```
     conda install -c nvidia cuda-toolkit
     pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
-    pip install -r requirements.txt
+    pip install -e .
     ```
 
 3. To ensure JAX isn't just twiddling its virtual thumbs and the installation is working properly, run a basic experiment on a fully connected network and a small convolution network:
@@ -75,14 +73,13 @@ Inside the experiments folder, you'll find code and in-depth analysis of various
 4. **Adam-like update for NP gradients**. See `adam_update.py`
 5. **Visualizing the loss landscape**. See `loss_landscape.py`
 
-And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found lurking in ```models/optim.py```.
+And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found in ```models/optim.py```.
 
-#### Running on a Compute Cluster with SLURM
-If you're looking to make the most out of your resources while running experiments on a multinode setup, then the `job_id` argument for parallel runs on a cluster can be a real lifesaver. It lets you multitask like a pro and get your experiments done faster. And with the SLURM resource manager, you can manage all your nodes seamlessly without breaking a sweat. So, why not give it a shot? 
+#### Running on a compute cluster
+To maximize your resources and make the most of your multinode setup during experiments, consider using the job_id argument. It allows you to run multiple configurations and seeds of your experiments simultaneously, which is especially useful when working with GPU clusters that have resource allocation managers like SLURM.
 ```bash
 bash slurm-scripts/meta_jobscript.sh fc-test
 ```
-Best of luck, champ!
 
 [**Running Experiments from the Paper**](figs/running-paper-exps.md)
 
