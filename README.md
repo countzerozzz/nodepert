@@ -1,4 +1,4 @@
-# NodePert: A Perturbation-Based Method for Training Neural Networks
+# NodePert: A Perturbation-Based Method for Training Neural Networks 🧠
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg?style=for-the-badge&logo=python)](https://docs.python.org/3/whatsnew/3.11.html)
 [![JAX](https://img.shields.io/badge/Framework-JAX-important?style=for-the-badge&logo=Apache-Kafka)](https://github.com/google/jax)
@@ -10,9 +10,9 @@
 <!-- | [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations) -->
 
 ## Overview
-Looking for the algorithms that drive goal-directed learning in the brain? Well, you're in the right place. We're putting the ever-elusive node perturbation algorithm and the ever-popular backpropagation head-to-head, aiming to understand how the brain may implement credit assignment. This repository is packed with a slick implementation of node perturbation and backpropagation, all dressed up in fully connected and convolutional attire.
+Are you interested in learning more about the algorithms that drive goal-directed learning in the brain? Then you've come to the right place! This project explores how the brain may implement credit assignment by putting the ever-popular backpropagation and the ever-elusive node perturbation algorithms head-to-head.
 
-We've whipped up this code using [JAX](https://github.com/google/jax), and TFDS (Tensorflow Datasets) lends a hand for those pesky dataloaders. So, buckle up and dive in, if you think you can handle it.
+In our repository, you'll find an efficient, scalable implementation of both node perturbation and backpropagation, on fully connected and convolutional networks. We've developed this code using JAX with Tensorflow Datasets (TFDS) to help with the data loading. So, why not take a deep dive into our repository and see what you can discover? We look forward to hearing your feedback!
 
 ## Setup
 
@@ -34,9 +34,7 @@ export PYTHONPATH <path/to/nodepert>
 import fc_test
 ```
 
-Run into any JAX installation snafus? Don't come crying to us—check out their official install guide for a helping hand. 
-
-Best of luck, champ!
+Run into any JAX installation snafus? Check out their official install guide for a helping hand. Best of luck, champ!
 
 ## Running NodePert
 
@@ -74,5 +72,5 @@ python experiments/vary_lr.py -log_expdata True -n_hl 2 -hl_size 500 -num_epochs
 
 And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found lurking in ```models/optim.py```. 
 
-Happy hunting!
+Happy coding!
 
