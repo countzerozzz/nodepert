@@ -50,8 +50,10 @@ def sign_symmetry(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     ss_sgd_all = np.sum(tmp >= 0) / np.sum(tmp > NEG_INF)
 
     sign_symmetry_df["ss_all"] = [ss_np_all, ss_sgd_all]
+    # rows_populated variable is used to keep track of the number of rows populated in the dataframe
+    rows_populated = 2
 
-    return sign_symmetry_df
+    return sign_symmetry_df, rows_populated
 
 
 # calculate the norm of the gradient estimates, true gradient
@@ -82,8 +84,9 @@ def grad_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
     ratio_np = tmpnp / tmptrue
     ratio_sgd = tmpsgd / tmptrue
     grad_norms_df["ratios"] = [ratio_np, ratio_sgd, -1]
+    rows_populated = 3
 
-    return grad_norms_df
+    return grad_norms_df, rows_populated
 
 
 # calculate the norm of the 'noise' in the gradient estimates
@@ -101,7 +104,8 @@ def graddiff_norms(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
             jnp.linalg.norm(dwtrue - dwsgd),
         ]
 
-    return graddiff_norms_df
+    rows_populated = 2
+    return graddiff_norms_df, rows_populated
 
 
 # calculate the angle between the gradient estimates and true gradient
@@ -121,8 +125,9 @@ def grad_angles(npgrad, sgdgrad, truegrad, layer_sizes, epoch):
             angle_between(dwnp, dwtrue),
             angle_between(dwsgd, dwtrue),
         ]
+    rows_populated = 2
 
-    return grad_angles_df
+    return grad_angles_df, rows_populated
 
 
 # calculate the norm of the weights during the crash
@@ -141,7 +146,8 @@ def w_norms(params, layer_sizes, epoch):
 
     tmp = float(np.array(jnp.linalg.norm(jnp.asarray(w_all))))
     w_norm_df["norm_w_all"] = [tmp]
-    return w_norm_df
+    rows_populated = 1
+    return w_norm_df, rows_populated
 
 
 # calculate the variance of the weights during the crash
@@ -160,7 +166,8 @@ def w_vars(params, layer_sizes, epoch):
 
     tmp = float(np.array(jnp.var(jnp.asarray(w_all))))
     w_var_df["var_w_all"] = [tmp]
-    return w_var_df
+    rows_populated = 1
+    return w_var_df, rows_populated
 
 
 # get the activations of all layers of the network
@@ -175,4 +182,5 @@ def compute_layer_activity(x, y, params, layer_sizes, epoch):
     for i in range(1, len(layer_sizes)):
         n_activity_df["activity_l" + str(i)] = jnp.linalg.norm(h[i])
 
-    return n_activity_df
+    rows_populated = 1
+    return n_activity_df, rows_populated
