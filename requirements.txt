@@ -1,16 +1,7 @@
-tensorflow
+# jax 
+# jaxlib
+tensorflow-cpu
 tensorflow-datasets
-jax 
-jaxlib
-silence_tensorflow
 numpy
 pandas
 protobuf==3.20.*
-
-# install tiny-imagenet-200
-# pip install git+https://github.com/ksachdeva/tiny-imagenet-tfds.git
-
-# for installing GPU compatible JAX:
-# conda create -n jax_gpu python cudatoolkit=11.3 cudatoolkit-dev=11.3 -c conda-forge
-# conda activate jax_gpu
-# pip install 'jax[cuda11_cudnn82]' 'jaxlib[cuda11_cudnn82]' -f https://storage.googleapis.com/jax-releases/jax_releases.html
