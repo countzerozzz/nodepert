@@ -4,12 +4,14 @@ import importlib
 importlib.reload(npimports)
 from npimports import *
 
+
 ### FUNCTIONALITY ###
 # this code updates network weights with an Adam-like update rule using the NP gradients. Storing the final accuracy reached by the network after some
 # number of epochs. Paper: https://arxiv.org/pdf/1412.6980.pdf
 ###
 
 # parse arguments
+# note: here, in the update rule, pass "np-adam", for applying gradients calculated with NP, with an Adam-like update
 (
     network,
     update_rule,
@@ -62,7 +64,6 @@ elif re.search("sgd", update_rule):
 params = fc.init(layer_sizes, randkey)
 itercount = itertools.count()
 
-
 @jit
 def update(i, grads, opt_state):
     return opt_update(i, grads, opt_state)
@@ -83,7 +84,8 @@ for epoch in range(1, num_epochs + 1):
     test_acc.append(train.compute_metrics(params, forward, data)[1])
 
     print("EPOCH ", epoch)
-    for x, y in data.get_data_batches(batchsize=batchsize, split=data.trainsplit):
+    for x, y in data.get_rawdata_batches(batchsize=batchsize, split=data.trainsplit):
+        x, y = data.prepare_data(x, y)
         randkey, _ = random.split(randkey)
         # get the gradients, throw away the traditional weight updates
         new_params, grads, _ = gradfunc(x, y, params, randkey, optimstate)
