@@ -38,20 +38,12 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         "epoch": [0],
         "epoch_time": [0.0],
         "train_acc": [train_acc],
-        "test_acc": [test_acc]
+        "test_acc": [test_acc],
+        **({"param_norms": [param_norms], "grad_norms": [grad_norms]} if config.get("compute_norms") else {}),
+        **({"trajectory": [utils.params_to_npvec(params)]} if config.get("save_trajectory") else {}),
     }
 
-    if config.get("compute_norms"):
-        expdata.update({
-            "param_norms": [param_norms],
-            "grad_norms": [grad_norms],
-        })
-
-    if config.get("save_trajectory"):
-        expdata["trajectory"] = [utils.params_to_npvec(params)]
-
     print("start training...\n")
-
 
     for epoch in range(1, num_epochs + 1):
 
@@ -86,7 +78,6 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
             expdata["trajectory"].append(utils.params_to_npvec(params))
 
         if verbose:
-
             print("\nEpoch {} in {:0.2f} sec".format(epoch, epoch_time))
             print("Training set accuracy {}".format(train_acc))
             print("Test set accuracy {}".format(test_acc))
