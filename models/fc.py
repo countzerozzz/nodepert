@@ -37,6 +37,7 @@ def copyparams(params):
 
 
 # build the forward pass for a single image:
+# !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
 def forward(x, params):
     h = []
     a = []
@@ -52,6 +53,7 @@ def forward(x, params):
     # logsoftmax = a[-1] - logsumexp(a[-1])
     # h.append(logsoftmax)
     output = sigmoid(a[-1])
+    # output = jax.nn.relu(a[-1])
     h.append(output)
     return h, a
 
@@ -59,7 +61,7 @@ def forward(x, params):
 batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 # upgrade to handle batches using 'vmap'
 
-# compute norms of parameters (frobenius norm for weiths, L2 for biases)
+# compute norms of parameters (frobenius norm for weights, L2 for biases)
 @jit
 def compute_norms(params):
     norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
@@ -72,15 +74,7 @@ def compute_norms(params):
 
 nodepert_noisescale = 1e-4
 
-# currently the way that random numbers are handled here isn't very safe :(
-# this is now better, but not good...
-
-# also, it's terrible to have two functions for forward passes.
-# eventually we should make a single function and give an option to sample noise...
-# otherwise we have to manually track changes between these...
-# this is getting worse! we're already trying both sigmoid and softmax
-
-# new noisy forward pass:
+# noisy forward pass:
 def noisyforward(x, params, randkey):
     h = []
     a = []
@@ -110,6 +104,7 @@ def noisyforward(x, params, randkey):
     # logsoftmax = a[-1] - logsumexp(a[-1])
     # h.append(logsoftmax)
     output = sigmoid(a[-1])
+    # output = jax.nn.relu(a[-1])
     h.append(output)
     return h, a, xi, aux
 
