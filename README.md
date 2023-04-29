@@ -16,14 +16,36 @@ This repository contains the accompanying code for the paper, *On the Limitation
 
 ## Setup
 
-1. Create a new conda environment and clone the repository like the git wizard you know you are:
-```bash
-conda create -n nodepert python=3.11
-conda activate nodepert
-git clone https://github.com/silverpaths/nodepert.git
-```
+1. Clone the repository like the git wizard you know you are:
+    ```bash
+    git clone https://github.com/silverpaths/nodepert.git
+    cd nodepert
+    ```
 
-2. Install JAX and the nodepert package:
+2. Create a new virtual environment using `venv` or `conda`. Note, `venv` comes inbuilt with python but we recommend using `conda`, especially if you want to run it on a GPU.
+
+    <details>
+    <summary> conda </summary>
+
+    ```bash
+    conda create -n nodepert python=3.11
+    conda activate nodepert
+    ```
+
+    </details>
+
+
+    <details>
+    <summary> venv </summary>
+
+    ```bash
+    python -m venv env
+    source env/bin/activate
+    ```
+
+    </details>
+
+3. Install JAX and the nodepert package:
 
     a. **CPU only**
     ```bash
@@ -31,17 +53,37 @@ git clone https://github.com/silverpaths/nodepert.git
     pip install -e .
     ```
     b. **GPU**
-    ```
+    
+    JAX currently only supports accelerated GPU computing on linux-based systems.
+    
+    <details>
+    <summary> conda </summary>
+
+    ```bash
     conda install -c nvidia cuda-toolkit
     pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
     pip install -e .
     ```
 
-3. To ensure JAX isn't just twiddling its virtual thumbs and the installation is working properly, run a basic experiment on a fully connected network and a small convolution network:
-```python
-python fc_test.py
-python small_conv_test.py
-```
+    </details>
+
+
+    <details>
+    <summary> venv </summary>
+
+    ```bash
+    pip install --upgrade "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    pip install -e .
+    ```
+
+    </details>
+    
+
+3. To ensure JAX isn't just twiddling its virtual thumbs and the installation is working properly, run a basic experiment on a fully connected network comparing NP and SGD on MNIST. This should save a trajectory figure, while taking less than 2m to run.
+
+    ```python
+    python run_example.py
+    ```
 
 Run into any JAX installation snafus? Check out their [**official install guide**](https://github.com/google/jax#installation) for a helping hand.
 
