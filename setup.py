@@ -17,7 +17,7 @@ setup(
             'tensorflow-datasets',
             'numpy',
             'pandas',
-            'sklearn',
+            'scikit-learn',
             'matplotlib',
             'protobuf==3.20.*'
         ]
