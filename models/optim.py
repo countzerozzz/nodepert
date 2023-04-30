@@ -15,7 +15,7 @@ noisyforward = fc.batchnoisyforward
 
 @jit
 def loss(x, y, params):
-    h, a = forward(x, params)
+    h, _ = forward(x, params)
     loss = mseloss(h[-1], y).mean()
     # loss = celoss(h[-1], y).mean()
     return loss

@@ -26,7 +26,6 @@ if network == "fc":
     print(f"fully connected network structure: {layer_sizes}\n")
 
     # get forward pass, optimizer, and optimizer state + params
-    forward = fc.batchforward
     optim.forward = fc.batchforward
     optim.noisyforward = fc.batchnoisyforward
 
@@ -53,7 +52,6 @@ elif network == "conv":
     print(f"conv architecture {convlayer_sizes}, FC layer {fclayer_sizes}\n")
 
     # get forward pass, optimizer, and optimizer state + params
-    forward = conv.batchforward
     optim.forward = conv.batchforward
     optim.noisyforward = conv.batchnoisyforward
 
@@ -69,7 +67,7 @@ optimstate = {"lr": args.lr, "wd": args.wd}
 
 # now train
 params, optimstate, expdata = trainer.train(
-    params, forward, data, train_config, optimizer, optimstate, randkey, verbose=False
+    params, optim.forward, data, train_config, optimizer, optimstate, randkey, verbose=False
 )
 
 df = pd.DataFrame.from_dict(expdata)

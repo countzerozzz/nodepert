@@ -15,7 +15,6 @@ import itertools
 import os
 from pathlib import Path
 
-import data_loaders
 import trainer
 import utils
 import models.fc as fc
