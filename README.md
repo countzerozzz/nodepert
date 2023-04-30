@@ -7,12 +7,11 @@
 [**Setup**](#setup)
 | [**Running NodePert**](#running-node-perturbation)
 | [**Paper Experiments**](figs/running-paper-exps.md)
-<!-- | [**TF 1.x Repo**](https://github.com/yashsmehta/perturbations) -->
 
 ## Overview
-What algorithms underlie goal directed learning in the brain? Backpropagation is the traditional **credit assignment algorithm** used in machine learning research, but it's considered biologically implausible. Recently, **biologically plausible** alternatives, such as feedback alignment, target propagation, and perturbation-based algorithms, have been proposed. Node perturbation is a fast perturbation-based algorithm that applies random perturbations to neurons or synapses and adjusts weights accordingly. This approach is simple and may be utilized by the brain, which is thought to use global signals for learning. 
+What algorithms underlie goal directed learning in the brain? Backpropagation is the standard **credit assignment algorithm** used in machine learning research, but it's considered biologically implausible. Recently, **biologically plausible** alternatives, such as feedback alignment, target propagation, and perturbation algorithms, have been explored. The node perturbation algorithm applies random perturbations to neuron activity, monitors performance, and adjusts weights accordingly. This approach is simple and may be utilized by the brain. 
 
-This repository contains the accompanying code for the paper, *On the Limitations of Perturbation Based Methods for Training Deep Networks*. It offers a *efficient* and *scalable* implementation of perturbation-based credit assignment algorithms, allowing for large-scale experiments with node perturbation on **modern convolutional architectures on a GPU cluster**. Our results provide insights into the diverse credit assignment algorithms used by the brain. The code was written by [Yash Mehta](https://yashsmehta.github.io/) and [Tim Lillicrap](https://contrastiveconvergence.net/~timothylillicrap/index.php) using [**`JAX`**](https://github.com/google/jax) in conjunction with `Tensorflow Datasets` for data loading. Please feel free to reach out to yashsmehta95@gmail.com regarding any queries or feedback!
+This repository contains the accompanying code for the paper, *An empirical study of perturbation methods for training deep networks*. It offers a *efficient* and *scalable* implementation of perturbation algorithms, allowing for large-scale experiments with node perturbation on **modern convolutional architectures on a GPU**. Our results provide insights into the diverse credit assignment algorithms used by the brain. The code was written by [Yash Mehta](https://yashsmehta.github.io/) and [Timothy Lillicrap](https://contrastiveconvergence.net/~timothylillicrap/index.php) using [**`JAX`**](https://github.com/google/jax) in conjunction with `Tensorflow Datasets` for data loading. Reach out to yashsmehta95@gmail.com or timothy.lillicrap@gmail.com with queries or feedback.
 
 ## Setup
 
@@ -26,23 +25,19 @@ This repository contains the accompanying code for the paper, *On the Limitation
 
     <details>
     <summary> conda </summary>
-
     ```bash
     conda create -n nodepert python=3.11
     conda activate nodepert
     ```
-
     </details>
 
 
     <details>
     <summary> venv </summary>
-
     ```bash
-    python -m venv env
-    source env/bin/activate
+    python -m venv venv
+    source venv/bin/activate
     ```
-
     </details>
 
 3. Install JAX and the nodepert package:
@@ -54,7 +49,7 @@ This repository contains the accompanying code for the paper, *On the Limitation
     ```
     b. **GPU**
     
-    JAX currently only supports accelerated GPU computing on linux-based systems.
+    JAX currently only supports accelerated GPU computing on linux-based systems. Note that you may want to try "jax[cuda11_pip]" if cuda12_pip doesn't work out-of-the-box.
     
     <details>
     <summary> conda </summary>
@@ -70,16 +65,14 @@ This repository contains the accompanying code for the paper, *On the Limitation
 
     <details>
     <summary> venv </summary>
-
     ```bash
-    pip install --upgrade "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+    pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
     pip install -e .
     ```
-
     </details>
     
 
-3. To ensure JAX isn't just twiddling its virtual thumbs and the installation is working properly, run a basic experiment on a fully connected network comparing NP and SGD on MNIST. This should save a trajectory figure, while taking less than 2m to run.
+3. To ensure JAX is working properly, run a basic experiment on a fully connected network comparing NP and SGD on MNIST. This should save a trajectory figure, while taking less than 2m to run.
 
     ```python
     python run_example.py
@@ -130,8 +123,8 @@ If you use this code in your own work, please use the following bibtex entry:
 
 ```bibtex
 @misc{nodepert-2023,
-  title={NodePert: On the Limitations of Perturbation Based Methods to Train Deep Neural Networks}, 
-  author={Mehta, Yash and Hiratani, Naoki and Humphreys, Peter and Latham, Peter and Lillicrap, Tim}, 
+  title={NodePert: An empircal study of perturbation methods for training deep networks}, 
+  author={Mehta, Yash and Hiratani, Naoki and Humphreys, Peter and Latham, Peter and Lillicrap, Timothy}, 
   year={2023}, publisher={GitHub},
   howpublished={\url{https://github.com/countzerozzz/nodepert}} }
 ```
