@@ -39,8 +39,8 @@ This repository contains the accompanying code for the paper, *On the Limitation
     <summary> venv </summary>
 
     ```bash
-    python -m venv env
-    source env/bin/activate
+    python -m venv venv
+    source venv/bin/activate
     ```
 
     </details>
