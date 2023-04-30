@@ -5,7 +5,12 @@ from jax import random
 from jax import vmap
 from jax import jit
 
-import npimports
+nodepert_noisescale = 1e-5
+
+# defaults defined for MNIST:
+height = 28
+width = 28
+channels = 1
 
 # define element-wise relu:
 def relu(x):
@@ -19,7 +24,7 @@ def init_single_convlayer(
 
     # NOTICE: ordering changes from function argument ordering!!
     # random normal sampling of parameters
-    w_key, b_key = random.split(randkey)
+    w_key, _ = random.split(randkey)
     std = np.sqrt(
         2.0 / (kernel_height * kernel_width * (input_channels + output_channels))
     )
@@ -44,14 +49,12 @@ def init_convlayers(sizes, key):
     return params
 
 
-nodepert_noisescale = 1e-5
-
 # build the conv forward pass for a single image:
 # !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
 def forward(x, params):
     # reshape the input to be num_images x height x width x channels (NHWC)
     x = x.reshape(
-        1, npimports.data.height, npimports.data.width, npimports.data.channels
+        1, height, width, channels
     ).astype(np.float32)
 
     # transpose to NCHW
@@ -59,8 +62,8 @@ def forward(x, params):
     h = []
     a = []
     h.append(x)
-    curr_height = npimports.data.height
-    curr_width = npimports.data.width
+    curr_height = height
+    curr_width = width
 
     for ind, (kernel, biases) in enumerate(params[:-1]):
         stride = 1
@@ -98,14 +101,14 @@ def forward(x, params):
 
     return h, a
 
-
 # upgrade to handle batches using 'vmap'
-batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
+def build_batchforward():
+    return jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 
 # new noisy forward pass:
 def noisyforward(x, params, randkey):
     x = x.reshape(
-        1, npimports.data.height, npimports.data.width, npimports.data.channels
+        1, height, width, channels
     ).astype(np.float32)  # NHWC
 
     x = jnp.transpose(x, [0, 3, 1, 2])
@@ -116,8 +119,8 @@ def noisyforward(x, params, randkey):
     aux = []
     h.append(x)
 
-    curr_height = npimports.data.height
-    curr_width = npimports.data.width
+    curr_height = height
+    curr_width = width
 
     for ind, (kernel, biases) in enumerate(params[:-1]):
         stride = 1
@@ -163,8 +166,6 @@ def noisyforward(x, params, randkey):
 
     return h, a, xi, aux
 
-
 # upgrade to handle batches using 'vmap'
-batchnoisyforward = jit(
-    vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0))
-)
+def build_batchnoisyforward():
+    return jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0)))

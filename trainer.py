@@ -26,7 +26,7 @@ def compute_metrics(params, forward, data, split_percent="[:100%]"):
     return train_acc, test_acc
 
 
-def train(params, forward, data, config, optimizer, optimstate, randkey, verbose=True):
+def train(params, forward, data, config, optimizer, optimparams, randkey, verbose=True):
     num_epochs = config["num_epochs"]
     batchsize = config["batchsize"]
 
@@ -55,7 +55,7 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
         ):
             x, y = data.prepare_data(x, y)
             randkey, _ = random.split(randkey)
-            params, grads, optimstate = optimizer(x, y, params, randkey, optimstate)
+            params, grads = optimizer(x, y, params, randkey, optimparams)
 
         # compute metrics and norms:
         train_acc, test_acc = compute_metrics(params, forward, data)
@@ -91,4 +91,4 @@ def train(params, forward, data, config, optimizer, optimstate, randkey, verbose
 
     print("finished training")
 
-    return params, optimstate, expdata
+    return params, expdata

@@ -43,6 +43,7 @@ def sma_accuracy(arr, period):
 
 def parse_args():
     ap = argparse.ArgumentParser()
+    ap.add_argument("-dataset", type=str, default="MNIST")
     ap.add_argument("-network", type=str, default="fc")
     ap.add_argument("-update_rule", type=str, default="np")
     ap.add_argument("-n_hl", type=int, default=2)

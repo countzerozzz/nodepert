@@ -3,35 +3,33 @@ import jax.numpy as jnp
 from jax import random
 from jax import grad
 from jax import jit
-import models.fc as fc
+from jax import vmap
 
-import models.losses as losses
+# mse loss:
+def mseloss(pred, target):
+    loss = jnp.mean(jnp.square(pred - target))
+    return loss
 
-# defaults
-mseloss = losses.batchmseloss
-forward = fc.batchforward
-noisyforward = fc.batchnoisyforward
-
+batchmseloss = jax.jit(vmap(mseloss, in_axes=(0, 0), out_axes=0))
 
 @jit
 def loss(x, y, params):
     h, _ = forward(x, params)
-    loss = mseloss(h[-1], y).mean()
+    loss = batchmseloss(h[-1], y).mean()
     # loss = celoss(h[-1], y).mean()
     return loss
 
 
 @jit
 def nploss(x, y, params, randkey):
-    #   sigma = fc.nodepert_noisescale
     randkey, _ = random.split(randkey)
 
     # forward pass with noise
-    h, a, xi, aux = noisyforward(x, params, randkey)
+    h, _, _, aux = noisyforward(x, params, randkey)
     noisypred = h[-1]
 
     # forward pass with no noise
-    h, a = forward(x, params)
+    h, _ = forward(x, params)
     pred = h[-1]
 
     loss = mseloss(pred, y)
@@ -44,15 +42,10 @@ def nploss(x, y, params, randkey):
 
 
 @jit
-def npupdate(x, y, params, randkey, optimstate):
+def npupdate(x, y, params, randkey, optimparams):
     print("building np update")
-    lr = optimstate["lr"]
-    wd = optimstate.get("wd", 0)
-    if "linear" in optimstate:
-        global forward
-        global noisyforward
-        forward = fc.batchlinforward
-        noisyforward = fc.batchnoisylinforward
+    lr = optimparams["lr"]
+    wd = optimparams.get("wd", 0)
 
     grads = grad(nploss, argnums=(2))(x, y, params, randkey)
     return (
@@ -61,19 +54,14 @@ def npupdate(x, y, params, randkey, optimstate):
             for (w, b), (dw, db) in zip(params, grads)
         ],
         grads,
-        optimstate,
     )
 
 
 @jit
-def sgdupdate(x, y, params, randkey, optimstate):
+def sgdupdate(x, y, params, randkey, optimparams):
     print("building sgd update")
-    lr = optimstate["lr"]
-    wd = optimstate.get("wd", 0)
-    # this is a hack for quickly including a linear FC networks.
-    if "linear" in optimstate:
-        global forward
-        forward = fc.batchlinforward
+    lr = optimparams["lr"]
+    wd = optimparams.get("wd", 0)
 
     grads = grad(loss, argnums=(2))(x, y, params)
     return (
@@ -82,7 +70,6 @@ def sgdupdate(x, y, params, randkey, optimstate):
             for (w, b), (dw, db) in zip(params, grads)
         ],
         grads,
-        optimstate,
     )
 
 

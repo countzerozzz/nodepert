@@ -6,6 +6,8 @@ from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
 
+nodepert_noisescale = 1e-4
+
 # define element-wise relu:
 def relu(x):
     return jnp.maximum(0, x)
@@ -33,6 +35,12 @@ def copyparams(params):
     paramcopy = [(ww.copy(), bb.copy()) for (ww, bb) in params]
     return paramcopy
 
+# compute norms of parameters (frobenius norm for weights, L2 for biases)
+@jit
+def compute_norms(params):
+    norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
+    return norms
+
 
 # build the forward pass for a single image:
 # !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
@@ -54,22 +62,14 @@ def forward(x, params):
     h.append(output)
     return h, a
 
-
-batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 # upgrade to handle batches using 'vmap'
-
-# compute norms of parameters (frobenius norm for weights, L2 for biases)
-@jit
-def compute_norms(params):
-    norms = [(jnp.linalg.norm(ww), jnp.linalg.norm(bb)) for (ww, bb) in params]
-    return norms
+def build_batchforward():
+    return jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 
 
 ###################################
 # node perturbation functionality #
 ###################################
-
-nodepert_noisescale = 1e-4
 
 # noisy forward pass:
 def noisyforward(x, params, randkey):
@@ -105,15 +105,13 @@ def noisyforward(x, params, randkey):
     h.append(output)
     return h, a, xi, aux
 
+def build_batchnoisyforward():
+    return jit(vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0)))
 
-batchnoisyforward = jit(
-    vmap(noisyforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0))
-)
 
 ################################
 #     linear forward pass      #
 ################################
-
 
 def linforward(x, params):
     h = []
@@ -130,8 +128,8 @@ def linforward(x, params):
     h.append(a[-1])
     return h, a
 
-
-batchlinforward = jit(vmap(linforward, in_axes=(0, None), out_axes=(0, 0)))
+def build_batchlinforward():
+    return jit(vmap(linforward, in_axes=(0, None), out_axes=(0, 0)))
 
 
 def noisylinforward(x, params, randkey):
@@ -163,7 +161,5 @@ def noisylinforward(x, params, randkey):
     h.append(a[-1])
     return h, a, xi, aux
 
-
-batchnoisylinforward = jit(
-    vmap(noisylinforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0))
-)
+def build_batchnoisylinforward():
+    return jit(vmap(noisylinforward, in_axes=(0, None, None), out_axes=(0, 0, 0, 0)))
