@@ -5,12 +5,10 @@ from jax import random
 from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
-from jax.nn import sigmoid
 
 # define element-wise relu:
 def relu(x):
     return jnp.maximum(0, x)
-
 
 # helper function to init weights and biases:
 def init_layer(m, n, randkey):
@@ -52,8 +50,7 @@ def forward(x, params):
     a.append(act)
     # logsoftmax = a[-1] - logsumexp(a[-1])
     # h.append(logsoftmax)
-    output = sigmoid(a[-1])
-    # output = jax.nn.relu(a[-1])
+    output = jax.nn.sigmoid(a[-1])
     h.append(output)
     return h, a
 
@@ -103,7 +100,7 @@ def noisyforward(x, params, randkey):
 
     # logsoftmax = a[-1] - logsumexp(a[-1])
     # h.append(logsoftmax)
-    output = sigmoid(a[-1])
+    output = jax.nn.sigmoid(a[-1])
     # output = jax.nn.relu(a[-1])
     h.append(output)
     return h, a, xi, aux

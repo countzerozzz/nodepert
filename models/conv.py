@@ -1,14 +1,9 @@
-import math
 import numpy as np
 import jax
 import jax.numpy as jnp
 from jax import random
-from jax import grad
 from jax import vmap
 from jax import jit
-from jax.scipy.special import logsumexp
-from jax.nn import sigmoid
-from jax.nn import softmax
 
 import npimports
 
@@ -54,11 +49,12 @@ nodepert_noisescale = 1e-5
 # build the conv forward pass for a single image:
 # !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
 def forward(x, params):
+    # reshape the input to be num_images x height x width x channels (NHWC)
     x = x.reshape(
         1, npimports.data.height, npimports.data.width, npimports.data.channels
-    ).astype(
-        np.float32
-    )  # NHWC
+    ).astype(np.float32)
+
+    # transpose to NCHW
     x = jnp.transpose(x, [0, 3, 1, 2])
     h = []
     a = []
@@ -68,6 +64,7 @@ def forward(x, params):
 
     for ind, (kernel, biases) in enumerate(params[:-1]):
         stride = 1
+        # downsample by 2 in the second and fourth conv layers
         if ind == 1 or ind == 3:
             stride = 2
             curr_height = int(curr_height / 2)
@@ -95,13 +92,8 @@ def forward(x, params):
     w, b = params[-1]
     act = jnp.dot(w, h[-1].flatten()) + b
     a.append(act)
-    # logsoftmax = a[-1] - logsumexp(a[-1])
-    # h.append(logsoftmax)
 
-    # output = softmax(a[-1])
-    # h.append(output)
-
-    output = sigmoid(a[-1])
+    output = jax.nn.sigmoid(a[-1])
     h.append(output)
 
     return h, a
@@ -114,9 +106,8 @@ batchforward = jit(vmap(forward, in_axes=(0, None), out_axes=(0, 0)))
 def noisyforward(x, params, randkey):
     x = x.reshape(
         1, npimports.data.height, npimports.data.width, npimports.data.channels
-    ).astype(
-        np.float32
-    )  # NHWC
+    ).astype(np.float32)  # NHWC
+
     x = jnp.transpose(x, [0, 3, 1, 2])
 
     h = []
@@ -138,8 +129,6 @@ def noisyforward(x, params, randkey):
         convout_channels = kernel.shape[-2]
         h[-1] = jax.lax.stop_gradient(h[-1])
 
-        # act = jnp.dot(w, h[-1]) + b
-        # output (lhs) will be in the form NCHW
         act = jax.lax.conv(
             h[-1],  # lhs = NCHW image tensor
             kernel.transpose(
@@ -169,13 +158,7 @@ def noisyforward(x, params, randkey):
     a.append(act + noise)
     aux.append(jnp.sum(a[-1] * noise * (1 / (nodepert_noisescale ** 2))))
 
-    # logsoftmax = a[-1] - logsumexp(a[-1])
-    # h.append(logsoftmax)
-
-    # output = softmax(a[-1])
-    # h.append(output)
-
-    output = sigmoid(a[-1])
+    output = jax.nn.sigmoid(a[-1])
     h.append(output)
 
     return h, a, xi, aux
