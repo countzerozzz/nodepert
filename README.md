@@ -123,7 +123,7 @@ If you use this code in your own work, please use the following bibtex entry:
 
 ```bibtex
 @misc{nodepert-2023,
-  title={NodePert: On the Limitations of Perturbation Based Methods to Train Deep Neural Networks}, 
+  title={NodePert: An empircal study of perturbation methods for training deep networks}, 
   author={Mehta, Yash and Hiratani, Naoki and Humphreys, Peter and Latham, Peter and Lillicrap, Timothy}, 
   year={2023}, publisher={GitHub},
   howpublished={\url{https://github.com/countzerozzz/nodepert}} }
