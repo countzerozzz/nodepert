@@ -1,25 +1,16 @@
-import numpy as np
 import jax
 import jax.numpy as jnp
 from jax import random
 from jax import grad
-from jax import vmap
 from jax import jit
-from jax.scipy.special import logsumexp
-from jax.nn import sigmoid
 import models.fc as fc
 
-# import models.conv as conv
 import models.losses as losses
 
 # defaults
 mseloss = losses.batchmseloss
-celoss = losses.celoss
 forward = fc.batchforward
 noisyforward = fc.batchnoisyforward
-
-# this is terrible! we should factor out the loss in this file or something
-# changing the loss to ce - we also need to make the last layer as logsoftmax!
 
 
 @jit
@@ -28,24 +19,6 @@ def loss(x, y, params):
     loss = mseloss(h[-1], y).mean()
     # loss = celoss(h[-1], y).mean()
     return loss
-
-
-@jit
-def sgdupdate(x, y, params, randkey, optimstate):
-    print("building sgd update")
-    lr = optimstate["lr"]
-
-    # this is a hack for quickly including a linear FC networks: should be changed later !!
-    if "linear" in optimstate:
-        global forward
-        forward = fc.batchlinforward
-
-    grads = grad(loss, argnums=(2))(x, y, params)
-    return (
-        [(w - lr * dw, b - lr * db) for (w, b), (dw, db) in zip(params, grads)],
-        grads,
-        optimstate,
-    )
 
 
 @jit
@@ -72,27 +45,15 @@ def nploss(x, y, params, randkey):
 
 @jit
 def npupdate(x, y, params, randkey, optimstate):
+    print("building np update")
     lr = optimstate["lr"]
-
+    wd = optimstate["wd"]
     if "linear" in optimstate:
         global forward
         global noisyforward
         forward = fc.batchlinforward
         noisyforward = fc.batchnoisylinforward
 
-    grads = grad(nploss, argnums=(2))(x, y, params, randkey)
-    return (
-        [(w - lr * dw, b - lr * db) for (w, b), (dw, db) in zip(params, grads)],
-        grads,
-        optimstate,
-    )
-
-
-@jit
-def npwdupdate(x, y, params, randkey, optimstate):
-    print("building np update")
-    lr = optimstate["lr"]
-    wd = optimstate["wd"]
     grads = grad(nploss, argnums=(2))(x, y, params, randkey)
     return (
         [
@@ -105,10 +66,15 @@ def npwdupdate(x, y, params, randkey, optimstate):
 
 
 @jit
-def sgdwdupdate(x, y, params, randkey, optimstate):
+def sgdupdate(x, y, params, randkey, optimstate):
     print("building sgd update")
     lr = optimstate["lr"]
     wd = optimstate["wd"]
+    # this is a hack for quickly including a linear FC networks.
+    if "linear" in optimstate:
+        global forward
+        forward = fc.batchlinforward
+
     grads = grad(loss, argnums=(2))(x, y, params)
     return (
         [
@@ -121,7 +87,7 @@ def sgdwdupdate(x, y, params, randkey, optimstate):
 
 
 # This is the old, by hand way we used to compute the np updates:
-# Let's try not to go back to it unless we have a very good reason!
+# inefficient, but useful for debugging
 
 # @jit
 # def oldnpupdate(x, y, params, randkey, optimstate):
