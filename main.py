@@ -1,7 +1,17 @@
-import npimports
-import importlib
-importlib.reload(npimports)
-from npimports import *
+import pdb as pdb
+import jax as jax
+from jax import random
+from jax.lib import xla_bridge
+import pandas as pd
+from pathlib import Path
+
+import utils
+import trainer
+import utils
+import models.fc as fc
+import models.conv as conv
+import models.optim as optim
+
 
 args = utils.parse_args()
 
@@ -10,7 +20,7 @@ dataset = args.dataset
 update_rule = args.update_rule
 randkey = random.PRNGKey(args.jobid)
 
-path = "explogs/" + network + "/" 
+path = "explogs/"
 # define training configs
 train_config = {'num_epochs': args.num_epochs, 
                 'batchsize': args.batchsize, 
@@ -21,7 +31,7 @@ print(f"Dataset: {dataset}")
 print(f"Network: {network}")
 print(f"Update rule: {update_rule}")
 # display backend:
-print(f"running on: {xla_bridge.get_backend().platform}")
+print(f"Running on: {xla_bridge.get_backend().platform}\n")
 
 # load the dataset:
 match dataset:
@@ -84,7 +94,7 @@ if args.log_expdata:
     logdata_path = Path(path)
     logdata_path.mkdir(parents=True, exist_ok=True)
 
-    csv_file = logdata_path / "fc-test.csv"
+    csv_file = logdata_path / f"{network}-expdata.csv"
     write_header = not csv_file.exists()
 
     df.to_csv(csv_file, mode="a", header=write_header)
