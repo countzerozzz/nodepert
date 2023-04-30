@@ -6,4 +6,5 @@ numpy
 pandas
 scikit-learn
 matplotlib
+seaborn
 protobuf==3.20.*
