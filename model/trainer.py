@@ -1,8 +1,8 @@
 import numpy as np
 import jax.numpy as jnp
 from jax import random
-from models.metrics import accuracy
-from models.fc import compute_norms
+from model.metrics import accuracy
+from model.fc import compute_norms
 import utils
 import time
 

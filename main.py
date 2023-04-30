@@ -6,11 +6,10 @@ import pandas as pd
 from pathlib import Path
 
 import utils
-import trainer
-import utils
-import models.fc as fc
-import models.conv as conv
-import models.optim as optim
+import model.trainer as trainer
+import model.fc as fc
+import model.conv as conv
+import model.optim as optim
 
 
 args = utils.parse_args()

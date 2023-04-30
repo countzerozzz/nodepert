@@ -47,9 +47,9 @@ This repository contains the accompanying code for the paper, *An empirical stud
     pip install --upgrade "jax[cpu]"
     pip install -e .
     ```
+
     b. **GPU**
-    
-    JAX currently only supports accelerated GPU computing on linux-based systems. Note that you may want to try "jax[cuda11_pip]" if cuda12_pip doesn't work out-of-the-box.
+    JAX currently only supports accelerated GPU computing on linux-based systems. Try "jax[cuda11_pip]" if cuda12_pip does not work out-of-the-box.
     
     <details>
     <summary> conda </summary>

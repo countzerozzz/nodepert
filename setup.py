@@ -1,15 +1,18 @@
+import pathlib
 from setuptools import setup
+from setuptools import find_namespace_packages
+
 
 setup(
         name='nodepert',
         version='0.1',
-        description='Large-scale experiments with node perturbations',
+        description='An empirical study of the node perturbation',
         url='https://github.com/countzerozzz/nodepert',
         author='Yash Mehta, Timothy Lillicrap',
         author_email='yashsmehta95@gmail.com',
         license='MIT',
         packages=[
-            'models',
+            'model',
             'data_loaders',
         ],
         install_requires=[
