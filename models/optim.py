@@ -47,7 +47,7 @@ def nploss(x, y, params, randkey):
 def npupdate(x, y, params, randkey, optimstate):
     print("building np update")
     lr = optimstate["lr"]
-    wd = optimstate["wd"]
+    wd = optimstate.get("wd", 0)
     if "linear" in optimstate:
         global forward
         global noisyforward
@@ -69,7 +69,7 @@ def npupdate(x, y, params, randkey, optimstate):
 def sgdupdate(x, y, params, randkey, optimstate):
     print("building sgd update")
     lr = optimstate["lr"]
-    wd = optimstate["wd"]
+    wd = optimstate.get("wd", 0)
     # this is a hack for quickly including a linear FC networks.
     if "linear" in optimstate:
         global forward
