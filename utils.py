@@ -1,7 +1,5 @@
-import csv
 import numpy as np
 import jax.numpy as jnp
-import pandas as pd
 import pickle
 import argparse
 from datetime import datetime, timedelta
@@ -23,7 +21,7 @@ def file_writer(dir_path, expdata, meta_data):
         "batchsize",
         str(batchsize),
     ]
-
+    
     output = open(dir_path, "wb")
     pickle.dump(expdata, output)
     output.close()
