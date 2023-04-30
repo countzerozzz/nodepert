@@ -77,6 +77,8 @@ df = pd.DataFrame.from_dict(expdata)
 # store meta data about the experiment
 df["dataset"] = npimports.dataset
 for arg in vars(args):
+    if network == "conv" and (arg == "hl_size" or arg == "n_hl"):
+        continue
     df[f"{arg}"] = getattr(args, arg)
 
 pd.set_option("display.max_columns", None)
