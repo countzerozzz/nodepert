@@ -22,6 +22,7 @@ _, dataset_info = tfds.load(
 # compute dimensions using the dataset information
 num_classes = dataset_info.features["label"].num_classes
 height, width, channels = dataset_info.features["image"].shape
+num_pixels = height * width * channels
 
 # select which split of the data to use:
 trainsplit = "train[:100%]"
@@ -58,7 +59,7 @@ def standardize_data(x, data_mean, data_stddev):
 
 def prepare_data(x, y):
     x = standardize_data(x, data_mean, data_stddev)
-    # x = np.reshape(x, (len(x), num_pixels))
+    x = np.reshape(x, (len(x), num_pixels))
     x = jnp.asarray(x)
     y = one_hot(y, num_classes)
     return x, y
