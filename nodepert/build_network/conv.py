@@ -1,6 +1,6 @@
 import jax.random as random
-import model.fc as fc
-import model.conv as conv
+import nodepert.model.fc as fc
+import nodepert.model.conv as conv
 
 def init(randkey, args, data):
 

@@ -5,11 +5,9 @@ from jax.lib import xla_bridge
 import pandas as pd
 from pathlib import Path
 
-import utils
-import model.trainer as trainer
-import model.fc as fc
-import model.conv as conv
-import model.optim as optim
+import nodepert.utils as utils
+import nodepert.optim as optim
+import nodepert.trainer as trainer
 
 
 args = utils.parse_args()
@@ -33,31 +31,31 @@ print(f"Update rule: {update_rule}")
 print(f"Running on: {xla_bridge.get_backend().platform}\n")
 
 # load the dataset:
-match dataset:
-    case "MNIST":
+match dataset.lower():
+    case "mnist":
         import data_loaders.mnist_loader as data
-    case "fMNIST":
+    case "fmnist":
         import data_loaders.fmnist_loader as data
-    case "CIFAR10":
+    case "cifar10":
         import data_loaders.cifar10_loader as data
-    case "CIFAR100":
+    case "cifar100":
         import data_loaders.cifar100_loader as data
 
 # load the network:
 randkey, subkey = random.split(randkey)
 match network:
     case "fc":
-        import configs.fc as fc
+        import nodepert.build_network.fc as fc
         params, forward, noisyforward = fc.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
     case "linfc":
-        import configs.linfc as linfc
+        import nodepert.build_network.linfc as linfc
         params, forward, noisyforward = linfc.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
     case "conv":
-        import configs.conv as conv
+        import nodepert.build_network.conv as conv
         params, forward, noisyforward = conv.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
@@ -84,11 +82,11 @@ for arg in vars(args):
     if network == "conv" and (arg == "hl_size" or arg == "n_hl"):
         continue
     df[f"{arg}"] = getattr(args, arg)
+# save the results of our experiment:
 
 pd.set_option("display.max_columns", None)
 print(df.head(5))
 
-# save the results of our experiment:
 if args.log_expdata:
     logdata_path = Path(path)
     logdata_path.mkdir(parents=True, exist_ok=True)

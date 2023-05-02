@@ -1,9 +1,8 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-import numpy as np
 
-run_file = "main.py"
+run_file = "nodepert/main.py"
 
 print("training fc network on mnist with NP")
 code = f"import sys; sys.argv = ['{run_file}', '-update_rule', 'np', '-log_expdata', 'True', '-lr', '0.01', '-num_epochs', '10']; exec(open('{run_file}').read())"

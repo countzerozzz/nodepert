@@ -1,5 +1,5 @@
 import jax.random as random
-import model.fc as fc
+import nodepert.model.fc as fc
 
 def init(randkey, args, data):
 

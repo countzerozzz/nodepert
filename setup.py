@@ -12,7 +12,9 @@ setup(
         author_email='yashsmehta95@gmail.com',
         license='MIT',
         packages=[
-            'model',
+            'nodepert',
+            'nodepert.model',
+            'nodepert.build_network',
             'data_loaders',
         ],
         install_requires=pathlib.Path('requirements.txt').read_text().splitlines(),

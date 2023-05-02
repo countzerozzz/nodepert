@@ -1,9 +1,9 @@
 import numpy as np
 import jax.numpy as jnp
 from jax import random
-from model.metrics import accuracy
-from model.fc import compute_norms
-import utils
+import nodepert.metrics as metrics
+import nodepert.utils as utils
+from nodepert.model.fc import compute_norms
 import time
 
 def compute_metrics(params, forward, data, split_percent="[:100%]"):
@@ -12,7 +12,7 @@ def compute_metrics(params, forward, data, split_percent="[:100%]"):
     for x, y in data.get_rawdata_batches(batchsize=100, split="train" + split_percent):
         x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
-        train_acc.append(accuracy(h[-1], y))
+        train_acc.append(metrics.accuracy(h[-1], y))
     train_acc = 100 * np.mean(train_acc)
 
     # run through the test set and compute the metrics:
@@ -20,7 +20,7 @@ def compute_metrics(params, forward, data, split_percent="[:100%]"):
     for x, y in data.get_rawdata_batches(batchsize=100, split="test" + split_percent):
         x, y = data.prepare_data(x, y)
         h, a = forward(x, params)
-        test_acc.append(accuracy(h[-1], y))
+        test_acc.append(metrics.accuracy(h[-1], y))
     test_acc = 100 * np.mean(test_acc)
 
     return train_acc, test_acc
