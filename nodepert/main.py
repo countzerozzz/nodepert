@@ -40,6 +40,8 @@ match dataset.lower():
         import data_loaders.cifar10_loader as data
     case "cifar100":
         import data_loaders.cifar100_loader as data
+    case _ :
+        raise ValueError(f"Dataset {dataset} not supported")
 
 # load the network:
 randkey, subkey = random.split(randkey)
@@ -59,6 +61,8 @@ match network:
         params, forward, noisyforward = conv.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
+    case _ :
+        raise ValueError(f"chose a valid network (fc, linfc, conv), {network} not supported")
 
 # load the optimizer:
 if update_rule == "np":
