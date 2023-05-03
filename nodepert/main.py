@@ -77,7 +77,6 @@ params, expdata = trainer.train(
 df = pd.DataFrame.from_dict(expdata)
 
 # store meta data about the experiment:
-df["dataset"] = dataset
 for arg in vars(args):
     if network == "conv" and (arg == "hl_size" or arg == "n_hl"):
         continue
