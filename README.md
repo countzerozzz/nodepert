@@ -88,33 +88,27 @@ Run into any JAX installation snafus? Check out their [**official install guide*
 
 ## Running Node Perturbation
 
-You can pass different arguments pertaining to the experiment, such as the number of hidden layers `n_hl`, hidden layer size `hl_size`, learning rate `lr`, logging training data `log_expdata`, etc. Check the entire list of parameters, along with their default values in `utils.py` `parse_args()` or `parse_conv_args()`. By default, the code runs on MNIST, which can be changed to f-MNIST, CIFAR10, CIFAR100 by changing the dataloader in the `npimports.py`.
-
-#### Basic runs
->Here is a sample script for a Fully Connected Network (FC network architecture with 2 hidden layers and 500 neurons each):
+You have multiple options to customize the training process, such as adjusting the number of hidden layers (**n_hl**), hidden layer size (**hl_size**), weight decay (**wd**), update rule, dataset, network, and logging training data (log_expdata), among others. For a full list of parameters and their default values, please refer to the parse_args() function in utils.py. To see an example of how to run the training process with your desired arguments, you can use the `main.py` file.
 >```python
->python fc_test.py -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
+>python nodepert/main.py -network fc -dataset mnist -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
 >```
->For a Small Convolution Network (fixed small architecture of 4 conv layers, 32 channels each. To modify the small conv architecture, directly make changes within `small_conv_test.py`):
->```python
->python small_conv_test.py -log_expdata True -batchsize 100 -num_epochs 10 -update_rule sgd
->```
->For a Large Convolution Network:
+>
+>For running a larger convolutional network:
 >```python 
->python experiments/conv/all_cnn_net.py
+>python experiments/conv/all_cnn_net.py -dataset mnist -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
 >```
 
 #### Detailed experiments
 
 Inside the experiments folder, you'll find code and in-depth analysis of various experiments utilizing node perturbation. These experiments can be classified into the following types:
 
-1. **Scaling**. See `dataset.py`, `depth.py`, `width.py`, `batchsize.py`, `learning_rate.py`
-2. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `width.py`, `batchsize.py`, `grad_dynamics.py`
+1. **Scaling with network depth and width**. See `architecture_scaling.py`
+2. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `grad_dynamics.py`
 3. **Relative change in the loss with different learning rates**. See `linesearch.py`, `linesearch_utils.py`
 4. **Adam-like update for NP gradients**. See `adam_update.py`
 5. **Visualizing the loss landscape**. See `loss_landscape.py`
 
-And for all you neural network aficionados, take a gander at ```models/conv.py``` or ```models/fc.py```. The exact nodepert update can be found in ```models/optim.py```.
+And for all you neural network aficionados, take a gander at ```model/conv.py``` or ```model/fc.py```. The exact nodepert update can be found in ```optim.py```.
 
 #### Running on a compute cluster
 To maximize your resources and make the most of your multinode setup during experiments, consider using the job_id argument. It allows you to run multiple configurations and seeds of your experiments simultaneously, which is especially useful when working with GPU clusters that have resource allocation managers like SLURM.
