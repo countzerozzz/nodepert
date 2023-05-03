@@ -43,7 +43,7 @@ def nploss(x, y, params, randkey):
 
 @jit
 def npupdate(x, y, params, randkey, optimparams):
-    print("building np update")
+    print("optimizing network with node perturbation (np) updates")
     lr = optimparams["lr"]
     wd = optimparams.get("wd", 0)
 
@@ -59,7 +59,7 @@ def npupdate(x, y, params, randkey, optimparams):
 
 @jit
 def sgdupdate(x, y, params, randkey, optimparams):
-    print("building sgd update")
+    print("optimizing network with backpropagation (sgd)")
     lr = optimparams["lr"]
     wd = optimparams.get("wd", 0)
 
