@@ -16,39 +16,6 @@ channels = 1
 def relu(x):
     return jnp.maximum(0, x)
 
-
-# helper function to init conv layer:
-def init_single_convlayer(
-    kernel_height, kernel_width, input_channels, output_channels, randkey
-):
-
-    # NOTICE: ordering changes from function argument ordering!!
-    # random normal sampling of parameters
-    w_key, _ = random.split(randkey)
-    std = np.sqrt(
-        2.0 / (kernel_height * kernel_width * (input_channels + output_channels))
-    )
-    kernel = std * random.normal(
-        w_key, (kernel_height, kernel_width, output_channels, input_channels)
-    )
-
-    # for conv layers there are typically only 1 bias per channel
-    # biases = jnp.zeros((output_channels,))
-    biases = std * random.normal(w_key, (output_channels,))
-
-    return kernel, biases
-
-
-# init all the conv layers in a network of given size:
-def init_convlayers(sizes, key):
-    keys = random.split(key, len(sizes))
-    # pdb.set_trace()
-    params = []
-    for ii in range(len(sizes)):
-        params.append(init_single_convlayer(*sizes[ii], keys[ii]))
-    return params
-
-
 # build the conv forward pass for a single image:
 # !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
 def forward(x, params):

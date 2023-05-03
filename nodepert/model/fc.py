@@ -12,24 +12,6 @@ nodepert_noisescale = 1e-4
 def relu(x):
     return jnp.maximum(0, x)
 
-# helper function to init weights and biases:
-def init_layer(m, n, randkey):
-    w_key, _ = random.split(randkey)
-
-    # use Xavier normal initialization
-    std = np.sqrt(2.0 / (m + n))
-    weights = std * random.normal(w_key, (n, m))
-    biases = jnp.zeros((n,))
-
-    return weights, biases
-
-
-# init all the weights in a network of given size:
-def init(sizes, key):
-    keys = random.split(key, len(sizes))
-    params = [init_layer(m, n, k) for m, n, k in zip(sizes[:-1], sizes[1:], keys)]
-    return params
-
 
 def copyparams(params):
     paramcopy = [(ww.copy(), bb.copy()) for (ww, bb) in params]
