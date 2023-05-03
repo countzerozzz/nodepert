@@ -5,12 +5,9 @@ from jax import random
 from jax import vmap
 from jax import jit
 from jax.scipy.special import logsumexp
+from jax.nn import relu
 
 nodepert_noisescale = 1e-4
-
-# define element-wise relu:
-def relu(x):
-    return jnp.maximum(0, x)
 
 
 def copyparams(params):

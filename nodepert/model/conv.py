@@ -4,6 +4,7 @@ import jax.numpy as jnp
 from jax import random
 from jax import vmap
 from jax import jit
+from jax.nn import relu
 
 nodepert_noisescale = 1e-5
 
@@ -11,10 +12,6 @@ nodepert_noisescale = 1e-5
 height = 28
 width = 28
 channels = 1
-
-# define element-wise relu:
-def relu(x):
-    return jnp.maximum(0, x)
 
 # build the conv forward pass for a single image:
 # !!!IMPORTANT: any changes made to the forward pass need to be reflected in the noisy forward function as well.
