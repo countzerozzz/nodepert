@@ -1,8 +1,16 @@
-import npimports
-import importlib
+import pdb as pdb
+from jax import random
+from jax.lib import xla_bridge
+import pandas as pd
+from pathlib import Path
+import os
+import numpy as np
 
-importlib.reload(npimports)
-from npimports import *
+import nodepert.utils as utils
+import nodepert.optim as optim
+import nodepert.trainer as trainer
+import nodepert.model.fc as fc
+import nodepert.model.conv as conv
 
 ### FUNCTIONALITY ###
 # A much larger, all convolutional network, with good performance with SGD. Implementation details as mentioned in the paper:
@@ -10,37 +18,54 @@ from npimports import *
 # We use the same network architecture, however, exclude the following while training: dropout, SGD + momentum, decaying LR
 ###
 
-# tf.config.experimental.set_visible_devices([], "GPU")
-config = {}
 # parse arguments:
-update_rule, lr, batchsize, num_epochs, log_expdata, wd, jobid = utils.parse_conv_args()
-wd=float(wd)
-network = "All-CNN-A"
-(
-    config["compute_norms"],
-    config["batchsize"],
-    config["num_epochs"],
-    config["num_classes"],
-) = (False, batchsize, num_epochs, data.num_classes)
+args = utils.parse_args()
+
+args.network = "all-cnn-net"
+dataset = args.dataset
+update_rule = args.update_rule
+
+randkey = random.PRNGKey(args.jobid)
+
+# define training configs
+train_config = {'num_epochs': args.num_epochs, 
+                'batchsize': args.batchsize, 
+                'compute_norms': False, 
+                'save_trajectory': False}
 
 # folder to log experiment results
 path = "explogs/conv/wd/"
 
+# load the dataset:
+match dataset.lower():
+    case "mnist":
+        import data_loaders.mnist_loader as data
+    case "fmnist":
+        import data_loaders.fmnist_loader as data
+    case "cifar10":
+        import data_loaders.cifar10_loader as data
+    case "cifar100":
+        import data_loaders.cifar100_loader as data
+
+conv.height = data.height
+conv.width = data.width
+conv.channels = data.channels
 # num = 7 # number of learning rates
 # rows = np.logspace(-6, -3, num, endpoint=True, dtype=np.float32)
 
 if update_rule == "sgd":
     # rows = np.concatenate(([0.05, 0.07], np.arange(1e-1, 1, 2e-1)))
     rows = np.array([0.005, 0.01, 0.05, 0.1, 0.5])
+    optimizer = optim.sgdupdate
 
 elif update_rule == "np":
-    rows = np.array([4e-5, 7e-5])
     # rows = np.linspace(0.01, 0.5, num)
+    rows = np.array([8e-5, 1e-4, 2e-4, 3e-4])
+    optimizer = optim.npupdate
 else:
     raise ValueError("Unknown update rule")
 
-ROW_DATA = "learning_rate"
-row_id = jobid % len(rows)
+row_id = args.jobid % len(rows)
 lr = rows[row_id]
 
 # len(convout_channels) has to be same as convlayer_sizes!
@@ -68,7 +93,7 @@ fclayer_sizes = [
     data.num_classes,
 ]
 
-randkey = random.PRNGKey(jobid)
+randkey = random.PRNGKey(args.jobid)
 convparams = conv.init_convlayers(convlayer_sizes, randkey)
 randkey, _ = random.split(randkey)
 fcparams = fc.init_layer(fclayer_sizes[0], fclayer_sizes[1], randkey)
@@ -81,41 +106,31 @@ print("conv architecture {}, fc layer {}".format(convlayer_sizes, fclayer_sizes)
 print("model params: ", utils.get_params_count(params))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = conv.batchforward
-optim.forward = conv.batchforward
-optim.noisyforward = conv.batchnoisyforward
+optim.forward = conv.build_batchforward()
+optim.noisyforward = conv.build_batchnoisyforward()
 
-if update_rule == "np":
-    optimizer = optim.npwdupdate
-elif update_rule == "sgd":
-    optimizer = optim.sgdwdupdate
-
-optimstate = {"lr": lr, "wd": wd}
+optimparams = {"lr": args.lr, "wd": args.wd}
 
 # now train
-params, optimstate, expdata = train.train(
-    params, forward, data, config, optimizer, optimstate, randkey, verbose=False
+params, expdata = trainer.train(
+    params, optim.forward, data, train_config, optimizer, optimparams, randkey, verbose=False
 )
 
 df = pd.DataFrame.from_dict(expdata)
-df["dataset"] = npimports.dataset
+
+# store meta data about the experiment:
+for arg in vars(args):
+    if (arg == "hl_size" or arg == "n_hl"):
+        continue
+    df[f"{arg}"] = getattr(args, arg)
 pd.set_option("display.max_columns", None)
-(
-    df["network"],
-    df["update_rule"],
-    df["lr"],
-    df["batchsize"],
-    df["total_epochs"],
-    df["wd"],
-    df["jobid"],
-) = (network, update_rule, lr, batchsize, num_epochs, wd, jobid)
 print(df.head(5))
 
-# save the results of our experiment
-if log_expdata:
+# save the results of our experiment:
+if args.log_expdata:
     use_header = False
     Path(path).mkdir(parents=True, exist_ok=True)
-    if not os.path.exists(path + "all-cnn-a.csv"):
+    if not os.path.exists(path + "all-cnn-a-wd.csv"):
         use_header = True
 
-    df.to_csv(path + "all-cnn-a.csv", mode="a", header=use_header)
+    df.to_csv(path + "all-cnn-a-wd.csv", mode="a", header=use_header)
