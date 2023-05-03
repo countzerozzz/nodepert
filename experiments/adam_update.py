@@ -1,65 +1,89 @@
-import npimports
-import importlib
-
-importlib.reload(npimports)
-from npimports import *
+import pdb as pdb
+from jax import random
+from jax.lib import xla_bridge
+import pandas as pd
+from pathlib import Path
+import os
+import numpy as np
+import itertools
+import time
+import jax
 from jax.example_libraries import optimizers
+import nodepert.utils as utils
+import nodepert.optim as optim
+import nodepert.trainer as trainer
+import nodepert.model.fc as fc
 
 ### FUNCTIONALITY ###
 # this code updates network weights with an Adam-like update rule using the NP gradients. Storing the final accuracy reached by the network after some
 # number of epochs. Paper: https://arxiv.org/pdf/1412.6980.pdf
+# pass update_rule as adam-np or adam-sgd or np or sgd
 ###
 
-# parse arguments
-# note: here, in the update rule, pass "np-adam", for applying gradients calculated with NP, with an Adam-like update
+# parse arguments:
 args = utils.parse_args()
 
 network = args.network
+if network == "conv":
+    raise ValueError("This experiment is only for FC networks")
+
+dataset = args.dataset
 update_rule = args.update_rule
-jobid = args.jobid
-randkey = random.PRNGKey(jobid)
+
+randkey = random.PRNGKey(args.jobid)
+
+# define training configs
+train_config = {'num_epochs': args.num_epochs, 
+                'batchsize': args.batchsize, 
+                'compute_norms': False, 
+                'save_trajectory': False}
 
 # folder to log experiment results
-path = "explogs/" + network + "/" 
-# define training configs
-train_config = {'num_epochs': args.num_epochs, 'batchsize': args.batchsize, 'compute_norms': False, 'save_trajectory': False}
+path = f"explogs/{args.network}/"
 
-# a list for running parallel jobs in slurm. Each job will correspond to a particular value in 'rows'. If running on a single machine,
-# the config used will be the first value of 'ro list. Here 'rows' will hold the values for different configs.
-num = 25
+# load the dataset:
+match dataset.lower():
+    case "mnist":
+        import data_loaders.mnist_loader as data
+    case "fmnist":
+        import data_loaders.fmnist_loader as data
+    case "cifar10":
+        import data_loaders.cifar10_loader as data
+    case "cifar100":
+        import data_loaders.cifar100_loader as data
 
+print(xla_bridge.get_backend().platform)  # are we running on CPU or GPU?
+
+num = 25  # number of learning rates
 rows = np.logspace(start=-5, stop=-1, num=num, endpoint=True, base=10, dtype=np.float32)
 # adam usually requires a smaller learning rate
-if re.search("adam", update_rule):
+if "adam" in update_rule:
     rows = np.logspace(
         start=-6, stop=-2, num=num, endpoint=True, base=10, dtype=np.float32
     )
 
-ROW_DATA = "learning_rate"
-lr = rows[jobid % len(rows)]
+lr = rows[args.jobid % len(rows)]
 
 # build our network
-layer_sizes = [data.num_pixels]
-for i in range(args.n_hl):
-    layer_sizes.append(args.hl_size)
-layer_sizes.append(data.num_classes)
+layer_sizes = [data.num_pixels] + [args.hl_size] * args.n_hl + [data.num_classes]
 
 randkey, _ = random.split(randkey)
 params = fc.init(layer_sizes, randkey)
 print("Network structure: {}".format(layer_sizes))
 
 # get forward pass, optimizer, and optimizer state + params
-forward = fc.batchforward
+optim.forward = fc.build_batchforward()
+optim.noisyforward = fc.build_batchnoisyforward()
 
-if re.search("np", update_rule):
+if "np" in update_rule:
     gradfunc = optim.npupdate
-elif re.search("sgd", update_rule):
+elif "sgd" in update_rule:
     gradfunc = optim.sgdupdate
 
 params = fc.init(layer_sizes, randkey)
 itercount = itertools.count()
 
-@jit
+@jax.jit
 def update(i, grads, opt_state):
     return opt_update(i, grads, opt_state)
 
@@ -70,22 +94,21 @@ opt_init, opt_update, get_params = optimizers.adam(lr)
 opt_state = opt_init(params)
 itercount = itertools.count()
 
-# during adam update, no use of this optimstate here and dummy value passed as the lr. This is just to get the np gradients.
-optimstate = {"lr": 1, "t": 0, "wd": args.wd}
+optimparams = {"lr": lr, "t": 0, "wd": args.wd}
 test_acc = []
 
 for epoch in range(1, args.num_epochs + 1):
     start_time = time.time()
-    test_acc.append(trainer.compute_metrics(params, forward, data)[1])
+    test_acc.append(trainer.compute_metrics(params, optim.forward, data)[1])
 
     print("EPOCH ", epoch)
     for x, y in data.get_rawdata_batches(batchsize=args.batchsize, split=data.trainsplit):
         x, y = data.prepare_data(x, y)
         randkey, _ = random.split(randkey)
         # get the gradients, throw away the traditional weight updates
-        new_params, grads, _ = gradfunc(x, y, params, randkey, optimstate)
+        new_params, grads = gradfunc(x, y, params, randkey, optimparams)
 
-        if re.search("adam", update_rule):
+        if "adam" in update_rule:
             # pass the gradients to the JAX adam function
             opt_state = update(next(itercount), grads, opt_state)
             new_params = get_params(opt_state)
@@ -103,7 +126,6 @@ df = pd.DataFrame()
 pd.set_option("display.max_columns", None)
 # take the mean of the last 5 epochs as the final accuracy
 df["final_acc"] = [np.mean(test_acc[-5:])]
-df["dataset"] = npimports.dataset
 # store meta data about the experiment
 for arg in vars(args):
     if network == "conv" and (arg == "hl_size" or arg == "n_hl"):
