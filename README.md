@@ -52,7 +52,7 @@ This repository contains the accompanying code for the paper, *An empirical stud
     pip install -e .
     ```
 
-    b. **GPU** Please note that JAX's GPU acceleration is currently only available on Linux-based systems.
+    b. **GPU**
     
     <details>
     <summary> conda </summary>
@@ -68,7 +68,7 @@ This repository contains the accompanying code for the paper, *An empirical stud
 
     <details>
     <summary> venv </summary>
-    Based on your CUDA version, please check if you need to use "jax[cuda11_pip]" or "jax[cuda12_pip]"
+    Based on your CUDA version, check if you need to use "jax[cuda11_pip]" or "jax[cuda12_pip]"
     
     ```bash
     pip install --upgrade "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
@@ -78,17 +78,17 @@ This repository contains the accompanying code for the paper, *An empirical stud
     </details>
     
 
-3. To ensure JAX is working properly, run a basic experiment on a fully connected network comparing NP and SGD on MNIST. This should save a trajectory figure, while taking less than 2m to run.
+3. To ensure JAX is working properly, run a basic experiment on a fully connected network comparing node perturbation and SGD on MNIST data. This saves a learning plot, and should less than 2m to run.
 
     ```python
-    python run_example.py
+    python example.py
     ```
 
 Run into any JAX installation snafus? Check out their [**official install guide**](https://github.com/google/jax#installation) for a helping hand.
 
 ## Running Node Perturbation
 
-You have multiple options to customize the training process, such as adjusting the number of hidden layers (**n_hl**), hidden layer size (**hl_size**), weight decay (**wd**), update rule, dataset, network, and logging training data (log_expdata), among others. For a full list of parameters and their default values, please refer to the parse_args() function in utils.py. To see an example of how to run the training process with your desired arguments, you can use the `main.py` file.
+You can customize the training process by adjusting the number of hidden layers (**n_hl**), hidden layer size (**hl_size**), weight decay (**wd**), update rule, dataset, network, and logging (log_expdata). For a full list of parameters and default values, refer to the parse_args() function in utils.py. To see an example of how to run the training process with your desired arguments, you can use the `main.py` file.
 >```python
 >python nodepert/main.py -network fc -dataset mnist -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
 >```
@@ -100,7 +100,7 @@ You have multiple options to customize the training process, such as adjusting t
 
 #### Detailed experiments
 
-Inside the experiments folder, you'll find code and in-depth analysis of various experiments utilizing node perturbation. These experiments can be classified into the following types:
+Inside the experiments folder, you'll find example code for a variety of experiments utilizing node perturbation, for example:
 
 1. **Scaling with network depth and width**. See `architecture_scaling.py`
 2. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `grad_dynamics.py`
