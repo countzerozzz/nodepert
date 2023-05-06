@@ -1,4 +1,5 @@
-# jax 
+# We recommend installing jax and jaxlib directly. See README.md
+# jax
 # jaxlib
 tensorflow-cpu
 tensorflow-datasets

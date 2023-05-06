@@ -17,4 +17,4 @@ tiny-imagenet-tfds-master.zip
 venv/*
 figs/*
 experiments/cluster_scripts/janelia/
-example.png
+example_training.png
