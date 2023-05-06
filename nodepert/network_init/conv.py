@@ -1,6 +1,6 @@
 import jax.random as random
 import numpy as np
-import nodepert.build_network.fc as fc
+import nodepert.network_init.fc as fc
 import nodepert.model.conv as conv
 
 # helper function to init conv layer:
