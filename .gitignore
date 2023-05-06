@@ -15,4 +15,4 @@ tiny-imagenet-tfds-master.zip
 .ipynb_checkpoints
 *.egg-info
 venv/*
-sample_training.png
+figs/*
