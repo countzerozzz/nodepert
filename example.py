@@ -30,5 +30,5 @@ ax.set_xlabel("epochs", fontsize=16)
 ax.set_ylabel("test accuracy", fontsize=16)
 ax.legend(title="Legend", title_fontsize=14, fontsize=12)
 
-plt.savefig("sample_training.png", dpi=300, bbox_inches="tight")
-print("saved sample_training.png!")
+plt.savefig("example_training.png", dpi=300, bbox_inches="tight")
+print("saved example_training.png!")

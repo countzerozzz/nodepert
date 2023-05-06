@@ -16,3 +16,4 @@ tiny-imagenet-tfds-master.zip
 *.egg-info
 venv/*
 figs/*
+example.png
