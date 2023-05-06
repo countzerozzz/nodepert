@@ -47,22 +47,27 @@ match dataset.lower():
 randkey, subkey = random.split(randkey)
 match network:
     case "fc":
-        import nodepert.build_network.fc as fc
+        import nodepert.network_init.fc as fc
         params, forward, noisyforward = fc.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
     case "linfc":
-        import nodepert.build_network.linfc as linfc
+        import nodepert.network_init.linfc as linfc
         params, forward, noisyforward = linfc.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
     case "conv":
-        import nodepert.build_network.conv as conv
+        import nodepert.network_init.conv as conv
+        params, forward, noisyforward = conv.init(subkey, args, data)
+        optim.forward = forward
+        optim.noisyforward = noisyforward
+    case "conv-large":
+        import nodepert.network_init.conv_large as conv
         params, forward, noisyforward = conv.init(subkey, args, data)
         optim.forward = forward
         optim.noisyforward = noisyforward
     case _ :
-        raise ValueError(f"chose a valid network (fc, linfc, conv), {network} not supported")
+        raise ValueError(f"chose a valid network (fc, linfc, conv, conv-large), {network} not supported")
 
 # load the optimizer:
 if update_rule == "np":
