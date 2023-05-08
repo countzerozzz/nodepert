@@ -111,7 +111,7 @@ Inside the experiments folder, you'll find example code for a variety of experim
 And for all you neural network aficionados, take a gander at ```model/conv.py``` or ```model/fc.py```. The exact nodepert update can be found in ```optim.py```.
 
 #### Running on a compute cluster
-To maximize your resources and make the most of your multinode setup during experiments, consider using the job_id argument. It allows you to run multiple configurations and seeds of your experiments simultaneously, which is especially useful when working with GPU clusters that have resource allocation managers like SLURM.
+To maximize your resources and make the most of your multinode setup, consider using the job_id argument. It allows you to run multiple configurations and seeds of your experiments simultaneously, which is useful for GPU clusters that have resource allocation managers like SLURM.
 ```bash
 bash slurm-scripts/meta_jobscript.sh fc-test
 ```
