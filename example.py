@@ -8,7 +8,7 @@ def main():
     run_file = "nodepert/main.py"
     config_str = "'-update_rule', 'np', \
                   '-lr', '0.01', \
-                  '-num_epochs', '2', \
+                  '-num_epochs', '10', \
                   '-log_expdata', 'True'"
 
     print("training fc network on mnist with NP")
@@ -19,7 +19,7 @@ def main():
 
     config_str = "'-update_rule', 'sgd', \
                   '-lr', '0.01', \
-                  '-num_epochs', '2', \
+                  '-num_epochs', '10', \
                   '-log_expdata', 'True'"
 
     print("training fc network on mnist with SGD")
