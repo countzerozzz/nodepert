@@ -50,6 +50,7 @@ def parse_args():
     ap.add_argument("-hl_size", type=int, default=500)
     ap.add_argument("-num_epochs", type=int, default=4)
     ap.add_argument("-wd", type=float, default=0)
+    ap.add_argument("-exp_name", type=str, default="npexp")
     ap.add_argument(
         "-log_expdata", type=str_to_bool, nargs="?", const=True, default=False
     )
