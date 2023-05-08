@@ -4,22 +4,34 @@ import matplotlib.pyplot as plt
 
 
 def main():
+
     run_file = "nodepert/main.py"
-    config_str = "'-update_rule', 'np', '-lr', '0.01', '-num_epochs', '10', '-log_expdata', 'True'"
+    config_str = "'-update_rule', 'np', \
+                  '-lr', '0.01', \
+                  '-num_epochs', '2', \
+                  '-log_expdata', 'True'"
 
     print("training fc network on mnist with NP")
-    code = f"import sys; sys.argv = ['{run_file}'," + config_str + f"]; exec(open('{run_file}').read())"
+    code = f"import sys; \
+             sys.argv = ['{run_file}', {config_str}]; \
+             exec(open('{run_file}').read())"
     exec(code)
 
-    config_str = "'-update_rule', 'sgd', '-lr', '0.01', '-num_epochs', '10'"
+    config_str = "'-update_rule', 'sgd', \
+                  '-lr', '0.01', \
+                  '-num_epochs', '2', \
+                  '-log_expdata', 'True'"
 
     print("training fc network on mnist with SGD")
-    code = f"import sys; sys.argv = ['{run_file}'," + config_str + f"]; exec(open('{run_file}').read())"
+    code = f"import sys; \
+             sys.argv = ['{run_file}', {config_str}]; \
+             exec(open('{run_file}').read())"
     exec(code)
 
     print("generating plots...")
+
     # load the experiment logs into a dataframe
-    df = pd.read_csv("explogs/fc-expdata.csv")
+    df = pd.read_csv("explogs/npexp/fc.csv")
 
     sns.set(style="whitegrid")
 

@@ -90,11 +90,11 @@ for arg in vars(args):
     if "conv" in network and (arg == "hl_size" or arg == "n_hl"):
         continue
     df[f"{arg}"] = getattr(args, arg)
-# save the results of our experiment:
 
 pd.set_option("display.max_columns", None)
 print(df.tail(5))
 
+# save the results of our experiment:
 if args.log_expdata:
     logdata_path = Path(path) / f"{args.exp_name}"
     logdata_path.mkdir(parents=True, exist_ok=True)
