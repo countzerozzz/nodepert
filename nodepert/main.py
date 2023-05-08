@@ -87,19 +87,19 @@ df = pd.DataFrame.from_dict(expdata)
 
 # store meta data about the experiment:
 for arg in vars(args):
-    if network == "conv" and (arg == "hl_size" or arg == "n_hl"):
+    if "conv" in network and (arg == "hl_size" or arg == "n_hl"):
         continue
     df[f"{arg}"] = getattr(args, arg)
 # save the results of our experiment:
 
 pd.set_option("display.max_columns", None)
-print(df.head(5))
+print(df.tail(5))
 
 if args.log_expdata:
-    logdata_path = Path(path)
+    logdata_path = Path(path) / f"{args.exp_name}"
     logdata_path.mkdir(parents=True, exist_ok=True)
 
-    csv_file = logdata_path / f"{network}-expdata.csv"
+    csv_file = logdata_path / f"{args.network}.csv"
     write_header = not csv_file.exists()
 
     df.to_csv(csv_file, mode="a", header=write_header)
