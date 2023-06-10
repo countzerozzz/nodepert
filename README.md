@@ -6,7 +6,7 @@
 
 [**Setup**](#setup)
 | [**Running NodePert**](#running-node-perturbation)
-| [**Paper Experiments**](figs/running-paper-exps.md)
+| [**Paper**]()
 
 ## Overview
 What algorithms underlie goal directed learning in the brain? Backpropagation is the standard **credit assignment algorithm** used in machine learning research, but it's considered biologically implausible. Recently, **biologically plausible** alternatives, such as feedback alignment, target propagation, and perturbation algorithms, have been explored. The node perturbation algorithm applies random perturbations to neuron activity, monitors performance, and adjusts weights accordingly. This approach is simple and may be utilized by the brain. 
@@ -88,35 +88,35 @@ Run into any JAX installation snafus? Check out their [**official install guide*
 
 ## Running Node Perturbation
 
-You can customize the training process by adjusting the number of hidden layers (**n_hl**), hidden layer size (**hl_size**), weight decay (**wd**), update rule, dataset, network, and logging (log_expdata). For a full list of parameters and default values, refer to the parse_args() function in utils.py. To see an example of how to run the training process with your desired arguments, you can use the `main.py` file.
+You can customize the entire training process by passing different arguments to a single file, `main.py`. An example of argparse parameters include:
+
+- **dataset**: `mnist`, `fmnist`, `cifar10` 
+- **network**: `fc`, `linfc`, `conv`, `conv-large`
+- **update rule**: `np`, `sgd`
+
+For a full list of parameters and default values, refer to the `parse_args()` function in `utils.py`. To see an example of how to run the training process with your desired arguments, you can use the `main.py` file.
 >```python
 >python nodepert/main.py -network fc -dataset mnist -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
 >```
 >
->For running a larger convolutional network:
->```python 
->python experiments/conv/all_cnn_net.py -dataset mnist -log_expdata True -n_hl 2 -hl_size 500 -lr 5e-3 -batchsize 100 -num_epochs 10 -update_rule np
->```
 
 #### Detailed experiments
 
 Inside the experiments folder, you'll find example code for a variety of experiments utilizing node perturbation, for example:
 
-1. **Scaling with network depth and width**. See `architecture_scaling.py`
-2. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `grad_dynamics.py`
-3. **Relative change in the loss with different learning rates**. See `linesearch.py`, `linesearch_utils.py`
-4. **Adam-like update for NP gradients**. See `adam_update.py`
-5. **Visualizing the loss landscape**. See `loss_landscape.py`
+1. **Understanding network crashes during training**. See `crash-dynamics.py`, `crash_timing.py`, `grad_dynamics.py`
+2. **Relative change in the loss with different learning rates**. See `linesearch.py`, `linesearch_utils.py`
+3. **Adam-like update for NP gradients**. See `adam_update.py`
+4. **Visualizing the loss landscape**. See `loss_landscape.py`
 
 And for all you neural network aficionados, take a gander at ```model/conv.py``` or ```model/fc.py```. The exact nodepert update can be found in ```optim.py```.
 
 #### Running on a compute cluster
-To maximize your resources and make the most of your multinode setup, consider using the job_id argument. It allows you to run multiple configurations and seeds of your experiments simultaneously, which is useful for GPU clusters that have resource allocation managers like SLURM.
-```bash
-bash slurm-scripts/meta_jobscript.sh fc-test
-```
+You can directly run multiple configurations with ease by simply specifying values in a dictionary in `cluster_scripts/scheduler.py`. It schedules *all* combinations of hyperparameters specified in the dictionary, along with multiple seeds of your experiments simultaneously. This is extremely useful for GPU clusters that have resource allocation managers like SLURM.
 
-[**Running Experiments from the Paper**](figs/running-paper-exps.md)
+```bash
+bash slurm-scripts/scheduler.py
+```
 
 ## Citing
 If you use this code in your own work, please use the following bibtex entry:
