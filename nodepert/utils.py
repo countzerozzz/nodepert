@@ -78,10 +78,7 @@ def get_params_count(params):
             count += get_params_count(elem)
 
         else:
-            num=1
-            for ii in range(len(elem.shape)):
-                num *= int(np.asarray(elem).shape[ii])
-            count += num
+            count += jnp.size(elem)
     return count
 
 def npvec_to_params(npvec, layer_sizes):
