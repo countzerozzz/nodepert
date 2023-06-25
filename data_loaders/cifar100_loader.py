@@ -26,7 +26,7 @@ num_pixels = height * width * channels
 
 # select which split of the data to use:
 trainsplit = "train[:100%]"
-testsplit = "validation[:100%]"
+testsplit = "test[:100%]"
 
 train_data = tfds.load(
     name="cifar100",
@@ -65,33 +65,16 @@ def prepare_data(x, y):
     return x, y
 
 
-def get_rawdata_batches(batchsize=100, split="train[:100%]"):
+def get_rawdata_batches(batchsize=100, split="train[:100%]", return_tfdata=False):
     # as_supervised=True gives us the (image, label) as a tuple instead of a dict
     ds = tfds.load(
         name="cifar100", split=split, as_supervised=True, data_dir=data_dir
     )
-
     # you can build up an arbitrary tf.data input pipeline
     ds = ds.batch(batchsize).prefetch(1)
 
     # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
-    return tfds.as_numpy(ds)
+    if not return_tfdata:
+        ds = tfds.as_numpy(ds)
 
-
-# NOTE: from TFDS 4.0.0, tfds.as_numpy returns a reusable iterator instead of an iterable; see: https://github.com/tensorflow/datasets/issues/2270
-#  previous function; incompatible with TFDS 4.0.0:
-# def get_data_batches(batchsize=100, split="train[:100%]"):
-#     ds = get_rawdata_batches(batchsize, split)
-
-#     # at the end of the dataset a 'StopIteration' exception is raised
-#     try:
-#         # keep getting batches until you get to the end.
-
-#         while True:
-#             x, y = next(iter(ds))
-#             x, y = prepare_data(x, y)
-#             yield (x, y)
-
-#     except:
-#         print("End of dataset")
-#         pass
+    return ds
