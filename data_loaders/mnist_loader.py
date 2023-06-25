@@ -2,6 +2,7 @@ import numpy as np
 import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
+import data_loaders.data_utils as utils
 
 data_dir = "data/tfds"
 
@@ -38,21 +39,11 @@ data_mean = train_images.mean()
 data_maxval = train_images.max()
 data_stddev = train_images.std()
 
-# create a one-hot encoding of x of size k:
-def one_hot(x, k, dtype=np.float32):
-    return jnp.array(x[:, None] == jnp.arange(k), dtype)
-
-
-# standadize data to have 0 mean and unit standard deviation
-def standardize_data(x, data_mean, data_stddev):
-    return (x - data_mean) / data_stddev
-
-
 def prepare_data(x, y):
-    x = standardize_data(x, data_mean, data_stddev)
+    x = utils.standardize_data(x, data_mean, data_stddev)
     x = np.reshape(x, (len(x), num_pixels))
     x = jnp.asarray(x)
-    y = one_hot(y, num_classes)
+    y = utils.one_hot(y, num_classes)
     return x, y
 
 

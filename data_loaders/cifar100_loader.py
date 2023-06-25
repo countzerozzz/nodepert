@@ -3,6 +3,7 @@ import numpy as np
 import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
+import data_loaders.data_utils as utils
 
 data_dir = "data/tfds"
 
@@ -41,27 +42,31 @@ train_data = tfds.as_numpy(train_data)
 train_images = train_data["image"]
 num_train = len(train_images)
 
+# compute essential statistics, per channel for the dataset on the full trainset:
+chmean = np.mean(train_images, axis=(0, 1, 2))
+chstd = np.std(train_images, axis=(0, 1, 2), keepdims=True)
+
 # compute essential statistics for the dataset on the full trainset:
 data_minval = train_images.min()
 data_mean = train_images.mean()
 data_maxval = train_images.max()
 data_stddev = train_images.std()
 
-# create a one-hot encoding of x of size k:
-def one_hot(x, k, dtype=np.float32):
-    return jnp.array(x[:, None] == jnp.arange(k), dtype)
 
+def prepare_data(x, y, preprocess="standardize"):
+    if preprocess.lower() == "zca":
+        x = utils.zca_whiten_images(x, num_pixels, data_minval, data_maxval)
 
-# standadize data to have 0 mean and unit standard deviation
-def standardize_data(x, data_mean, data_stddev):
-    return (x - data_mean) / data_stddev
+    elif preprocess.lower() == "normalize":
+        x = utils.normalize_data(x, data_minval, data_maxval)
 
+    else:
+        # passed x should be of the form [NHWC]
+        x = utils.channel_standardize_data(x, chmean, chstd)
 
-def prepare_data(x, y):
-    x = standardize_data(x, data_mean, data_stddev)
     x = np.reshape(x, (len(x), num_pixels))
     x = jnp.asarray(x)
-    y = one_hot(y, num_classes)
+    y = utils.one_hot(y, num_classes)
     return x, y
 
 

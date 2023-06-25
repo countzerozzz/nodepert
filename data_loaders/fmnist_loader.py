@@ -2,6 +2,7 @@ import numpy as np
 import jax.numpy as jnp
 
 import tensorflow_datasets as tfds
+import data_loaders.data_utils as utils
 
 data_dir = "data/tfds"
 
@@ -46,25 +47,15 @@ data_mean = train_images.mean()
 data_maxval = train_images.max()
 data_stddev = train_images.std()
 
-# create a one-hot encoding of x of size k:
-def one_hot(x, k, dtype=np.float32):
-    return jnp.array(x[:, None] == jnp.arange(k), dtype)
-
-
-# standadize data to have 0 mean and unit standard deviation
-def standardize_data(x, data_mean, data_stddev):
-    return (x - data_mean) / data_stddev
-
-
 def prepare_data(x, y):
-    x = standardize_data(x, data_mean, data_stddev)
+    x = utils.standardize_data(x, data_mean, data_stddev)
     x = np.reshape(x, (len(x), num_pixels))
     x = jnp.asarray(x)
-    y = one_hot(y, num_classes)
+    y = utils.one_hot(y, num_classes)
     return x, y
 
 
-def get_rawdata_batches(batchsize=100, split="train[:100%]"):
+def get_rawdata_batches(batchsize=100, split="train[:100%]", return_tfdata=False):
     # as_supervised=True gives us the (image, label) as a tuple instead of a dict
     ds = tfds.load(
         name="fashion_mnist", split=split, as_supervised=True, data_dir=data_dir
@@ -74,23 +65,7 @@ def get_rawdata_batches(batchsize=100, split="train[:100%]"):
     ds = ds.batch(batchsize).prefetch(1)
 
     # tfds.dataset_as_numpy converts the tf.data.Dataset into an iterable of NumPy arrays
-    return tfds.as_numpy(ds)
+    if not return_tfdata:
+        ds = tfds.as_numpy(ds)
 
-
-# NOTE: from TFDS 4.0.0, tfds.as_numpy returns a reusable iterator instead of an iterable; see: https://github.com/tensorflow/datasets/issues/2270
-#  previous function; incompatible with TFDS 4.0.0:
-# def get_data_batches(batchsize=100, split="train[:100%]"):
-#     ds = get_rawdata_batches(batchsize, split)
-
-#     # at the end of the dataset a 'StopIteration' exception is raised
-#     try:
-#         # keep getting batches until you get to the end.
-
-#         while True:
-#             x, y = next(iter(ds))
-#             x, y = prepare_data(x, y)
-#             yield (x, y)
-
-#     except:
-#         print("End of dataset")
-#         pass
+    return ds
